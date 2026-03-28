@@ -68,3 +68,5 @@ tools
 todo.md
 
 config.yaml
+
+.env.*

@@ -2,30 +2,28 @@ package server
 
 import (
 	"fmt"
-	"live-interact-engine/services/api-service/internal/utils/metrics"
 	"log"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
 )
 
-// 错误链追踪 用于开发环境
-func errorHandler() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		ctx.Next()
-		// 处理错误
-		if len(ctx.Errors) > 0 {
-			for _, e := range ctx.Errors {
-				// 记录详细错误日志
-				//log.Printf("Error: %+v\n", e.Err)
+// SetupMiddlewares 设置所有中间件（Tracing + Logging + Metrics）
+func SetupMiddlewares(r *gin.Engine, serviceName string) {
+	// 1. 官方 OTel Tracing 中间件
+	// 自动处理：HTTP Header traceparent 提取、请求属性记录、panic 捕获等
+	r.Use(otelgin.Middleware(serviceName))
 
-				// 使用自定义格式化错误栈
-				printBusinessStack(e.Err)
-			}
-		}
-	}
+	// 2. 错误处理中间件 → 记录异常堆栈
+	r.Use(errorHandler())
+
+	// 3. 优化的指标中间件 → Prometheus
+	r.Use(MetricsMiddleware())
 }
 
 func printBusinessStack(err error) {
@@ -86,88 +84,77 @@ func countBusinessFrames(lines []string) int {
 	return count
 }
 
-// 日志记录中间件
-func logHandler() gin.HandlerFunc {
+// 错误链追踪 用于开发环境
+func errorHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		start := time.Now()
-		path := ctx.FullPath()
-		method := ctx.Request.Method
-
 		ctx.Next()
-
-		statusCode := ctx.Writer.Status()
-		// 忽略404
-		if statusCode == 404 {
-			return
-		}
-
-		cost := time.Since(start).Milliseconds()
-
-		var errMsg string
+		// 处理错误
 		if len(ctx.Errors) > 0 {
-			errMsg = ctx.Errors.String()
-		}
+			for _, e := range ctx.Errors {
+				// 记录详细错误日志
+				//log.Printf("Error: %+v\n", e.Err)
 
-		logger := zap.L().With(
-			zap.String("ip", ctx.ClientIP()),
-			zap.String("method", method),
-			zap.String("path", path),
-			zap.Int("status", statusCode),
-			zap.String("cost", fmt.Sprintf("%dms", cost)),
-		)
-
-		if errMsg == "" {
-			logger.Info("Request handled successfully")
-		} else {
-			logger.Error("Request failed", zap.String("error", errMsg))
+				// 使用自定义格式化错误栈
+				printBusinessStack(e.Err)
+			}
 		}
 	}
 }
 
-// 指标记录中间件
-func metricsHandler(metricsClient metrics.Client) gin.HandlerFunc {
+// MetricsMiddleware 优化的指标中间件
+// Meter 和 Instruments 在闭包外部初始化，确保每次请求只是轻量级的 Add/Record 操作
+func MetricsMiddleware() gin.HandlerFunc {
+	// 在初始化阶段就创建 Meter 和 Counter/Histogram，而不是在每次请求时创建
+	meter := otel.Meter("gin-http-server")
+
+	// HTTP 请求总数计数器
+	requestsTotal, err := meter.Int64Counter(
+		"http.requests.total",
+		metric.WithDescription("Total number of HTTP requests"),
+	)
+	if err != nil {
+		panic(fmt.Sprintf("创建 requestsTotal counter 失败: %v", err))
+	}
+
+	// HTTP 请求耗时直方图
+	requestDuration, err := meter.Float64Histogram(
+		"http.request.duration_seconds",
+		metric.WithDescription("HTTP request duration in seconds"),
+	)
+	if err != nil {
+		panic(fmt.Sprintf("创建 requestDuration histogram 失败: %v", err))
+	}
+
+	// 返回实际处理请求的中间件函数
 	return func(ctx *gin.Context) {
 		start := time.Now()
+
+		// 交给下一个中间件/路由处理请求
 		ctx.Next()
 
-		requestID := ctx.GetString("request_id") // 从某处获取
+		// 请求处理完毕后，记录指标
+		duration := time.Since(start).Seconds()
+		status := ctx.Writer.Status()
+		method := ctx.Request.Method
 
-		duration := time.Since(start).Milliseconds()
-		zap.L().Info("http request",
-			zap.String("request_id", requestID),
-			zap.String("method", ctx.Request.Method),
-			zap.String("path", ctx.Request.URL.Path),
-			zap.Int("status", ctx.Writer.Status()),
-			zap.Int64("duration_ms", duration),
+		// 使用 FullPath 而不是 URL.Path
+		// 例如：/api/user/123 会统一记录为 /api/user/:id
+		// 这样可以避免路径参数导致的"指标爆炸"（cardinality explosion）
+		path := ctx.FullPath()
+		if path == "" {
+			path = "UNKNOWN"
+		}
+
+		// 构建公共属性
+		attrs := metric.WithAttributes(
+			attribute.String("http.method", method),
+			attribute.String("http.route", path),
+			attribute.Int("http.status_code", status),
 		)
 
-		statusCode := ctx.Writer.Status()
-		// 忽略404
-		if statusCode == 404 {
-			return
-		}
-
-		cost := time.Since(start).Seconds()
-		method := ctx.Request.Method
-		path := ctx.FullPath()
-
-		// action 细化
-		action := method + " " + path
-
-		// status 细化
-		var status string
-		switch {
-		case statusCode >= 500:
-			status = "5xx"
-		case statusCode >= 400:
-			status = "4xx"
-		case statusCode >= 300:
-			status = "3xx"
-		default:
-			status = "2xx"
-		}
-
-		metricsClient.Inc(action, status, 1)
-		metricsClient.ObserveDuration(action, status, cost)
+		// 记录指标
+		// 直接使用外部已经初始化好的 requestsTotal 和 requestDuration
+		requestsTotal.Add(ctx.Request.Context(), 1, attrs)
+		requestDuration.Record(ctx.Request.Context(), duration, attrs)
 	}
 }

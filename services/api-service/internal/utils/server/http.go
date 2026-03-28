@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"fmt"
-	"live-interact-engine/services/api-service/internal/utils/metrics"
 	"live-interact-engine/services/api-service/internal/utils/validator"
 	"live-interact-engine/shared/env"
 	"log"
@@ -19,7 +18,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func RunHttpServer(port string, metricsClient metrics.Client, registerRouter func(r *gin.RouterGroup), clearFunc ...func()) {
+func RunHttpServer(port string, registerRouter func(r *gin.RouterGroup), clearFunc ...func()) {
 	if port == "" {
 		panic(errors.New("RunHttpServer中的port无效"))
 	}
@@ -34,7 +33,8 @@ func RunHttpServer(port string, metricsClient metrics.Client, registerRouter fun
 
 	engine := gin.Default()
 
-	engine.Use(errorHandler(), logHandler(), metricsHandler(metricsClient))
+	// 设置所有中间件（Tracing + Logging + Metrics）
+	SetupMiddlewares(engine, "api-service")
 
 	// 注册验证器
 	if err := validator.Init(); err != nil {
@@ -78,7 +78,7 @@ func RunHttpServer(port string, metricsClient metrics.Client, registerRouter fun
 
 	log.Println("正在关闭服务器...")
 
-	if len(clearFunc) > 0 {
+	if len(clearFunc) > 0 && clearFunc[0] != nil {
 		log.Println("正在执行资源清理")
 		clearFunc[0]()
 	}
