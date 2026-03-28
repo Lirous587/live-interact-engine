@@ -17,7 +17,7 @@ func RegisterRoutes(r *gin.RouterGroup) {
 	// 任务相关
 	taskGroup := r.Group("/tasks")
 	{
-		taskGroup.POST("", handler.CreateTaskHandler)
+		taskGroup.GET("", handler.CreateTaskHandler)
 	}
 
 	// 健康检查

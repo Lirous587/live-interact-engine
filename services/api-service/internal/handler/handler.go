@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -17,8 +16,6 @@ import (
 func GetUserHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 	tracer := otel.Tracer("user-service")
-
-	fmt.Printf("%#v\n", ctx)
 
 	// 创建子 span：GetUser 操作
 	ctx, span := tracer.Start(ctx, "GetUser",
@@ -75,7 +72,9 @@ func CreateTaskHandler(c *gin.Context) {
 	)
 	defer span.End()
 
-	zap.L().Info("CreateTask called", zap.String("trace_id", c.GetString("request_id")))
+	traceID := span.SpanContext().TraceID().String()
+
+	zap.L().Info("CreateTask called", zap.String("trace_id", traceID))
 
 	// 子 span 1: 验证请求体
 	ctx, validateSpan := tracer.Start(ctx, "validate.request_body")
@@ -107,15 +106,27 @@ func CreateTaskHandler(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{
 		"task_id":  "task-001",
 		"status":   "created",
-		"trace_id": c.GetString("request_id"),
+		"trace_id": traceID,
 	})
 }
 
 // HealthHandler 健康检查端点
 func HealthHandler(c *gin.Context) {
+	ctx := c.Request.Context()
+	tracer := otel.Tracer("task-service")
+
+	ctx, span := tracer.Start(ctx, "health",
+		trace.WithAttributes(
+			attribute.String("user_id", "user123"),
+		),
+	)
+	defer span.End()
+
+	traceID := span.SpanContext().TraceID().String()
+
 	c.JSON(http.StatusOK, gin.H{
 		"status":   "ok",
 		"service":  "api-service",
-		"trace_id": c.GetString("request_id"),
+		"trace_id": traceID,
 	})
 }
