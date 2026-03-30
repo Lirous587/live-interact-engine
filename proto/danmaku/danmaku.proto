@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package danmaku;
+import "danmaku/types.proto";
+
+option go_package = "shared/proto/danmaku;danmaku";
+
+import "google/protobuf/timestamp.proto";
+
+message Danmaku {
+  string                    id                = 1;
+  string                    room_id           = 2;
+  string                    user_id           = 3;
+  string                    username          = 4;
+  string                    content           = 5;
+  DanmakuType               type              = 6;
+  google.protobuf.Timestamp created_at        = 7;
+  string                    mentioned_user_id = 8;
+}
+
+// 房间实体
+message Room {
+  string                    id            = 1;
+  string                    host_id       = 2;  // 主播id
+  string                    title         = 3;
+  RoomState                 state         = 4;
+  int32                     viewer_count  = 5;
+  google.protobuf.Timestamp created_at    = 6;
+  repeated string           blocked_users = 7; // 禁言用户
+}

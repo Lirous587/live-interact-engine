@@ -70,3 +70,4 @@ todo.md
 config.yaml
 
 .env.*
+services/danmaku-service/guidance.md
