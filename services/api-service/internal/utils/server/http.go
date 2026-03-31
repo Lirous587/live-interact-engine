@@ -33,8 +33,8 @@ func RunHttpServer(port string, registerRouter func(r *gin.RouterGroup), clearFu
 
 	engine := gin.Default()
 
-	// 设置所有中间件（Tracing + Logging + Metrics）
-	SetupMiddlewares(engine, "api-service")
+	// 设置所有中间件（Tracing + Metrics + Logging ）
+	SetupMiddlewares(engine)
 
 	// 注册验证器
 	if err := validator.Init(); err != nil {
