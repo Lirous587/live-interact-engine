@@ -22,12 +22,12 @@ func init() {
 		mode = "dev"
 	}
 
-	envFile := ".env"
-	if mode != "dev" {
-		envFile = ".env." + mode
-	}
+	envFile := ".env." + mode
 
-	godotenv.Load(envFile) // 忽略错误，因为环境变量可能由容器设置
+	// godotenv.Load(envFile) // 忽略错误，因为环境变量可能由容器设置
+	if err := godotenv.Load(envFile); err != nil {
+		// _ = godotenv.Load(".env")
+	}
 }
 
 func main() {
@@ -45,7 +45,8 @@ func main() {
 	}()
 
 	// 启动 Prometheus metrics 服务（独立端口）
-	if err := telemetry.StartMetricsServer("9090"); err != nil {
+	metricPort := env.GetString("METRICS_PORT", "9091")
+	if err := telemetry.StartMetricsServer(metricPort); err != nil {
 		log.Fatalf("Metrics 服务启动失败: %v", err)
 	}
 
