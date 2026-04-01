@@ -41,10 +41,11 @@ func InitOTelProviders(serviceName string) (*OTelProviders, error) {
 	}
 
 	// ===== Tracing Provider (使用 OTLP HTTP) =====
+	endpoint := env.GetString("JAEGER_ENDPOINT", "localhost:4318")
 	otlpExp, err := otlptracehttp.New(
 		context.Background(),
-		otlptracehttp.WithEndpoint("localhost:4318"), // Jaeger OTLP receiver 默认端口
-		otlptracehttp.WithInsecure(),                 // 开发环境使用 HTTP
+		otlptracehttp.WithEndpoint(endpoint),
+		otlptracehttp.WithInsecure(), // 开发环境使用 HTTP
 	)
 	if err != nil {
 		return nil, fmt.Errorf("创建 OTLP exporter 失败: %w", err)
