@@ -26,7 +26,10 @@ func init() {
 
 	// godotenv.Load(envFile) // 忽略错误，因为环境变量可能由容器设置
 	if err := godotenv.Load(envFile); err != nil {
-		// _ = godotenv.Load(".env")
+		if mode == "dev" {
+			log.Panicf("加载 %s 失败, mode:%v, err: %v", envFile, err)
+		}
+		log.Printf("加载 %s 失败, mode:%v, err: %v", envFile, err)
 	}
 }
 

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	stdPrometheus "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
@@ -59,7 +60,9 @@ func InitOTelProviders(serviceName string) (*OTelProviders, error) {
 	otel.SetTracerProvider(tp)
 
 	// ===== Metrics Provider =====
-	prometheusExp, err := prometheus.New()
+	prometheusExp, err := prometheus.New(
+		prometheus.WithRegisterer(stdPrometheus.DefaultRegisterer),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("创建 Prometheus exporter 失败: %w", err)
 	}

@@ -2,6 +2,32 @@ version: "3.8"
 name: live-interact-engine-infra
 
 services:
+  # API Service - 本地应用
+  api-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api-service
+    ports:
+      - "8080:8080" # API 端口
+      - "9100:9100" # Metrics 端口
+    environment:
+      - SERVER_MODE=dev
+      - SERVER_PORT=8080
+      - METRICS_PORT=9100
+      - LOG_LEVEL=debug
+      - TRACE_SAMPLE_RATE=1.0
+      - JAEGER_ENDPOINT=jaeger:4318 
+    depends_on:
+      - jaeger
+    networks:
+      - live-interact
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 3
+
   # Jaeger - 链路追踪
   jaeger:
     image: jaegertracing/all-in-one:1.76.0
@@ -23,7 +49,7 @@ services:
     image: prom/prometheus:latest
     container_name: prometheus
     ports:
-      - "9091:9090" # 映射到 9091（避免和应用的 9100 冲突）
+      - "9091:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
@@ -35,9 +61,27 @@ services:
     depends_on:
       - jaeger
 
+  # Grafana - 数据可视化
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - live-interact
+    depends_on:
+      - prometheus
+
 networks:
   live-interact:
     driver: bridge
 
 volumes:
   prometheus_data:
+  grafana_data:
