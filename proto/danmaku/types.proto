@@ -7,8 +7,8 @@ option go_package = "shared/proto/danmaku;danmaku";
 enum DanmakuType {
   DANMAKU_TYPE_NORMAL = 0;
   DANMAKU_TYPE_SUPER  = 1;
-  DANMAKU_TYPE_GIFT   = 3;
-  DANMAKU_TYPE_PINNED = 4;
+  DANMAKU_TYPE_GIFT   = 2;
+  DANMAKU_TYPE_PINNED = 3;
 }
 
 enum RoomState {
