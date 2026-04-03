@@ -24,9 +24,15 @@ message SendDanmakuResponse {
 // SubscribeDanmaku 请求（用于流式订阅）
 message SubscribeDanmakuRequest {
   string room_id = 1;
+  string user_id = 2;
 }
 
 // SubscribeDanmaku 响应（流式返回）
 message SubscribeDanmakuResponse {
   Danmaku danmaku = 1;
+}
+
+service DanmakuService {
+  rpc SendDanmaku(SendDanmakuRequest) returns (SendDanmakuResponse);
+  rpc SubscribeDanmaku(SubscribeDanmakuRequest) returns (stream SubscribeDanmakuResponse);
 }

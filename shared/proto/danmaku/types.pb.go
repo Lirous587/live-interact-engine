@@ -26,8 +26,8 @@ type DanmakuType int32
 const (
 	DanmakuType_DANMAKU_TYPE_NORMAL DanmakuType = 0
 	DanmakuType_DANMAKU_TYPE_SUPER  DanmakuType = 1
-	DanmakuType_DANMAKU_TYPE_GIFT   DanmakuType = 3
-	DanmakuType_DANMAKU_TYPE_PINNED DanmakuType = 4
+	DanmakuType_DANMAKU_TYPE_GIFT   DanmakuType = 2
+	DanmakuType_DANMAKU_TYPE_PINNED DanmakuType = 3
 )
 
 // Enum value maps for DanmakuType.
@@ -35,14 +35,14 @@ var (
 	DanmakuType_name = map[int32]string{
 		0: "DANMAKU_TYPE_NORMAL",
 		1: "DANMAKU_TYPE_SUPER",
-		3: "DANMAKU_TYPE_GIFT",
-		4: "DANMAKU_TYPE_PINNED",
+		2: "DANMAKU_TYPE_GIFT",
+		3: "DANMAKU_TYPE_PINNED",
 	}
 	DanmakuType_value = map[string]int32{
 		"DANMAKU_TYPE_NORMAL": 0,
 		"DANMAKU_TYPE_SUPER":  1,
-		"DANMAKU_TYPE_GIFT":   3,
-		"DANMAKU_TYPE_PINNED": 4,
+		"DANMAKU_TYPE_GIFT":   2,
+		"DANMAKU_TYPE_PINNED": 3,
 	}
 )
 
@@ -133,8 +133,8 @@ const file_danmaku_types_proto_rawDesc = "" +
 	"\vDanmakuType\x12\x17\n" +
 	"\x13DANMAKU_TYPE_NORMAL\x10\x00\x12\x16\n" +
 	"\x12DANMAKU_TYPE_SUPER\x10\x01\x12\x15\n" +
-	"\x11DANMAKU_TYPE_GIFT\x10\x03\x12\x17\n" +
-	"\x13DANMAKU_TYPE_PINNED\x10\x04*l\n" +
+	"\x11DANMAKU_TYPE_GIFT\x10\x02\x12\x17\n" +
+	"\x13DANMAKU_TYPE_PINNED\x10\x03*l\n" +
 	"\tRoomState\x12\x1a\n" +
 	"\x16ROOM_STATE_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11ROOM_STATE_ACTIVE\x10\x01\x12\x15\n" +

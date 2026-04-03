@@ -9,18 +9,27 @@ GO_OUT := .
 generate-proto:
 	protoc --proto_path=$(PROTO_DIR) --go_out=$(GO_OUT) --go-grpc_out=$(GO_OUT) $(PROTO_SRC)
 
-.PHONY: build-api-service
-build-api-service:
+.PHONY: build-services
+build-services:
 	powershell -ExecutionPolicy Bypass -File build.ps1
 
-# 构建 Docker 镜像
+# 构建 api-service Docker 镜像
+.PHONY: docker-build-api
+docker-build-api: build-services
+	docker build -t api-service:latest -f Dockerfile .
+
+# 构建 danmaku-service Docker 镜像
+.PHONY: docker-build-danmaku
+docker-build-danmaku: build-services
+	docker build -t danmaku-service:latest -f Dockerfile-danmaku .
+
+# 构建所有 Docker 镜像
 .PHONY: docker-build
-docker-build: build-api-service
-	docker build -t api-service:latest .
+docker-build: docker-build-api docker-build-danmaku
 
 # 启动 docker-compose
 .PHONY: docker-up
-docker-up: docker-build
+docker-up: 
 	docker-compose up -d
 
 # 停止 docker-compose

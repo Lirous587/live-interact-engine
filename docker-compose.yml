@@ -12,21 +12,54 @@ services:
       - "8080:8080" # API 端口
       - "9100:9100" # Metrics 端口
     environment:
+      # 服务配置
       - SERVER_MODE=dev
       - SERVER_PORT=8080
-      - METRICS_PORT=9100
+      - SERVER_ALLOW_ORIGINS=*
+
+      # 日志配置
       - LOG_LEVEL=debug
+      - LOG_FILENAME=logs/api-service.log
+      - LOG_MAX_SIZE=100
+      - LOG_MAX_AGE=7
+      - LOG_MAX_BACKUPS=5
+
+      # 链路追踪
       - TRACE_SAMPLE_RATE=1.0
-      - JAEGER_ENDPOINT=jaeger:4318 
+      - JAEGER_ENDPOINT=jaeger:4318
+
+      # 指标
+      - METRICS_PORT=9100
+
+      # 依赖服务
+      - DANMAKU_SERVICE_URL=danmaku-service:9093
     depends_on:
       - jaeger
     networks:
       - live-interact
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 3
+
+  danmaku-service:
+    build:
+      context: .
+      dockerfile: Dockerfile-danmaku
+    container_name: danmaku-service
+    ports:
+      - "9093:9093" # API 端口
+    environment:
+      # 服务配置
+      - GRPC_ADDR=:9093
+
+      # 日志配置
+      - LOG_LEVEL=debug
+      - LOG_FILENAME=logs/danmaku-service.log
+      - LOG_MAX_SIZE=100
+      - LOG_MAX_AGE=7
+      - LOG_MAX_BACKUPS=5
+
+      # 链路追踪（如果需要）
+      - JAEGER_ENDPOINT=jaeger:4318
+    networks:
+      - live-interact
 
   # Jaeger - 链路追踪
   jaeger:

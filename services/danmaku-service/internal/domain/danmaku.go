@@ -29,5 +29,5 @@ type DanmakuSubscriber chan *DanmakuModel
 
 type DanmakuService interface {
 	SendDanmaku(ctx context.Context, danmaku *DanmakuModel) (*DanmakuModel, error)
-	SubscribeDanmaku(ctx context.Context, roomID string) (<-chan *DanmakuModel, error)
+	SubscribeDanmaku(ctx context.Context, roomID, userID string) (<-chan *DanmakuModel, error)
 }

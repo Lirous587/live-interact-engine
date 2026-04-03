@@ -161,6 +161,7 @@ func (x *SendDanmakuResponse) GetMessage() string {
 type SubscribeDanmakuRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RoomId        string                 `protobuf:"bytes,1,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -198,6 +199,13 @@ func (*SubscribeDanmakuRequest) Descriptor() ([]byte, []int) {
 func (x *SubscribeDanmakuRequest) GetRoomId() string {
 	if x != nil {
 		return x.RoomId
+	}
+	return ""
+}
+
+func (x *SubscribeDanmakuRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
 	}
 	return ""
 }
@@ -261,11 +269,15 @@ const file_danmaku_service_proto_rawDesc = "" +
 	"\x11mentioned_user_id\x18\x06 \x01(\tR\x0fmentionedUserId\"[\n" +
 	"\x13SendDanmakuResponse\x12*\n" +
 	"\adanmaku\x18\x01 \x01(\v2\x10.danmaku.DanmakuR\adanmaku\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"2\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"K\n" +
 	"\x17SubscribeDanmakuRequest\x12\x17\n" +
-	"\aroom_id\x18\x01 \x01(\tR\x06roomId\"F\n" +
+	"\aroom_id\x18\x01 \x01(\tR\x06roomId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\"F\n" +
 	"\x18SubscribeDanmakuResponse\x12*\n" +
-	"\adanmaku\x18\x01 \x01(\v2\x10.danmaku.DanmakuR\adanmakuB\x1eZ\x1cshared/proto/danmaku;danmakub\x06proto3"
+	"\adanmaku\x18\x01 \x01(\v2\x10.danmaku.DanmakuR\adanmaku2\xb5\x01\n" +
+	"\x0eDanmakuService\x12H\n" +
+	"\vSendDanmaku\x12\x1b.danmaku.SendDanmakuRequest\x1a\x1c.danmaku.SendDanmakuResponse\x12Y\n" +
+	"\x10SubscribeDanmaku\x12 .danmaku.SubscribeDanmakuRequest\x1a!.danmaku.SubscribeDanmakuResponse0\x01B\x1eZ\x1cshared/proto/danmaku;danmakub\x06proto3"
 
 var (
 	file_danmaku_service_proto_rawDescOnce sync.Once
@@ -292,8 +304,12 @@ var file_danmaku_service_proto_depIdxs = []int32{
 	4, // 0: danmaku.SendDanmakuRequest.type:type_name -> danmaku.DanmakuType
 	5, // 1: danmaku.SendDanmakuResponse.danmaku:type_name -> danmaku.Danmaku
 	5, // 2: danmaku.SubscribeDanmakuResponse.danmaku:type_name -> danmaku.Danmaku
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
+	0, // 3: danmaku.DanmakuService.SendDanmaku:input_type -> danmaku.SendDanmakuRequest
+	2, // 4: danmaku.DanmakuService.SubscribeDanmaku:input_type -> danmaku.SubscribeDanmakuRequest
+	1, // 5: danmaku.DanmakuService.SendDanmaku:output_type -> danmaku.SendDanmakuResponse
+	3, // 6: danmaku.DanmakuService.SubscribeDanmaku:output_type -> danmaku.SubscribeDanmakuResponse
+	5, // [5:7] is the sub-list for method output_type
+	3, // [3:5] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
 	3, // [3:3] is the sub-list for extension extendee
 	0, // [0:3] is the sub-list for field type_name
@@ -314,7 +330,7 @@ func file_danmaku_service_proto_init() {
 			NumEnums:      0,
 			NumMessages:   4,
 			NumExtensions: 0,
-			NumServices:   0,
+			NumServices:   1,
 		},
 		GoTypes:           file_danmaku_service_proto_goTypes,
 		DependencyIndexes: file_danmaku_service_proto_depIdxs,

@@ -31,4 +31,6 @@ type SubscriptionManager interface {
 
 	// 获取某个房间的所有订阅者
 	GetSubscribers(roomID string) []*Subscriber
+
+	Close() error
 }

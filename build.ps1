@@ -1,9 +1,6 @@
-# 构建 api-service 可执行文件（Linux 格式，用于 Docker）
-param(
-    [string]$Output = "build/api-service"
-)
+# 构建所有服务的可执行文件（Linux 格式，用于 Docker）
 
-Write-Host "Building api-service for Linux..." -ForegroundColor Green
+Write-Host "Building services for Linux..." -ForegroundColor Green
 
 # 创建 build 目录
 if (-not (Test-Path "build")) {
@@ -15,11 +12,30 @@ $env:CGO_ENABLED = "0"
 $env:GOOS = "linux"
 $env:GOARCH = "amd64"
 
-go build -o $Output ./services/api-service/cmd/main.go
+# 要构建的服务列表
+$services = @(
+    @{ "name" = "api-service"; "path" = "./services/api-service/cmd/main.go"; "output" = "build/api-service" },
+    @{ "name" = "danmaku-service"; "path" = "./services/danmaku-service/cmd/main.go"; "output" = "build/danmaku-service" }
+)
 
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "Build successful: $Output (Linux binary)" -ForegroundColor Green
+# 逐个构建服务
+$buildSuccess = $true
+foreach ($service in $services) {
+    Write-Host "Building $($service.name)..." -ForegroundColor Cyan
+    
+    go build -o $($service.output) $($service.path)
+    
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "Build successful: $($service.output)" -ForegroundColor Green
+    } else {
+        Write-Host "Build failed: $($service.name)" -ForegroundColor Red
+        $buildSuccess = $false
+    }
+}
+
+if ($buildSuccess) {
+    Write-Host "`nAll services built successfully!" -ForegroundColor Green
 } else {
-    Write-Host "Build failed!" -ForegroundColor Red
+    Write-Host "`nBuild failed!" -ForegroundColor Red
     exit 1
 }

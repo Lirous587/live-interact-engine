@@ -126,3 +126,16 @@ func (m *MemoryManager) GetSubscribers(roomID string) []*domain.Subscriber {
 	copy(result, subs)
 	return result
 }
+
+func (m *MemoryManager) Close() error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	for _, subs := range m.subscribers {
+		for _, sub := range subs {
+			close(sub.Ch)
+		}
+	}
+
+	m.subscribers = make(map[string][]*domain.Subscriber)
+	return nil
+}
