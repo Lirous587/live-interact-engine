@@ -60,6 +60,6 @@ func main() {
 	server.RunHttpServer(
 		port,
 		router.RegisterRoutes,
-		nil,
+		router.CloseClients,
 	)
 }
