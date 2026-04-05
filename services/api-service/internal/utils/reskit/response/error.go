@@ -92,7 +92,7 @@ func MapToHTTP(err error) HTTPError {
 // mapTypeToHTTPStatus 映射错误类型到HTTP状态码
 func mapTypeToHTTPStatus(errorType codes.ErrorType) int {
 	switch errorType {
-	case codes.ErrorTypeValidation:
+	case codes.ErrorTypeBadRequest:
 		return http.StatusBadRequest
 	case codes.ErrorTypeNotFound:
 		return http.StatusNotFound
@@ -106,7 +106,7 @@ func mapTypeToHTTPStatus(errorType codes.ErrorType) int {
 		return http.StatusForbidden
 	case codes.ErrorTypeRateLimit:
 		return http.StatusTooManyRequests
-	case codes.ErrorTypeExternal:
+	case codes.ErrorTypeBadGateway:
 		return http.StatusBadGateway
 	case codes.ErrorTypeCacheMiss:
 		// cache miss 对外通常表现为服务暂不可用

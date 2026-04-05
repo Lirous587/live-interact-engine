@@ -3,18 +3,18 @@ package codes
 type ErrorType string
 
 const (
-	ErrorTypeValidation    ErrorType = "VALIDATION"
+	ErrorTypeBadRequest    ErrorType = "BAD_REQUEST"
 	ErrorTypeNotFound      ErrorType = "NOT_FOUND"
 	ErrorTypeAlreadyExists ErrorType = "ALREADY_EXISTS"
 	ErrorTypeUnauthorized  ErrorType = "UNAUTHORIZED"
 	ErrorTypeForbidden     ErrorType = "FORBIDDEN"
 	ErrorTypeInternal      ErrorType = "INTERNAL"
-	ErrorTypeExternal      ErrorType = "EXTERNAL"
-	ErrorTypeRateLimit     ErrorType = "RATE_LIMIT"
-	ErrorTypeCacheMiss     ErrorType = "CACHE_MISS"
-	ErrorTypeConflict      ErrorType = "CONFLICT"
+	// ErrorTypeBadGateway 通常用于第三方API调用错误
+	ErrorTypeBadGateway ErrorType = "EXTERNAL"
+	ErrorTypeRateLimit  ErrorType = "RATE_LIMIT"
+	ErrorTypeCacheMiss  ErrorType = "CACHE_MISS"
+	ErrorTypeConflict   ErrorType = "CONFLICT"
 )
-
 
 type ErrCode struct {
 	Msg  string

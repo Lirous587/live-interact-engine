@@ -10,11 +10,7 @@ const (
 	UserErrorStart = 1000
 	UserErrorEnd   = 1199
 
-	// 验证码模块 (1200-1399)
-	CaptchaErrorStart = 1200
-	CaptchaErrorEnd   = 1399
-
-	// 图库模块 (1400-1599)
-	ImgErrorStart = 1400
-	ImgErrorEnd   = 1599
+	// 弹幕模块 (1200-1399)
+	UserErrorStart = 1200
+	UserErrorEnd   = 1399
 )
