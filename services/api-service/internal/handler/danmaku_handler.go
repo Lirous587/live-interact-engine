@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	client "live-interact-engine/services/api-service/internal/grpc_clients"
 	pb "live-interact-engine/shared/proto/danmaku"
 	"net/http"
@@ -37,8 +36,9 @@ func (h *DanmakuHandler) SendDanmaku(c *gin.Context) {
 	}
 
 	// 调用 danmaku-service
+	// 使用 c.Request.Context() 来传播链路追踪信息
 	resp, err := h.danmakuClient.SendDanmaku(
-		context.Background(),
+		c.Request.Context(),
 		req.RoomID,
 		req.UserID,
 		req.Username,
