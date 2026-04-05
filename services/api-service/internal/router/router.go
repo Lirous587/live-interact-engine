@@ -45,12 +45,11 @@ func registerDanmuka(r *gin.RouterGroup) {
 	r.GET("/danmaku/subscribe", danmakuHandler.SubscribeDanmaku)
 }
 
-func CloseClients() error {
+func CloseClients() {
 	for _, client := range clients {
 		if err := client.Close(); err != nil {
 			log.Printf("关闭客户端失败: %v", err)
 			// 可以继续关闭其他客户端，或者立即返回错误
 		}
 	}
-	return nil
 }

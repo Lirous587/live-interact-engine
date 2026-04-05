@@ -3,11 +3,13 @@ package handler
 import (
 	"errors"
 	client "live-interact-engine/services/api-service/internal/grpc_clients"
-	"live-interact-engine/services/api-service/internal/utils/reskit/codes"
+	"live-interact-engine/services/api-service/internal/utils/reskit/apicodes"
 	"live-interact-engine/services/api-service/internal/utils/reskit/response"
 	pb "live-interact-engine/shared/proto/danmaku"
 	"net/http"
+	"time"
 
+	"github.com/gin-contrib/sse"
 	"github.com/gin-gonic/gin"
 )
 
@@ -57,13 +59,15 @@ func (h *DanmakuHandler) SendDanmaku(ctx *gin.Context) {
 	response.Success(ctx, resp.Danmaku)
 }
 
-// SubscribeDanmaku WebSocket 订阅弹幕
+// SubscribeDanmaku SSE 订阅弹幕
 func (h *DanmakuHandler) SubscribeDanmaku(ctx *gin.Context) {
 	roomID := ctx.Query("room_id")
 	if roomID == "" {
-		response.Error(ctx, codes.ErrDanmakuNeedRoomID)
+		response.Error(ctx, apicodes.ErrDanmakuNeedRoomID)
 		return
 	}
+
+	reqCtx := ctx.Request.Context()
 
 	// 获取 danmaku channel
 	danmakuChan, err := h.danmakuClient.SubscribeDanmaku(ctx.Request.Context(), roomID)
@@ -72,10 +76,11 @@ func (h *DanmakuHandler) SubscribeDanmaku(ctx *gin.Context) {
 		return
 	}
 
-	// 通过 Server-Sent Events (SSE) 推送弹幕
+	// SSE 响应头
 	ctx.Header("Content-Type", "text/event-stream")
 	ctx.Header("Cache-Control", "no-cache")
 	ctx.Header("Connection", "keep-alive")
+	ctx.Header("X-Accel-Buffering", "no")
 
 	flusher, ok := ctx.Writer.(http.Flusher)
 	if !ok {
@@ -83,9 +88,54 @@ func (h *DanmakuHandler) SubscribeDanmaku(ctx *gin.Context) {
 		return
 	}
 
-	for danmaku := range danmakuChan {
-		// 发送 SSE 格式
-		ctx.Writer.WriteString("data: " + danmaku.String() + "\n\n")
-		flusher.Flush()
+	// 动态续期写超时：每次发送前刷新 deadline
+	rc := http.NewResponseController(ctx.Writer)
+	const writeDeadlineWindow = 30 * time.Second
+
+	refreshWriteDeadline := func() {
+		// 若底层不支持 SetWriteDeadline，这里会返回错误，忽略不影响功能
+		_ = rc.SetWriteDeadline(time.Now().Add(writeDeadlineWindow))
+	}
+
+	// 先发送一个注释，尽快建立流
+	refreshWriteDeadline()
+	if _, err := ctx.Writer.WriteString(": connected\n\n"); err != nil {
+		return
+	}
+	flusher.Flush()
+
+	heartbeatTicker := time.NewTicker(10 * time.Second)
+	defer heartbeatTicker.Stop()
+
+	for {
+		select {
+		case <-reqCtx.Done():
+			return
+
+		case <-heartbeatTicker.C:
+			// SSE 注释心跳，维持链路活性
+			refreshWriteDeadline()
+			if _, err := ctx.Writer.WriteString(": ping\n\n"); err != nil {
+				return
+			}
+			flusher.Flush()
+
+		case danmaku, ok := <-danmakuChan:
+			if !ok {
+				return
+			}
+			if danmaku == nil {
+				continue
+			}
+
+			refreshWriteDeadline()
+			if err := sse.Encode(ctx.Writer, sse.Event{
+				Event: "danmaku",
+				Data:  danmaku,
+			}); err != nil {
+				return
+			}
+			flusher.Flush()
+		}
 	}
 }

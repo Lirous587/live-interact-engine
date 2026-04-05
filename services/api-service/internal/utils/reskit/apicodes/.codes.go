@@ -1,4 +1,4 @@
-package codes
+package apicodes
 
 // 错误码范围定义
 const (

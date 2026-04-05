@@ -1,7 +1,7 @@
 package response
 
 import (
-	"live-interact-engine/services/api-service/internal/utils/reskit/codes"
+	"live-interact-engine/services/api-service/internal/utils/reskit/apicodes"
 	"net/http"
 
 	"github.com/pkg/errors"
@@ -35,9 +35,9 @@ func MapToHTTP(err error) HTTPError {
 		}
 	}
 
-	var errCode codes.ErrCode
-	var errCode2 codes.ErrCodeWithDetail
-	var errCode3 codes.ErrCodeWithCause
+	var errCode apicodes.ErrCode
+	var errCode2 apicodes.ErrCodeWithDetail
+	var errCode3 apicodes.ErrCodeWithCause
 
 	ok1 := errors.As(err, &errCode)
 	ok2 := errors.As(err, &errCode2)
@@ -90,25 +90,25 @@ func MapToHTTP(err error) HTTPError {
 }
 
 // mapTypeToHTTPStatus 映射错误类型到HTTP状态码
-func mapTypeToHTTPStatus(errorType codes.ErrorType) int {
+func mapTypeToHTTPStatus(errorType apicodes.ErrorType) int {
 	switch errorType {
-	case codes.ErrorTypeBadRequest:
+	case apicodes.ErrorTypeBadRequest:
 		return http.StatusBadRequest
-	case codes.ErrorTypeNotFound:
+	case apicodes.ErrorTypeNotFound:
 		return http.StatusNotFound
-	case codes.ErrorTypeAlreadyExists:
+	case apicodes.ErrorTypeAlreadyExists:
 		return http.StatusConflict
-	case codes.ErrorTypeConflict:
+	case apicodes.ErrorTypeConflict:
 		return http.StatusConflict
-	case codes.ErrorTypeUnauthorized:
+	case apicodes.ErrorTypeUnauthorized:
 		return http.StatusUnauthorized
-	case codes.ErrorTypeForbidden:
+	case apicodes.ErrorTypeForbidden:
 		return http.StatusForbidden
-	case codes.ErrorTypeRateLimit:
+	case apicodes.ErrorTypeRateLimit:
 		return http.StatusTooManyRequests
-	case codes.ErrorTypeBadGateway:
+	case apicodes.ErrorTypeBadGateway:
 		return http.StatusBadGateway
-	case codes.ErrorTypeCacheMiss:
+	case apicodes.ErrorTypeCacheMiss:
 		// cache miss 对外通常表现为服务暂不可用
 		return http.StatusServiceUnavailable
 	default: // ErrorTypeInternal

@@ -1,4 +1,4 @@
-package codes
+package apicodes
 
 type ErrorType string
 

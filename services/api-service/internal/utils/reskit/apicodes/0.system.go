@@ -1,4 +1,4 @@
-package codes
+package apicodes
 
 // 系统级错误码 (0-999)
 var (
