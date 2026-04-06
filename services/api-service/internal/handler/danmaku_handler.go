@@ -29,13 +29,13 @@ func (h *DanmakuHandler) SendDanmaku(ctx *gin.Context) {
 		UserID          string `json:"user_id" binding:"required"`
 		Username        string `json:"username" binding:"required"`
 		Content         string `json:"content" binding:"required,min=1,max=500"`
-		Type            int32  `json:"type" binding:"required"`
+		Type            int32  `json:"type" binding:"required,gte=0,lte=3"`
 		MentionedUserID string `json:"mentioned_user_id"`
 	}
 
 	var req SendDanmakuReq
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, err)
+		response.InvalidParams(ctx, err)
 		return
 	}
 

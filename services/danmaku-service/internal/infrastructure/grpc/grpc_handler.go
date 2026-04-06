@@ -2,12 +2,13 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"live-interact-engine/services/danmaku-service/internal/domain"
 	pb "live-interact-engine/shared/proto/danmaku"
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -39,7 +40,7 @@ func (h *DanmakuHandler) SendDanmaku(ctx context.Context, req *pb.SendDanmakuReq
 		span := trace.SpanFromContext(ctx)
 		span.SetAttributes(attribute.String("error.code", ErrInvalidContent))
 		span.RecordError(err)
-		return nil, fmt.Errorf("invalid danmaku: %w", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	result, err := h.danmakuService.SendDanmaku(ctx, danmaku)
@@ -50,7 +51,7 @@ func (h *DanmakuHandler) SendDanmaku(ctx context.Context, req *pb.SendDanmakuReq
 			attribute.String("error.message", err.Error()),
 		)
 		span.RecordError(err)
-		return nil, fmt.Errorf("failed to send danmaku: %w", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	return &pb.SendDanmakuResponse{
@@ -82,7 +83,7 @@ func (h *DanmakuHandler) SubscribeDanmaku(req *pb.SubscribeDanmakuRequest, strea
 			attribute.String("room_id", roomID),
 			attribute.String("user_id", userID),
 		)
-		return fmt.Errorf("room_id and user_id required")
+		return status.Error(codes.InvalidArgument, "room_id and user_id required")
 	}
 
 	danmakuChan, err := h.danmakuService.SubscribeDanmaku(ctx, roomID, userID)
@@ -92,7 +93,7 @@ func (h *DanmakuHandler) SubscribeDanmaku(req *pb.SubscribeDanmakuRequest, strea
 			attribute.String("error.message", err.Error()),
 		)
 		span.RecordError(err)
-		return fmt.Errorf("failed to subscribe: %w", err)
+		return status.Error(codes.Internal, err.Error())
 	}
 
 	for {
@@ -120,7 +121,7 @@ func (h *DanmakuHandler) SubscribeDanmaku(req *pb.SubscribeDanmakuRequest, strea
 					attribute.String("error.message", err.Error()),
 				)
 				span.RecordError(err)
-				return fmt.Errorf("failed to send response: %w", err)
+				return status.Error(codes.Internal, err.Error())
 			}
 		case <-ctx.Done():
 			span.SetAttributes(attribute.String("reason", "context_cancelled"))
