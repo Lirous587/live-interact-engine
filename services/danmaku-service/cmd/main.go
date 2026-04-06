@@ -23,16 +23,16 @@ var (
 )
 
 func main() {
-	// 初始化 OTel
-	otelProviders, err := telemetry.InitOTelProviders("danmaku-service")
+	// 初始化追踪
+	tp, err := telemetry.InitTracer("danmaku-service")
 	if err != nil {
-		log.Fatalf("OTel 初始化失败: %v", err)
+		log.Fatalf("Tracer 初始化失败: %v", err)
 	}
 	defer func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-		if err := otelProviders.Shutdown(ctx); err != nil {
-			log.Printf("OTel shutdown 失败: %v", err)
+		if err := tp.Shutdown(ctx); err != nil {
+			log.Printf("Tracer shutdown 失败: %v", err)
 		}
 	}()
 

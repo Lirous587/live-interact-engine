@@ -34,18 +34,23 @@ func init() {
 }
 
 func main() {
-	// 初始化 OTel providers
-	otelProviders, err := telemetry.InitOTelProviders("api-service")
+	// 初始化追踪
+	tp, err := telemetry.InitTracer("api-service")
 	if err != nil {
-		log.Fatalf("OTel providers 初始化失败: %v", err)
+		log.Fatalf("Tracer 初始化失败: %v", err)
 	}
 	defer func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-		if err := otelProviders.Shutdown(ctx); err != nil {
-			log.Printf("OTel shutdown 失败: %v", err)
+		if err := tp.Shutdown(ctx); err != nil {
+			log.Printf("Tracer shutdown 失败: %v", err)
 		}
 	}()
+
+	// 初始化 Metrics（API 服务才需要暴露 metrics）
+	if err := telemetry.InitMetrics("api-service"); err != nil {
+		log.Fatalf("Metrics 初始化失败: %v", err)
+	}
 
 	// 启动 Prometheus metrics 服务（独立端口）
 	metricPort := env.GetString("METRICS_PORT", "9091")
