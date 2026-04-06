@@ -2,9 +2,13 @@ package grpc
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"live-interact-engine/services/danmaku-service/internal/domain"
 	pb "live-interact-engine/shared/proto/danmaku"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -31,9 +35,24 @@ func (h *DanmakuHandler) SendDanmaku(ctx context.Context, req *pb.SendDanmakuReq
 		MentionedUserId: req.MentionedUserId,
 	}
 
+	// 验证数据是否符合业务要求
+	if err := danmaku.IsValid(); err != nil {
+		span := trace.SpanFromContext(ctx)
+		span.SetAttributes(attribute.String("error.code", ErrInvalidContent))
+		span.RecordError(err)
+		return nil, fmt.Errorf("invalid danmaku: %w", err)
+	}
+
 	result, err := h.danmakuService.SendDanmaku(ctx, danmaku)
+	err = errors.New("this is a mock error")
 	if err != nil {
-		return nil, err
+		span := trace.SpanFromContext(ctx)
+		span.SetAttributes(
+			attribute.String("error.code", ErrServerInternal),
+			attribute.String("error.message", err.Error()),
+		)
+		span.RecordError(err)
+		return nil, fmt.Errorf("failed to send danmaku: %w", err)
 	}
 
 	return &pb.SendDanmakuResponse{
@@ -56,10 +75,26 @@ func (h *DanmakuHandler) SubscribeDanmaku(req *pb.SubscribeDanmakuRequest, strea
 	ctx := stream.Context()
 	roomID := req.RoomId
 	userID := req.UserId
+	span := trace.SpanFromContext(ctx)
+
+	// 验证必要参数
+	if roomID == "" || userID == "" {
+		span.SetAttributes(
+			attribute.String("error.code", ErrInvalidParams),
+			attribute.String("room_id", roomID),
+			attribute.String("user_id", userID),
+		)
+		return fmt.Errorf("room_id and user_id required")
+	}
 
 	danmakuChan, err := h.danmakuService.SubscribeDanmaku(ctx, roomID, userID)
 	if err != nil {
-		return err
+		span.SetAttributes(
+			attribute.String("error.code", ErrSubscribeFailed),
+			attribute.String("error.message", err.Error()),
+		)
+		span.RecordError(err)
+		return fmt.Errorf("failed to subscribe: %w", err)
 	}
 
 	for {
@@ -82,9 +117,15 @@ func (h *DanmakuHandler) SubscribeDanmaku(req *pb.SubscribeDanmakuRequest, strea
 				},
 			}
 			if err := stream.Send(resp); err != nil {
-				return err
+				span.SetAttributes(
+					attribute.String("error.code", ErrStreamSendFailed),
+					attribute.String("error.message", err.Error()),
+				)
+				span.RecordError(err)
+				return fmt.Errorf("failed to send response: %w", err)
 			}
 		case <-ctx.Done():
+			span.SetAttributes(attribute.String("reason", "context_cancelled"))
 			return ctx.Err()
 		}
 	}

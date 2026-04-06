@@ -3,7 +3,6 @@ package handler
 import (
 	"errors"
 	client "live-interact-engine/services/api-service/internal/grpc_clients"
-	"live-interact-engine/services/api-service/internal/utils/reskit/apicodes"
 	"live-interact-engine/services/api-service/internal/utils/reskit/response"
 	pb "live-interact-engine/shared/proto/danmaku"
 	"net/http"
@@ -29,8 +28,8 @@ func (h *DanmakuHandler) SendDanmaku(ctx *gin.Context) {
 		RoomID          string `json:"room_id" binding:"required"`
 		UserID          string `json:"user_id" binding:"required"`
 		Username        string `json:"username" binding:"required"`
-		Content         string `json:"content" binding:"required"`
-		Type            int32  `json:"type"`
+		Content         string `json:"content" binding:"required,min=1,max=500"`
+		Type            int32  `json:"type" binding:"required,gte=0,lte=3"`
 		MentionedUserID string `json:"mentioned_user_id"`
 	}
 
@@ -61,16 +60,21 @@ func (h *DanmakuHandler) SendDanmaku(ctx *gin.Context) {
 
 // SubscribeDanmaku SSE 订阅弹幕
 func (h *DanmakuHandler) SubscribeDanmaku(ctx *gin.Context) {
-	roomID := ctx.Query("room_id")
-	if roomID == "" {
-		response.Error(ctx, apicodes.ErrDanmakuNeedRoomID)
+	type SubscribeDanmakuReq struct {
+		RoomID string `form:"room_id" binding:"required"`
+		UserID string `form:"user_id" binding:"required"`
+	}
+	req := new(SubscribeDanmakuReq)
+
+	if err := ctx.BindQuery(req); err != nil {
+		response.InvalidParams(ctx, err)
 		return
 	}
 
 	reqCtx := ctx.Request.Context()
 
 	// 获取 danmaku channel
-	danmakuChan, err := h.danmakuClient.SubscribeDanmaku(ctx.Request.Context(), roomID)
+	danmakuChan, err := h.danmakuClient.SubscribeDanmaku(ctx.Request.Context(), req.RoomID, req.UserID)
 	if err != nil {
 		response.Error(ctx, err)
 		return

@@ -70,9 +70,11 @@ func (dc *DanmakuClient) SendDanmaku(
 func (dc *DanmakuClient) SubscribeDanmaku(
 	ctx context.Context,
 	roomID string,
+	userID string,
 ) (<-chan *pb.Danmaku, error) {
 	req := &pb.SubscribeDanmakuRequest{
 		RoomId: roomID,
+		UserId: userID,
 	}
 
 	// 创建流
