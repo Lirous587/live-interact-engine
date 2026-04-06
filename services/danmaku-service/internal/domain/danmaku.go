@@ -27,12 +27,25 @@ type DanmakuModel struct {
 	MentionedUserId string
 }
 
+// isValidDanmakuType 验证弹幕类型是否有效
+func isValidDanmakuType(t DanmakuType) bool {
+	switch t {
+	case DANMAKU_TYPE_NORMAL, DANMAKU_TYPE_SUPER, DANMAKU_TYPE_GIFT, DANMAKU_TYPE_PINNED:
+		return true
+	default:
+		return false
+	}
+}
+
 func (d *DanmakuModel) IsValid() error {
 	if d.Content == "" {
 		return errors.New("content required")
 	}
 	if len(d.Content) > 500 {
 		return errors.New("content too long")
+	}
+	if !isValidDanmakuType(d.Type) {
+		return errors.New("invalid danmaku type")
 	}
 
 	// 2. 业务逻辑检查（API 层不知道的规则）

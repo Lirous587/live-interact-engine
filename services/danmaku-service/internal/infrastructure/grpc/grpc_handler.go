@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"live-interact-engine/services/danmaku-service/internal/domain"
 	pb "live-interact-engine/shared/proto/danmaku"
@@ -44,7 +43,6 @@ func (h *DanmakuHandler) SendDanmaku(ctx context.Context, req *pb.SendDanmakuReq
 	}
 
 	result, err := h.danmakuService.SendDanmaku(ctx, danmaku)
-	err = errors.New("this is a mock error")
 	if err != nil {
 		span := trace.SpanFromContext(ctx)
 		span.SetAttributes(
