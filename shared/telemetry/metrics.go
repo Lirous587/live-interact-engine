@@ -1,6 +1,7 @@
 package telemetry
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,7 +19,7 @@ import (
 // InitMetrics 初始化 Prometheus Metrics（仅 API 服务使用，微服务无需）
 func InitMetrics(serviceName string) error {
 	// ===== 配置资源 =====
-	res, err := resource.New(nil,
+	res, err := resource.New(context.Background(),
 		resource.WithSchemaURL(semconv.SchemaURL),
 		resource.WithAttributes(
 			semconv.ServiceNameKey.String(serviceName),

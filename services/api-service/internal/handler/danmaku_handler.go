@@ -10,6 +10,10 @@ import (
 
 	"github.com/gin-contrib/sse"
 	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/zap"
 )
 
 type DanmakuHandler struct {
@@ -72,9 +76,10 @@ func (h *DanmakuHandler) SubscribeDanmaku(ctx *gin.Context) {
 	}
 
 	reqCtx := ctx.Request.Context()
+	tracer := otel.Tracer("api-service")
 
-	// 获取 danmaku channel
-	danmakuChan, err := h.danmakuClient.SubscribeDanmaku(ctx.Request.Context(), req.RoomID, req.UserID)
+	// 用 reqCtx 发起订阅（包含 otelgin 的 root span）
+	danmakuChan, err := h.danmakuClient.SubscribeDanmaku(reqCtx, req.RoomID, req.UserID)
 	if err != nil {
 		response.Error(ctx, err)
 		return
@@ -94,7 +99,7 @@ func (h *DanmakuHandler) SubscribeDanmaku(ctx *gin.Context) {
 
 	// 动态续期写超时：每次发送前刷新 deadline
 	rc := http.NewResponseController(ctx.Writer)
-	const writeDeadlineWindow = 30 * time.Second
+	const writeDeadlineWindow = 15 * time.Second
 
 	refreshWriteDeadline := func() {
 		// 若底层不支持 SetWriteDeadline，这里会返回错误，忽略不影响功能
@@ -114,31 +119,51 @@ func (h *DanmakuHandler) SubscribeDanmaku(ctx *gin.Context) {
 	for {
 		select {
 		case <-reqCtx.Done():
+			zap.L().Debug("[SubscribeDanmaku] Request context done, exiting loop")
 			return
 
 		case <-heartbeatTicker.C:
-			// SSE 注释心跳，维持链路活性
-			refreshWriteDeadline()
+			zap.S().Debug("[SubscribeDanmaku] Heartbeat triggered - still active")
 			if _, err := ctx.Writer.WriteString(": ping\n\n"); err != nil {
+				zap.L().Error("[SubscribeDanmaku] Heartbeat write error", zap.Error(err))
 				return
 			}
 			flusher.Flush()
 
+			refreshWriteDeadline()
 		case danmaku, ok := <-danmakuChan:
+			zap.S().Debugf("[SubscribeDanmaku] Received from danmakuChan, ok=%v", ok)
 			if !ok {
+				zap.S().Debug("[SubscribeDanmaku] Danmaku channel closed, exiting loop")
 				return
 			}
 			if danmaku == nil {
 				continue
 			}
 
+			zap.S().Debugf("[SubscribeDanmaku] Sending danmaku to client, id=%s", danmaku.Id)
+
+			// 为每条弹幕创建 child span
+			_, childSpan := tracer.Start(reqCtx, "send_danmaku_to_client",
+				trace.WithAttributes(
+					attribute.String("danmaku_id", danmaku.Id),
+					attribute.String("room_id", req.RoomID),
+					attribute.String("user_id", req.UserID),
+					attribute.Int("content_length", len(danmaku.Content)),
+				),
+			)
+
 			refreshWriteDeadline()
 			if err := sse.Encode(ctx.Writer, sse.Event{
 				Event: "danmaku",
 				Data:  danmaku,
 			}); err != nil {
+				zap.L().Error("[SubscribeDanmaku] SSE encode failed", zap.Error(err))
+				childSpan.RecordError(err)
+				childSpan.End()
 				return
 			}
+			childSpan.End()
 			flusher.Flush()
 		}
 	}

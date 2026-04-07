@@ -35,9 +35,17 @@ func (h *DanmakuHandler) SendDanmaku(ctx context.Context, req *pb.SendDanmakuReq
 		MentionedUserId: req.MentionedUserId,
 	}
 
+	// 记录业务属性到 Span
+	span := trace.SpanFromContext(ctx)
+	span.SetAttributes(
+		attribute.String("room_id", req.RoomId),
+		attribute.String("user_id", req.UserId),
+		attribute.String("danmaku_type", req.Type.String()),
+		attribute.Int("content_length", len(req.Content)),
+	)
+
 	// 验证数据是否符合业务要求
 	if err := danmaku.IsValid(); err != nil {
-		span := trace.SpanFromContext(ctx)
 		span.SetAttributes(attribute.String("error.code", ErrInvalidContent))
 		span.RecordError(err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -45,13 +53,12 @@ func (h *DanmakuHandler) SendDanmaku(ctx context.Context, req *pb.SendDanmakuReq
 
 	result, err := h.danmakuService.SendDanmaku(ctx, danmaku)
 	if err != nil {
-		span := trace.SpanFromContext(ctx)
 		span.SetAttributes(
 			attribute.String("error.code", ErrServerInternal),
 			attribute.String("error.message", err.Error()),
 		)
 		span.RecordError(err)
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &pb.SendDanmakuResponse{
@@ -72,16 +79,21 @@ func (h *DanmakuHandler) SendDanmaku(ctx context.Context, req *pb.SendDanmakuReq
 // SubscribeDanmaku 处理流式订阅
 func (h *DanmakuHandler) SubscribeDanmaku(req *pb.SubscribeDanmakuRequest, stream pb.DanmakuService_SubscribeDanmakuServer) error {
 	ctx := stream.Context()
+
 	roomID := req.RoomId
 	userID := req.UserId
 	span := trace.SpanFromContext(ctx)
+
+	// 记录订阅业务属性
+	span.SetAttributes(
+		attribute.String("room_id", roomID),
+		attribute.String("subscriber_id", userID),
+	)
 
 	// 验证必要参数
 	if roomID == "" || userID == "" {
 		span.SetAttributes(
 			attribute.String("error.code", ErrInvalidParams),
-			attribute.String("room_id", roomID),
-			attribute.String("user_id", userID),
 		)
 		return status.Error(codes.InvalidArgument, "room_id and user_id required")
 	}
@@ -115,7 +127,8 @@ func (h *DanmakuHandler) SubscribeDanmaku(req *pb.SubscribeDanmakuRequest, strea
 					MentionedUserId: danmaku.MentionedUserId,
 				},
 			}
-			if err := stream.Send(resp); err != nil {
+			err := stream.Send(resp)
+			if err != nil {
 				span.SetAttributes(
 					attribute.String("error.code", ErrStreamSendFailed),
 					attribute.String("error.message", err.Error()),
@@ -125,7 +138,7 @@ func (h *DanmakuHandler) SubscribeDanmaku(req *pb.SubscribeDanmakuRequest, strea
 			}
 		case <-ctx.Done():
 			span.SetAttributes(attribute.String("reason", "context_cancelled"))
-			return ctx.Err()
+			return nil
 		}
 	}
 }

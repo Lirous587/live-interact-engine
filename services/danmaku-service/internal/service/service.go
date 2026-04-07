@@ -4,6 +4,9 @@ import (
 	"context"
 	"live-interact-engine/services/danmaku-service/internal/domain"
 	"live-interact-engine/services/danmaku-service/internal/infrastructure/subscription"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 type DanmakuServiceImpl struct {
@@ -23,6 +26,10 @@ func NewDanmakuService(cfg *subscription.ManagerConfig) (*DanmakuServiceImpl, er
 }
 
 func (s *DanmakuServiceImpl) SendDanmaku(ctx context.Context, danmaku *domain.DanmakuModel) (*domain.DanmakuModel, error) {
+	// 业务层负责初始化
+	danmaku.ID = uuid.New().String()
+	danmaku.CreatedAt = time.Now()
+
 	// TODO: 保存到数据库
 
 	// 广播给所有订阅者
