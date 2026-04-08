@@ -1,6 +1,9 @@
 package svcerr
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -9,7 +12,7 @@ import (
 )
 
 // MapServiceErrorToGRPC 将服务错误映射为 gRPC status error
-// 自动处理 ServiceError 提取 gRPC code，同时记录到 Span
+// 自动处理 ServiceError 提取 gRPC code，同时把 Details 序列化到 message 中并记录到 Span
 func MapServiceErrorToGRPC(err error, span trace.Span) error {
 	if err == nil {
 		return nil
@@ -23,9 +26,23 @@ func MapServiceErrorToGRPC(err error, span trace.Span) error {
 				attribute.String("error.type", string(svcErr.GetType())),
 				attribute.String("error.message", svcErr.GetMessage()),
 			)
+			if svcErr.GetDetails() != nil {
+				detailsJson, _ := json.Marshal(svcErr.GetDetails())
+				span.SetAttributes(attribute.String("error.details", string(detailsJson)))
+			}
 			span.RecordError(err)
 		}
-		return status.Error(svcErr.GetCode(), svcErr.GetMessage())
+
+		// 如果有 Details，序列化到 message 中，让 api-service 可以恢复
+		msg := svcErr.GetMessage()
+		if svcErr.GetDetails() != nil {
+			detailsJson, err := json.Marshal(svcErr.GetDetails())
+			if err == nil {
+				msg = fmt.Sprintf("%s | details: %s", msg, string(detailsJson))
+			}
+		}
+
+		return status.Error(svcErr.GetCode(), msg)
 	}
 
 	// 其他未知错误，返回 Internal

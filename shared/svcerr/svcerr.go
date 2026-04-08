@@ -54,14 +54,19 @@ func (e *StandardError) GetDetails() map[string]interface{} {
 	return e.Details
 }
 
-// WithDetail 为错误添加详情信息
+// WithDetail 为错误添加详情信息，返回新的错误副本（不污染原始常量）
 func (e *StandardError) WithDetail(detail map[string]interface{}) *StandardError {
-	e.Details = detail
-	return e
+	newErr := &StandardError{
+		Type:    e.Type,
+		Code:    e.Code,
+		Message: e.Message,
+		Details: detail,
+	}
+	return newErr
 }
 
 // NewError 创建服务错误
-func NewError(errType ErrorType, code codes.Code, message string) ServiceError {
+func NewError(errType ErrorType, code codes.Code, message string) *StandardError {
 	return &StandardError{
 		Type:    errType,
 		Code:    code,

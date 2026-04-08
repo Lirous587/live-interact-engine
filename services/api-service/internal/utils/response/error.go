@@ -1,11 +1,10 @@
 package response
 
 import (
+	"encoding/json"
 	"net/http"
+	"strings"
 
-	"live-interact-engine/shared/svcerr"
-
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -39,31 +38,26 @@ func MapToHTTP(err error) HTTPError {
 		}
 	}
 
-	// 首先尝试从错误链中获取 ServiceError
-	var svcErr svcerr.ServiceError
-	if errors.As(err, &svcErr) {
-		return HTTPError{
-			StatusCode: mapGRPCStatusToHTTP(svcErr.GetCode()),
-			Response: HTTPErrorResponse{
-				Code:    int(svcErr.GetCode()),
-				Message: svcErr.GetMessage(),
-				Details: svcErr.GetDetails(),
-			},
-			Cause: err,
-		}
-	}
-
 	// 尝试作为 gRPC status error 处理
 	if st, ok := status.FromError(err); ok {
 		userMsg := st.Message()
 		if userMsg == "" {
 			userMsg = st.Code().String()
 		}
+
+		// 尝试从 message 中解析 Details (由 gRPC handler 序列化进去)
+		var details map[string]interface{}
+		if parts := strings.Split(userMsg, " | details: "); len(parts) == 2 {
+			json.Unmarshal([]byte(parts[1]), &details)
+			userMsg = parts[0] // 去掉 details 部分，只留 message
+		}
+
 		return HTTPError{
 			StatusCode: mapGRPCStatusToHTTP(st.Code()),
 			Response: HTTPErrorResponse{
 				Code:    int(st.Code()),
 				Message: userMsg,
+				Details: details,
 			},
 			Cause: err,
 		}
