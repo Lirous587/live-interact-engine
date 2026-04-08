@@ -3,12 +3,12 @@ package grpc
 import (
 	"context"
 	"live-interact-engine/services/danmaku-service/internal/domain"
+	"live-interact-engine/services/danmaku-service/pkg/types"
 	pb "live-interact-engine/shared/proto/danmaku"
+	"live-interact-engine/shared/svcerr"
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -46,19 +46,12 @@ func (h *DanmakuHandler) SendDanmaku(ctx context.Context, req *pb.SendDanmakuReq
 
 	// 验证数据是否符合业务要求
 	if err := danmaku.IsValid(); err != nil {
-		span.SetAttributes(attribute.String("error.code", ErrInvalidContent))
-		span.RecordError(err)
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
 	}
 
 	result, err := h.danmakuService.SendDanmaku(ctx, danmaku)
 	if err != nil {
-		span.SetAttributes(
-			attribute.String("error.code", ErrServerInternal),
-			attribute.String("error.message", err.Error()),
-		)
-		span.RecordError(err)
-		return nil, status.Error(codes.Internal, err.Error())
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
 	}
 
 	return &pb.SendDanmakuResponse{
@@ -92,20 +85,16 @@ func (h *DanmakuHandler) SubscribeDanmaku(req *pb.SubscribeDanmakuRequest, strea
 
 	// 验证必要参数
 	if roomID == "" || userID == "" {
-		span.SetAttributes(
-			attribute.String("error.code", ErrInvalidParams),
-		)
-		return status.Error(codes.InvalidArgument, "room_id and user_id required")
+		err := types.ErrMissingRoomID
+		if userID == "" {
+			err = types.ErrMissingUserID
+		}
+		return svcerr.MapServiceErrorToGRPC(err, span)
 	}
 
 	danmakuChan, err := h.danmakuService.SubscribeDanmaku(ctx, roomID, userID)
 	if err != nil {
-		span.SetAttributes(
-			attribute.String("error.code", ErrSubscribeFailed),
-			attribute.String("error.message", err.Error()),
-		)
-		span.RecordError(err)
-		return status.Error(codes.Internal, err.Error())
+		return svcerr.MapServiceErrorToGRPC(err, span)
 	}
 
 	for {
@@ -129,12 +118,7 @@ func (h *DanmakuHandler) SubscribeDanmaku(req *pb.SubscribeDanmakuRequest, strea
 			}
 			err := stream.Send(resp)
 			if err != nil {
-				span.SetAttributes(
-					attribute.String("error.code", ErrStreamSendFailed),
-					attribute.String("error.message", err.Error()),
-				)
-				span.RecordError(err)
-				return status.Error(codes.Internal, err.Error())
+				return svcerr.MapServiceErrorToGRPC(err, span)
 			}
 		case <-ctx.Done():
 			span.SetAttributes(attribute.String("reason", "context_cancelled"))

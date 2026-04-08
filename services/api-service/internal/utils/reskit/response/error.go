@@ -1,8 +1,9 @@
 package response
 
 import (
-	"live-interact-engine/services/api-service/internal/utils/reskit/apicodes"
 	"net/http"
+
+	"live-interact-engine/shared/svcerr"
 
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -25,7 +26,8 @@ type HTTPError struct {
 	Cause      error
 }
 
-// MapToHTTP 将领域错误映射为HTTP错误
+// MapToHTTP 将服务错误映射为HTTP错误
+// 支持处理 gRPC status errors 和 ServiceError
 func MapToHTTP(err error) HTTPError {
 	if err == nil {
 		return HTTPError{
@@ -37,103 +39,48 @@ func MapToHTTP(err error) HTTPError {
 		}
 	}
 
-	var errCode apicodes.ErrCode
-	var errCode2 apicodes.ErrCodeWithDetail
-	var errCode3 apicodes.ErrCodeWithCause
-
-	ok1 := errors.As(err, &errCode)
-	ok2 := errors.As(err, &errCode2)
-	ok3 := errors.As(err, &errCode3)
-
-	if !ok1 && !ok2 && !ok3 {
-		// 尝试作为gRPC status error处理
-		if st, ok := status.FromError(err); ok {
-			userMsg := st.Message()
-			if userMsg == "" {
-				userMsg = st.Code().String()
-			}
-			return HTTPError{
-				StatusCode: mapGRPCStatusToHTTP(st.Code()),
-				Response: HTTPErrorResponse{
-					Code:    int(st.Code()),
-					Message: userMsg,
-				},
-				Cause: err,
-			}
-		}
-		// 都不是，返回通用服务器错误
+	// 首先尝试从错误链中获取 ServiceError
+	var svcErr svcerr.ServiceError
+	if errors.As(err, &svcErr) {
 		return HTTPError{
-			StatusCode: http.StatusInternalServerError,
+			StatusCode: mapGRPCStatusToHTTP(svcErr.GetCode()),
 			Response: HTTPErrorResponse{
-				Code:    5000,
-				Message: "Internal server error",
-			},
-			Cause: err,
-		}
-	}
-	// 自定义的错误码
-	if ok1 {
-		return HTTPError{
-			StatusCode: mapTypeToHTTPStatus(errCode.Type),
-			Response: HTTPErrorResponse{
-				Code:    errCode.Code,
-				Message: errCode.Msg,
+				Code:    int(svcErr.GetCode()),
+				Message: svcErr.GetMessage(),
+				Details: svcErr.GetDetails(),
 			},
 			Cause: err,
 		}
 	}
 
-	if ok2 {
+	// 尝试作为 gRPC status error 处理
+	if st, ok := status.FromError(err); ok {
+		userMsg := st.Message()
+		if userMsg == "" {
+			userMsg = st.Code().String()
+		}
 		return HTTPError{
-			StatusCode: mapTypeToHTTPStatus(errCode2.Type),
+			StatusCode: mapGRPCStatusToHTTP(st.Code()),
 			Response: HTTPErrorResponse{
-				Code:    errCode2.Code,
-				Message: errCode2.Msg,
-				Details: errCode2.Detail,
+				Code:    int(st.Code()),
+				Message: userMsg,
 			},
 			Cause: err,
 		}
 	}
 
+	// 其他未知错误，返回通用服务器错误
 	return HTTPError{
-		StatusCode: mapTypeToHTTPStatus(errCode3.Type),
+		StatusCode: http.StatusInternalServerError,
 		Response: HTTPErrorResponse{
-			Code:    errCode3.Code,
-			Message: errCode3.Msg,
-			Details: errCode3.Detail,
+			Code:    5000,
+			Message: "Internal server error",
 		},
-		Cause: errCode3.Cause,
+		Cause: err,
 	}
 }
 
-// mapTypeToHTTPStatus 映射错误类型到HTTP状态码
-func mapTypeToHTTPStatus(errorType apicodes.ErrorType) int {
-	switch errorType {
-	case apicodes.ErrorTypeBadRequest:
-		return http.StatusBadRequest
-	case apicodes.ErrorTypeNotFound:
-		return http.StatusNotFound
-	case apicodes.ErrorTypeAlreadyExists:
-		return http.StatusConflict
-	case apicodes.ErrorTypeConflict:
-		return http.StatusConflict
-	case apicodes.ErrorTypeUnauthorized:
-		return http.StatusUnauthorized
-	case apicodes.ErrorTypeForbidden:
-		return http.StatusForbidden
-	case apicodes.ErrorTypeRateLimit:
-		return http.StatusTooManyRequests
-	case apicodes.ErrorTypeBadGateway:
-		return http.StatusBadGateway
-	case apicodes.ErrorTypeCacheMiss:
-		// cache miss 对外通常表现为服务暂不可用
-		return http.StatusServiceUnavailable
-	default: // ErrorTypeInternal
-		return http.StatusInternalServerError
-	}
-}
-
-// mapGRPCStatusToHTTP 映射gRPC status code到HTTP状态码
+// mapGRPCStatusToHTTP 映射 gRPC status code 到 HTTP 状态码
 func mapGRPCStatusToHTTP(code codes.Code) int {
 	switch code {
 	case codes.InvalidArgument:

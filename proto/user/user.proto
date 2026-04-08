@@ -15,24 +15,6 @@ message GetUserResponse {
   User user = 1;
 }
 
-// ==================== 获取用户权限 ====================
-message GetUserPermissionsRequest {
-  string user_id = 1;
-}
-
-message GetUserPermissionsResponse {
-  repeated Permission permissions = 1;
-}
-
-// ==================== 获取用户角色 ====================
-message GetUserRolesRequest {
-  string user_id = 1;
-}
-
-message GetUserRolesResponse {
-  repeated Role roles = 1;
-}
-
 // ==================== 校验 Token ====================
 message ValidateTokenRequest {
   string access_token = 1;
@@ -64,25 +46,23 @@ message RefreshTokenResponse {
   string    error_message = 2;
 }
 
-// ==================== 检查权限 ====================
+// ==================== 获取房间角色信息 ====================
+message GetUserRoomRoleRequest {
+  string user_id = 1;
+  string room_id = 2;
+}
+
+message GetUserRoomRoleResponse {
+  UserRoomRole user_room_role = 1;
+}
+
+// ==================== 检查房间权限 ====================
 message CheckPermissionRequest {
   string     user_id    = 1;
   Permission permission = 2;
-  string     room_id    = 3; // 可选：如果权限与房间相关，传入房间 ID
+  string     room_id    = 3; // 房间 ID
 }
 
 message CheckPermissionResponse {
   bool has_permission = 1;
-}
-
-// ==================== 检查用户是否有任何权限（用于多权限判断）====================
-message CheckPermissionsRequest {
-  string              user_id     = 1;
-  repeated Permission permissions = 2; // 检查是否有任何一个权限
-  string              room_id     = 3; // 可选：如果权限与房间相关，传入房间 ID
-}
-
-message CheckPermissionsResponse {
-  bool                has_any_permission  = 1;
-  repeated Permission matched_permissions = 2;
 }
