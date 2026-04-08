@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "live-interact-engine/shared/proto/user";
+
+import "user/types.proto";
+import "user/user.proto";
+
+// UserService 提供用户相关的 gRPC 服务
+service UserService {
+    // 获取用户信息
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+
+    // 获取用户权限列表
+  rpc GetUserPermissions(GetUserPermissionsRequest) returns (GetUserPermissionsResponse);
+
+    // 获取用户角色列表
+  rpc GetUserRoles(GetUserRolesRequest) returns (GetUserRolesResponse);
+
+    // 校验 Access Token 是否有效
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+
+    // 解析 Access Token 获取负载信息
+  rpc ParseToken(ParseTokenRequest) returns (ParseTokenResponse);
+
+    // Refresh Token（用过期的 access token 换新的）
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+
+    // 检查用户是否有特定权限
+  rpc CheckPermission(CheckPermissionRequest) returns (CheckPermissionResponse);
+
+    // 检查用户是否有任何一个权限（OR 逻辑）
+  rpc CheckPermissions(CheckPermissionsRequest) returns (CheckPermissionsResponse);
+}

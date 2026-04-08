@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "live-interact-engine/shared/proto/user";
+
+import "user/types.proto";
+
+// ==================== 获取用户信息 ====================
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+// ==================== 获取用户权限 ====================
+message GetUserPermissionsRequest {
+  string user_id = 1;
+}
+
+message GetUserPermissionsResponse {
+  repeated Permission permissions = 1;
+}
+
+// ==================== 获取用户角色 ====================
+message GetUserRolesRequest {
+  string user_id = 1;
+}
+
+message GetUserRolesResponse {
+  repeated Role roles = 1;
+}
+
+// ==================== 校验 Token ====================
+message ValidateTokenRequest {
+  string access_token = 1;
+}
+
+message ValidateTokenResponse {
+  bool   is_valid      = 1;
+  bool   is_expired    = 2;
+  string error_message = 3;
+}
+
+// ==================== 解析 Token ====================
+message ParseTokenRequest {
+  string access_token = 1;
+}
+
+message ParseTokenResponse {
+  TokenPayload payload       = 1;
+  string       error_message = 2;
+}
+
+// ==================== Refresh Token ====================
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+  TokenPair token_pair    = 1;
+  string    error_message = 2;
+}
+
+// ==================== 检查权限 ====================
+message CheckPermissionRequest {
+  string     user_id    = 1;
+  Permission permission = 2;
+  string     room_id    = 3; // 可选：如果权限与房间相关，传入房间 ID
+}
+
+message CheckPermissionResponse {
+  bool has_permission = 1;
+}
+
+// ==================== 检查用户是否有任何权限（用于多权限判断）====================
+message CheckPermissionsRequest {
+  string              user_id     = 1;
+  repeated Permission permissions = 2; // 检查是否有任何一个权限
+  string              room_id     = 3; // 可选：如果权限与房间相关，传入房间 ID
+}
+
+message CheckPermissionsResponse {
+  bool                has_any_permission  = 1;
+  repeated Permission matched_permissions = 2;
+}
