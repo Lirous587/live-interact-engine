@@ -3,7 +3,7 @@ package handler
 import (
 	"errors"
 	client "live-interact-engine/services/api-service/internal/grpc_clients"
-	"live-interact-engine/services/api-service/internal/utils/reskit/response"
+	"live-interact-engine/services/api-service/internal/utils/response"
 	pb "live-interact-engine/shared/proto/danmaku"
 	"net/http"
 	"time"
