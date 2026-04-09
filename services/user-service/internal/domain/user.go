@@ -101,8 +101,10 @@ func (tp *TokenPayload) IsExpired(now int64) bool {
 }
 
 type TokenPair struct {
-	AccessToken  string
-	RefreshToken string
+	AccessToken      string
+	AccessExpiresAt  int64
+	RefreshToken     string
+	RefreshExpiresAt int64
 }
 
 // ==================== 业务接口定义 ====================
@@ -165,8 +167,8 @@ type UserRoomRoleRepository interface {
 
 // TokenRepository Token 存储接口
 type TokenRepository interface {
-	// 生成refresh token
-	GenAndSaveRefreshToken(ctx context.Context, payload *TokenPayload) (string, error)
+	// 生成refresh token，返回 token 和过期秒数
+	GenAndSaveRefreshToken(ctx context.Context, payload *TokenPayload) (token string, expiresAt int64, err error)
 
 	// 验证 refresh token
 	ValidateRefreshToken(ctx context.Context, refreshToken string) (bool, *TokenPayload, error)

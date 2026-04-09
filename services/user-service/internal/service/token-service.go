@@ -4,6 +4,7 @@ import (
 	"context"
 	"live-interact-engine/services/user-service/internal/domain"
 	"live-interact-engine/services/user-service/pkg/types"
+	"live-interact-engine/shared/env"
 	"live-interact-engine/shared/jwt"
 	"time"
 
@@ -17,10 +18,19 @@ type TokenServiceImpl struct {
 }
 
 func NewTokenServiceImpl(tokenRepo domain.TokenRepository) (domain.TokenService, error) {
+	// Token 过期时间，单位秒，默认 5 分钟
+	accessTokenExpire := env.GetInt64("TOKEN_ACCESS_EXPIRES_SECONDS", 5*60)
+
+	// Token 签名密钥，必须设置
+	accessTokenSecret := env.GetString("TOKEN_ACCESS_SECRET", "")
+	if accessTokenSecret == "" {
+		panic("env value of TOKEN_ACCESS_SECRET must be set")
+	}
+
 	return &TokenServiceImpl{
 		tokenRepo:         tokenRepo,
-		accessTokenExpire: 5 * time.Minute,
-		accessTokenSecret: "123",
+		accessTokenExpire: time.Duration(accessTokenExpire * int64(time.Second)),
+		accessTokenSecret: accessTokenSecret,
 	}, nil
 }
 
@@ -30,14 +40,16 @@ func (s *TokenServiceImpl) GenTokenPair(ctx context.Context, payload *domain.Tok
 		return nil, types.ErrTokenGenerationFailed
 	}
 
-	refreshToken, err := s.tokenRepo.GenAndSaveRefreshToken(ctx, payload)
+	refreshToken, refreshExpiresIn, err := s.tokenRepo.GenAndSaveRefreshToken(ctx, payload)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	return &domain.TokenPair{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+		AccessToken:      accessToken,
+		AccessExpiresAt:  time.Now().Add(s.accessTokenExpire).Unix(),
+		RefreshToken:     refreshToken,
+		RefreshExpiresAt: refreshExpiresIn,
 	}, nil
 }
 

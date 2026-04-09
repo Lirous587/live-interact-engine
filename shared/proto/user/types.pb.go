@@ -324,8 +324,8 @@ type TokenPair struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	AccessToken      string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
 	RefreshToken     string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
-	AccessExpiresIn  int64                  `protobuf:"varint,3,opt,name=access_expires_in,json=accessExpiresIn,proto3" json:"access_expires_in,omitempty"`    // 秒数
-	RefreshExpiresIn int64                  `protobuf:"varint,4,opt,name=refresh_expires_in,json=refreshExpiresIn,proto3" json:"refresh_expires_in,omitempty"` // 秒数
+	AccessExpiresAt  int64                  `protobuf:"varint,3,opt,name=access_expires_at,json=accessExpiresAt,proto3" json:"access_expires_at,omitempty"`    // Unix timestamp
+	RefreshExpiresAt int64                  `protobuf:"varint,4,opt,name=refresh_expires_at,json=refreshExpiresAt,proto3" json:"refresh_expires_at,omitempty"` // Unix timestamp
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -374,16 +374,16 @@ func (x *TokenPair) GetRefreshToken() string {
 	return ""
 }
 
-func (x *TokenPair) GetAccessExpiresIn() int64 {
+func (x *TokenPair) GetAccessExpiresAt() int64 {
 	if x != nil {
-		return x.AccessExpiresIn
+		return x.AccessExpiresAt
 	}
 	return 0
 }
 
-func (x *TokenPair) GetRefreshExpiresIn() int64 {
+func (x *TokenPair) GetRefreshExpiresAt() int64 {
 	if x != nil {
-		return x.RefreshExpiresIn
+		return x.RefreshExpiresAt
 	}
 	return 0
 }
@@ -419,8 +419,8 @@ const file_user_types_proto_rawDesc = "" +
 	"\tTokenPair\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x12*\n" +
-	"\x11access_expires_in\x18\x03 \x01(\x03R\x0faccessExpiresIn\x12,\n" +
-	"\x12refresh_expires_in\x18\x04 \x01(\x03R\x10refreshExpiresIn*\x81\x01\n" +
+	"\x11access_expires_at\x18\x03 \x01(\x03R\x0faccessExpiresAt\x12,\n" +
+	"\x12refresh_expires_at\x18\x04 \x01(\x03R\x10refreshExpiresAt*\x81\x01\n" +
 	"\n" +
 	"Permission\x12\x1a\n" +
 	"\x16PERMISSION_UNSPECIFIED\x10\x00\x12\x10\n" +
