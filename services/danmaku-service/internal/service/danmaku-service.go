@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type DanmakuServiceImpl struct {
+type DanmakuService struct {
 	// 管理订阅接口
 	subManager domain.SubscriptionManager
 }
@@ -20,12 +20,12 @@ func NewDanmakuService(cfg *subscription.ManagerConfig) (domain.DanmakuService, 
 		return nil, err
 	}
 
-	return &DanmakuServiceImpl{
+	return &DanmakuService{
 		subManager: subManager,
 	}, nil
 }
 
-func (s *DanmakuServiceImpl) SendDanmaku(ctx context.Context, danmaku *domain.DanmakuModel) (*domain.DanmakuModel, error) {
+func (s *DanmakuService) SendDanmaku(ctx context.Context, danmaku *domain.DanmakuModel) (*domain.DanmakuModel, error) {
 	// 业务层负责初始化
 	danmaku.ID = uuid.New().String()
 	danmaku.CreatedAt = time.Now()
@@ -36,7 +36,7 @@ func (s *DanmakuServiceImpl) SendDanmaku(ctx context.Context, danmaku *domain.Da
 	return danmaku, s.subManager.Broadcast(danmaku)
 }
 
-func (s *DanmakuServiceImpl) SubscribeDanmaku(ctx context.Context, roomID, userID string) (<-chan *domain.DanmakuModel, error) {
+func (s *DanmakuService) SubscribeDanmaku(ctx context.Context, roomID, userID string) (<-chan *domain.DanmakuModel, error) {
 	subscriber, err := s.subManager.Subscribe(ctx, roomID, userID)
 	if err != nil {
 		return nil, err

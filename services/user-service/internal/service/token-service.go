@@ -11,13 +11,13 @@ import (
 	"github.com/pkg/errors"
 )
 
-type TokenServiceImpl struct {
+type TokenService struct {
 	tokenRepo         domain.TokenRepository
 	accessTokenExpire time.Duration
 	accessTokenSecret string
 }
 
-func NewTokenServiceImpl(tokenRepo domain.TokenRepository) (domain.TokenService, error) {
+func NewTokenService(tokenRepo domain.TokenRepository) (domain.TokenService, error) {
 	// Token 过期时间，单位秒，默认 5 分钟
 	accessTokenExpire := env.GetInt64("TOKEN_ACCESS_EXPIRES_SECONDS", 5*60)
 
@@ -27,14 +27,14 @@ func NewTokenServiceImpl(tokenRepo domain.TokenRepository) (domain.TokenService,
 		panic("env value of TOKEN_ACCESS_SECRET must be set")
 	}
 
-	return &TokenServiceImpl{
+	return &TokenService{
 		tokenRepo:         tokenRepo,
 		accessTokenExpire: time.Duration(accessTokenExpire * int64(time.Second)),
 		accessTokenSecret: accessTokenSecret,
 	}, nil
 }
 
-func (s *TokenServiceImpl) GenTokenPair(ctx context.Context, payload *domain.TokenPayload) (*domain.TokenPair, error) {
+func (s *TokenService) GenTokenPair(ctx context.Context, payload *domain.TokenPayload) (*domain.TokenPair, error) {
 	accessToken, err := jwt.GenToken(payload, s.accessTokenSecret, s.accessTokenExpire)
 	if err != nil {
 		return nil, types.ErrTokenGenerationFailed
@@ -53,7 +53,7 @@ func (s *TokenServiceImpl) GenTokenPair(ctx context.Context, payload *domain.Tok
 	}, nil
 }
 
-func (s *TokenServiceImpl) ValidateToken(ctx context.Context, accessToken string) (isValid bool, isExpired bool, err error) {
+func (s *TokenService) ValidateToken(ctx context.Context, accessToken string) (isValid bool, isExpired bool, err error) {
 	_, err = jwt.ParseToken[domain.TokenPayload](accessToken, s.accessTokenSecret)
 
 	if err != nil {
@@ -69,7 +69,7 @@ func (s *TokenServiceImpl) ValidateToken(ctx context.Context, accessToken string
 	return true, false, nil
 }
 
-func (s *TokenServiceImpl) ParseToken(ctx context.Context, accessToken string) (*domain.TokenPayload, error) {
+func (s *TokenService) ParseToken(ctx context.Context, accessToken string) (*domain.TokenPayload, error) {
 	claims, err := jwt.ParseToken[domain.TokenPayload](accessToken, s.accessTokenSecret)
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
@@ -82,7 +82,7 @@ func (s *TokenServiceImpl) ParseToken(ctx context.Context, accessToken string) (
 }
 
 // 刷新token 返回TokenPair
-func (s *TokenServiceImpl) RefreshToken(ctx context.Context, refreshToken string) (*domain.TokenPair, error) {
+func (s *TokenService) RefreshToken(ctx context.Context, refreshToken string) (*domain.TokenPair, error) {
 	ok, payload, err := s.tokenRepo.ValidateRefreshToken(ctx, refreshToken)
 	if err != nil {
 		return nil, errors.WithStack(err)
