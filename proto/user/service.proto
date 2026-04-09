@@ -2,9 +2,8 @@ syntax = "proto3";
 
 package user;
 
-option go_package = "live-interact-engine/shared/proto/user";
+option go_package = "shared/proto/user;user";
 
-import "user/types.proto";
 import "user/user.proto";
 
 // UserService 提供用户基本信息相关的 gRPC 服务

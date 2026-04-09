@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package user;
 
-option go_package = "live-interact-engine/shared/proto/user";
+option go_package = "shared/proto/user;user";
 
 // 权限枚举
 enum Permission {
