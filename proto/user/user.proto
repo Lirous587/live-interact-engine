@@ -38,7 +38,8 @@ message ParseTokenResponse {
 
 // ==================== Refresh Token ====================
 message RefreshTokenRequest {
-  string refresh_token = 1;
+  UserIdentity user_identity = 1;
+  string       refresh_token = 2;
 }
 
 message RefreshTokenResponse {

@@ -21,11 +21,17 @@ var (
 
 // RegisterRoutes 注册所有路由
 func RegisterRoutes(r *gin.RouterGroup) {
+	// 创建 v1 路由组
+	v1 := r.Group("/v1")
+
 	// 注册弹幕相关路由
-	registerDanmuka(r)
+	registerDanmaka(v1)
+
+	// 注册用户相关路由
+	registerUser(v1)
 }
 
-func registerDanmuka(r *gin.RouterGroup) {
+func registerDanmaka(r *gin.RouterGroup) {
 	danmakuServiceURL := env.GetString("DANMAKU_SERVICE_URL", "danmaku-service:9093")
 
 	// 创建 danmaku 客户端
@@ -41,8 +47,35 @@ func registerDanmuka(r *gin.RouterGroup) {
 	danmakuHandler := handler.NewDanmakuHandler(danmakuClient)
 
 	// 注册路由
-	r.POST("/danmaku/send", danmakuHandler.SendDanmaku)
-	r.GET("/danmaku/subscribe", danmakuHandler.SubscribeDanmaku)
+	dg := r.Group("/danmaku")
+	{
+		dg.POST("/send", danmakuHandler.SendDanmaku)
+		dg.GET("/subscribe", danmakuHandler.SubscribeDanmaku)
+	}
+}
+
+func registerUser(r *gin.RouterGroup) {
+	userServiceURL := env.GetString("USER_SERVICE_URL", "user-service:9094")
+
+	// 创建 user 客户端
+	userClient, err := grpc_clients.NewUserClient(userServiceURL)
+	if err != nil {
+		log.Fatalf("创建 user 客户端失败: %v", err)
+	}
+
+	// 加入管理列表
+	clients = append(clients, userClient)
+
+	// 创建 handler
+	userHandler := handler.NewUserHandler(userClient)
+
+	// 注册路由
+	ug := r.Group("/user")
+	{
+		ug.POST("/register", userHandler.Register)
+		ug.POST("/login", userHandler.Login)
+		ug.GET("/:user_id", userHandler.GetUser)
+	}
 }
 
 func CloseClients() {

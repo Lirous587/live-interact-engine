@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"live-interact-engine/services/user-service/internal/domain"
+	"live-interact-engine/services/user-service/pkg/types"
 
 	"github.com/pkg/errors"
 )
@@ -19,7 +20,14 @@ func NewRoomAuthorizationService(roomRoleRepo domain.UserRoomRoleRepository) (do
 
 // 获取用户在某房间的权限角色信息
 func (s *RoomAuthorizationService) GetUserRoomRole(ctx context.Context, userID, roomID string) (*domain.UserRoomRole, error) {
-	return s.roomRoleRepo.GetUserRoomRole(ctx, userID, roomID)
+	role, err := s.roomRoleRepo.GetUserRoomRole(ctx, userID, roomID)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	if role == nil {
+		return nil, types.ErrRoomPermissionNotFound
+	}
+	return role, nil
 }
 
 // 检查用户在某房间是否有特定权限

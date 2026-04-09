@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"live-interact-engine/services/user-service/internal/adapter"
 	"live-interact-engine/services/user-service/internal/domain"
 	pb "live-interact-engine/shared/proto/user"
 	"live-interact-engine/shared/svcerr"
@@ -38,6 +39,52 @@ func (h *UserHandler) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.
 			CreatedAt: user.CreatedAt.Unix(),
 			UpdatedAt: user.UpdatedAt.Unix(),
 			IsActive:  user.IsActive,
+		},
+	}, nil
+}
+
+func (h *UserHandler) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
+	span := trace.SpanFromContext(ctx)
+
+	user, err := h.userService.Register(ctx, req.Username, req.Email, req.Password)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	return &pb.RegisterResponse{
+		User: &pb.User{
+			UserId:    user.UserID,
+			Username:  user.Username,
+			Email:     user.Email,
+			CreatedAt: user.CreatedAt.Unix(),
+			UpdatedAt: user.UpdatedAt.Unix(),
+			IsActive:  user.IsActive,
+		},
+	}, nil
+}
+
+func (h *UserHandler) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
+	span := trace.SpanFromContext(ctx)
+
+	user, tokenPair, err := h.userService.Login(ctx, req.Email, req.Password, req.DeviceId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	return &pb.LoginResponse{
+		User: &pb.User{
+			UserId:    user.UserID,
+			Username:  user.Username,
+			Email:     user.Email,
+			CreatedAt: user.CreatedAt.Unix(),
+			UpdatedAt: user.UpdatedAt.Unix(),
+			IsActive:  user.IsActive,
+		},
+		TokenPair: &pb.TokenPair{
+			AccessToken:      tokenPair.AccessToken,
+			RefreshToken:     tokenPair.RefreshToken,
+			AccessExpiresAt:  tokenPair.AccessExpiresAt,
+			RefreshExpiresAt: tokenPair.RefreshExpiresAt,
 		},
 	}, nil
 }
@@ -133,9 +180,9 @@ func (h *TokenHandler) ParseToken(ctx context.Context, req *pb.ParseTokenRequest
 
 	return &pb.ParseTokenResponse{
 		Payload: &pb.TokenPayload{
-			UserId: payload.UserID,
-			IssAt:  payload.IssuedAt,
-			ExpAt:  payload.ExpiresAt,
+			UserIdentity: adapter.DomainUserIdentityToProto(payload.Identity),
+			IssAt:        payload.IssuedAt,
+			ExpAt:        payload.ExpiresAt,
 		},
 		ErrorMessage: "",
 	}, nil
@@ -144,7 +191,7 @@ func (h *TokenHandler) ParseToken(ctx context.Context, req *pb.ParseTokenRequest
 func (h *TokenHandler) RefreshToken(ctx context.Context, req *pb.RefreshTokenRequest) (*pb.RefreshTokenResponse, error) {
 	span := trace.SpanFromContext(ctx)
 
-	tokenPair, err := h.tokenService.RefreshToken(ctx, req.RefreshToken)
+	tokenPair, err := h.tokenService.RefreshToken(ctx, adapter.ProtoUserIdentityToDomain(req.UserIdentity), req.RefreshToken)
 	if err != nil {
 		return nil, svcerr.MapServiceErrorToGRPC(err, span)
 	}

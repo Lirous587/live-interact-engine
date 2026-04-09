@@ -82,15 +82,14 @@ func (s *TokenService) ParseToken(ctx context.Context, accessToken string) (*dom
 }
 
 // 刷新token 返回TokenPair
-func (s *TokenService) RefreshToken(ctx context.Context, refreshToken string) (*domain.TokenPair, error) {
-	ok, payload, err := s.tokenRepo.ValidateRefreshToken(ctx, refreshToken)
+func (s *TokenService) RefreshToken(ctx context.Context, identity *domain.UserIdentity, refreshToken string) (*domain.TokenPair, error) {
+	// 验证 refresh token，验证成功则返回新的 payload
+	payload, err := s.tokenRepo.RefreshTokenPayload(ctx, identity, refreshToken)
 	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	if !ok {
-		return nil, types.ErrRefreshTokenInvalid
+		return nil, err
 	}
 
+	// 基于新的 payload 生成新的 token pair
 	tokenPair, err := s.GenTokenPair(ctx, payload)
 	if err != nil {
 		return nil, errors.WithStack(err)

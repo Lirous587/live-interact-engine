@@ -35,11 +35,16 @@ message UserRoomRole {
   int64               updated_at  = 7; // Unix timestamp
 }
 
+message UserIdentity {
+  string user_id   = 1;
+  string device_id = 2;
+}
+
 // Token 相关
 message TokenPayload {
-  string user_id = 1;
-  int64  iss_at  = 2; // Unix timestamp
-  int64  exp_at  = 3; // Unix timestamp
+  UserIdentity user_identity = 1;
+  int64        iss_at        = 2; // Unix timestamp
+  int64        exp_at        = 3; // Unix timestamp
 }
 
 // Token 对信息
@@ -48,4 +53,29 @@ message TokenPair {
   string refresh_token      = 2;
   int64  access_expires_at  = 3; // Unix timestamp
   int64  refresh_expires_at = 4; // Unix timestamp
+}
+
+// 注册请求
+message RegisterRequest {
+  string email    = 1;
+  string username = 2;
+  string password = 3;
+}
+
+// 注册响应（只返回用户信息）
+message RegisterResponse {
+  User user = 1;
+}
+
+// 登录请求
+message LoginRequest {
+  string email     = 1;
+  string password  = 2;
+  string device_id = 3;
+}
+
+// 登录响应（返回用户信息和 token）
+message LoginResponse {
+  User      user       = 1;
+  TokenPair token_pair = 2;
 }

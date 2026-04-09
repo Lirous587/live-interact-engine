@@ -5,11 +5,18 @@ package user;
 option go_package = "shared/proto/user;user";
 
 import "user/user.proto";
+import "user/types.proto";
 
 // UserService 提供用户基本信息相关的 gRPC 服务
 service UserService {
     // 获取用户信息
   rpc GetUser(GetUserRequest) returns (GetUserResponse);
+
+    // 注册新用户
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+
+    // 登录
+  rpc Login(LoginRequest) returns (LoginResponse);
 }
 
 // RoomAuthorizationService 提供房间授权相关的 gRPC 服务

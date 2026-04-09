@@ -24,9 +24,11 @@ var File_user_service_proto protoreflect.FileDescriptor
 
 const file_user_service_proto_rawDesc = "" +
 	"\n" +
-	"\x12user/service.proto\x12\x04user\x1a\x0fuser/user.proto2E\n" +
+	"\x12user/service.proto\x12\x04user\x1a\x0fuser/user.proto\x1a\x10user/types.proto2\xb2\x01\n" +
 	"\vUserService\x126\n" +
-	"\aGetUser\x12\x14.user.GetUserRequest\x1a\x15.user.GetUserResponse2\xba\x01\n" +
+	"\aGetUser\x12\x14.user.GetUserRequest\x1a\x15.user.GetUserResponse\x129\n" +
+	"\bRegister\x12\x15.user.RegisterRequest\x1a\x16.user.RegisterResponse\x120\n" +
+	"\x05Login\x12\x12.user.LoginRequest\x1a\x13.user.LoginResponse2\xba\x01\n" +
 	"\x18RoomAuthorizationService\x12N\n" +
 	"\x0fGetUserRoomRole\x12\x1c.user.GetUserRoomRoleRequest\x1a\x1d.user.GetUserRoomRoleResponse\x12N\n" +
 	"\x0fCheckPermission\x12\x1c.user.CheckPermissionRequest\x1a\x1d.user.CheckPermissionResponse2\xe0\x01\n" +
@@ -38,33 +40,41 @@ const file_user_service_proto_rawDesc = "" +
 
 var file_user_service_proto_goTypes = []any{
 	(*GetUserRequest)(nil),          // 0: user.GetUserRequest
-	(*GetUserRoomRoleRequest)(nil),  // 1: user.GetUserRoomRoleRequest
-	(*CheckPermissionRequest)(nil),  // 2: user.CheckPermissionRequest
-	(*ValidateTokenRequest)(nil),    // 3: user.ValidateTokenRequest
-	(*ParseTokenRequest)(nil),       // 4: user.ParseTokenRequest
-	(*RefreshTokenRequest)(nil),     // 5: user.RefreshTokenRequest
-	(*GetUserResponse)(nil),         // 6: user.GetUserResponse
-	(*GetUserRoomRoleResponse)(nil), // 7: user.GetUserRoomRoleResponse
-	(*CheckPermissionResponse)(nil), // 8: user.CheckPermissionResponse
-	(*ValidateTokenResponse)(nil),   // 9: user.ValidateTokenResponse
-	(*ParseTokenResponse)(nil),      // 10: user.ParseTokenResponse
-	(*RefreshTokenResponse)(nil),    // 11: user.RefreshTokenResponse
+	(*RegisterRequest)(nil),         // 1: user.RegisterRequest
+	(*LoginRequest)(nil),            // 2: user.LoginRequest
+	(*GetUserRoomRoleRequest)(nil),  // 3: user.GetUserRoomRoleRequest
+	(*CheckPermissionRequest)(nil),  // 4: user.CheckPermissionRequest
+	(*ValidateTokenRequest)(nil),    // 5: user.ValidateTokenRequest
+	(*ParseTokenRequest)(nil),       // 6: user.ParseTokenRequest
+	(*RefreshTokenRequest)(nil),     // 7: user.RefreshTokenRequest
+	(*GetUserResponse)(nil),         // 8: user.GetUserResponse
+	(*RegisterResponse)(nil),        // 9: user.RegisterResponse
+	(*LoginResponse)(nil),           // 10: user.LoginResponse
+	(*GetUserRoomRoleResponse)(nil), // 11: user.GetUserRoomRoleResponse
+	(*CheckPermissionResponse)(nil), // 12: user.CheckPermissionResponse
+	(*ValidateTokenResponse)(nil),   // 13: user.ValidateTokenResponse
+	(*ParseTokenResponse)(nil),      // 14: user.ParseTokenResponse
+	(*RefreshTokenResponse)(nil),    // 15: user.RefreshTokenResponse
 }
 var file_user_service_proto_depIdxs = []int32{
 	0,  // 0: user.UserService.GetUser:input_type -> user.GetUserRequest
-	1,  // 1: user.RoomAuthorizationService.GetUserRoomRole:input_type -> user.GetUserRoomRoleRequest
-	2,  // 2: user.RoomAuthorizationService.CheckPermission:input_type -> user.CheckPermissionRequest
-	3,  // 3: user.TokenService.ValidateToken:input_type -> user.ValidateTokenRequest
-	4,  // 4: user.TokenService.ParseToken:input_type -> user.ParseTokenRequest
-	5,  // 5: user.TokenService.RefreshToken:input_type -> user.RefreshTokenRequest
-	6,  // 6: user.UserService.GetUser:output_type -> user.GetUserResponse
-	7,  // 7: user.RoomAuthorizationService.GetUserRoomRole:output_type -> user.GetUserRoomRoleResponse
-	8,  // 8: user.RoomAuthorizationService.CheckPermission:output_type -> user.CheckPermissionResponse
-	9,  // 9: user.TokenService.ValidateToken:output_type -> user.ValidateTokenResponse
-	10, // 10: user.TokenService.ParseToken:output_type -> user.ParseTokenResponse
-	11, // 11: user.TokenService.RefreshToken:output_type -> user.RefreshTokenResponse
-	6,  // [6:12] is the sub-list for method output_type
-	0,  // [0:6] is the sub-list for method input_type
+	1,  // 1: user.UserService.Register:input_type -> user.RegisterRequest
+	2,  // 2: user.UserService.Login:input_type -> user.LoginRequest
+	3,  // 3: user.RoomAuthorizationService.GetUserRoomRole:input_type -> user.GetUserRoomRoleRequest
+	4,  // 4: user.RoomAuthorizationService.CheckPermission:input_type -> user.CheckPermissionRequest
+	5,  // 5: user.TokenService.ValidateToken:input_type -> user.ValidateTokenRequest
+	6,  // 6: user.TokenService.ParseToken:input_type -> user.ParseTokenRequest
+	7,  // 7: user.TokenService.RefreshToken:input_type -> user.RefreshTokenRequest
+	8,  // 8: user.UserService.GetUser:output_type -> user.GetUserResponse
+	9,  // 9: user.UserService.Register:output_type -> user.RegisterResponse
+	10, // 10: user.UserService.Login:output_type -> user.LoginResponse
+	11, // 11: user.RoomAuthorizationService.GetUserRoomRole:output_type -> user.GetUserRoomRoleResponse
+	12, // 12: user.RoomAuthorizationService.CheckPermission:output_type -> user.CheckPermissionResponse
+	13, // 13: user.TokenService.ValidateToken:output_type -> user.ValidateTokenResponse
+	14, // 14: user.TokenService.ParseToken:output_type -> user.ParseTokenResponse
+	15, // 15: user.TokenService.RefreshToken:output_type -> user.RefreshTokenResponse
+	8,  // [8:16] is the sub-list for method output_type
+	0,  // [0:8] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name
@@ -76,6 +86,7 @@ func file_user_service_proto_init() {
 		return
 	}
 	file_user_user_proto_init()
+	file_user_types_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

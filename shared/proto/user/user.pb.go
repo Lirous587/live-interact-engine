@@ -315,7 +315,8 @@ func (x *ParseTokenResponse) GetErrorMessage() string {
 // ==================== Refresh Token ====================
 type RefreshTokenRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RefreshToken  string                 `protobuf:"bytes,1,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
+	UserIdentity  *UserIdentity          `protobuf:"bytes,1,opt,name=user_identity,json=userIdentity,proto3" json:"user_identity,omitempty"`
+	RefreshToken  string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -348,6 +349,13 @@ func (x *RefreshTokenRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use RefreshTokenRequest.ProtoReflect.Descriptor instead.
 func (*RefreshTokenRequest) Descriptor() ([]byte, []int) {
 	return file_user_user_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *RefreshTokenRequest) GetUserIdentity() *UserIdentity {
+	if x != nil {
+		return x.UserIdentity
+	}
+	return nil
 }
 
 func (x *RefreshTokenRequest) GetRefreshToken() string {
@@ -632,9 +640,10 @@ const file_user_user_proto_rawDesc = "" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"g\n" +
 	"\x12ParseTokenResponse\x12,\n" +
 	"\apayload\x18\x01 \x01(\v2\x12.user.TokenPayloadR\apayload\x12#\n" +
-	"\rerror_message\x18\x02 \x01(\tR\ferrorMessage\":\n" +
-	"\x13RefreshTokenRequest\x12#\n" +
-	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"k\n" +
+	"\rerror_message\x18\x02 \x01(\tR\ferrorMessage\"s\n" +
+	"\x13RefreshTokenRequest\x127\n" +
+	"\ruser_identity\x18\x01 \x01(\v2\x12.user.UserIdentityR\fuserIdentity\x12#\n" +
+	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\"k\n" +
 	"\x14RefreshTokenResponse\x12.\n" +
 	"\n" +
 	"token_pair\x18\x01 \x01(\v2\x0f.user.TokenPairR\ttokenPair\x12#\n" +
@@ -681,21 +690,23 @@ var file_user_user_proto_goTypes = []any{
 	(*CheckPermissionResponse)(nil), // 11: user.CheckPermissionResponse
 	(*User)(nil),                    // 12: user.User
 	(*TokenPayload)(nil),            // 13: user.TokenPayload
-	(*TokenPair)(nil),               // 14: user.TokenPair
-	(*UserRoomRole)(nil),            // 15: user.UserRoomRole
-	(Permission)(0),                 // 16: user.Permission
+	(*UserIdentity)(nil),            // 14: user.UserIdentity
+	(*TokenPair)(nil),               // 15: user.TokenPair
+	(*UserRoomRole)(nil),            // 16: user.UserRoomRole
+	(Permission)(0),                 // 17: user.Permission
 }
 var file_user_user_proto_depIdxs = []int32{
 	12, // 0: user.GetUserResponse.user:type_name -> user.User
 	13, // 1: user.ParseTokenResponse.payload:type_name -> user.TokenPayload
-	14, // 2: user.RefreshTokenResponse.token_pair:type_name -> user.TokenPair
-	15, // 3: user.GetUserRoomRoleResponse.user_room_role:type_name -> user.UserRoomRole
-	16, // 4: user.CheckPermissionRequest.permission:type_name -> user.Permission
-	5,  // [5:5] is the sub-list for method output_type
-	5,  // [5:5] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	14, // 2: user.RefreshTokenRequest.user_identity:type_name -> user.UserIdentity
+	15, // 3: user.RefreshTokenResponse.token_pair:type_name -> user.TokenPair
+	16, // 4: user.GetUserRoomRoleResponse.user_room_role:type_name -> user.UserRoomRole
+	17, // 5: user.CheckPermissionRequest.permission:type_name -> user.Permission
+	6,  // [6:6] is the sub-list for method output_type
+	6,  // [6:6] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_user_user_proto_init() }
