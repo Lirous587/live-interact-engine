@@ -21,28 +21,90 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// ==================== 获取用户信息 ====================
-type GetUserRequest struct {
+type Permission int32
+
+const (
+	Permission_PERMISSION_UNSPECIFIED Permission = 0
+	Permission_DANMAKU_SEND           Permission = 1 // 发送普通弹幕
+	Permission_DANMAKU_PIN            Permission = 2 // 发送精选/固定弹幕
+	Permission_DANMAKU_DELETE         Permission = 3 // 删除弹幕
+	Permission_USER_MANAGE            Permission = 4 // 用户管理
+	Permission_ROLE_MANAGE            Permission = 5 // 角色管理
+)
+
+// Enum value maps for Permission.
+var (
+	Permission_name = map[int32]string{
+		0: "PERMISSION_UNSPECIFIED",
+		1: "DANMAKU_SEND",
+		2: "DANMAKU_PIN",
+		3: "DANMAKU_DELETE",
+		4: "USER_MANAGE",
+		5: "ROLE_MANAGE",
+	}
+	Permission_value = map[string]int32{
+		"PERMISSION_UNSPECIFIED": 0,
+		"DANMAKU_SEND":           1,
+		"DANMAKU_PIN":            2,
+		"DANMAKU_DELETE":         3,
+		"USER_MANAGE":            4,
+		"ROLE_MANAGE":            5,
+	}
+)
+
+func (x Permission) Enum() *Permission {
+	p := new(Permission)
+	*p = x
+	return p
+}
+
+func (x Permission) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Permission) Descriptor() protoreflect.EnumDescriptor {
+	return file_user_user_proto_enumTypes[0].Descriptor()
+}
+
+func (Permission) Type() protoreflect.EnumType {
+	return &file_user_user_proto_enumTypes[0]
+}
+
+func (x Permission) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Permission.Descriptor instead.
+func (Permission) EnumDescriptor() ([]byte, []int) {
+	return file_user_user_proto_rawDescGZIP(), []int{0}
+}
+
+type User struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	CreatedAt     int64                  `protobuf:"varint,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // Unix timestamp
+	UpdatedAt     int64                  `protobuf:"varint,5,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // Unix timestamp
+	IsActive      bool                   `protobuf:"varint,6,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetUserRequest) Reset() {
-	*x = GetUserRequest{}
+func (x *User) Reset() {
+	*x = User{}
 	mi := &file_user_user_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetUserRequest) String() string {
+func (x *User) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetUserRequest) ProtoMessage() {}
+func (*User) ProtoMessage() {}
 
-func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
+func (x *User) ProtoReflect() protoreflect.Message {
 	mi := &file_user_user_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -54,39 +116,80 @@ func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetUserRequest.ProtoReflect.Descriptor instead.
-func (*GetUserRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use User.ProtoReflect.Descriptor instead.
+func (*User) Descriptor() ([]byte, []int) {
 	return file_user_user_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *GetUserRequest) GetUserId() string {
+func (x *User) GetUserId() string {
 	if x != nil {
 		return x.UserId
 	}
 	return ""
 }
 
-type GetUserResponse struct {
+func (x *User) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *User) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *User) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+func (x *User) GetUpdatedAt() int64 {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return 0
+}
+
+func (x *User) GetIsActive() bool {
+	if x != nil {
+		return x.IsActive
+	}
+	return false
+}
+
+type UserRoomRole struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	RoomId        string                 `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	RoleName      string                 `protobuf:"bytes,3,opt,name=role_name,json=roleName,proto3" json:"role_name,omitempty"`
+	IsOwner       bool                   `protobuf:"varint,4,opt,name=is_owner,json=isOwner,proto3" json:"is_owner,omitempty"`                      // 是否是房主
+	Permissions   []Permission           `protobuf:"varint,5,rep,packed,name=permissions,proto3,enum=user.Permission" json:"permissions,omitempty"` // 具体权限列表
+	CreatedAt     int64                  `protobuf:"varint,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                // Unix timestamp
+	UpdatedAt     int64                  `protobuf:"varint,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                // Unix timestamp
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetUserResponse) Reset() {
-	*x = GetUserResponse{}
+func (x *UserRoomRole) Reset() {
+	*x = UserRoomRole{}
 	mi := &file_user_user_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetUserResponse) String() string {
+func (x *UserRoomRole) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetUserResponse) ProtoMessage() {}
+func (*UserRoomRole) ProtoMessage() {}
 
-func (x *GetUserResponse) ProtoReflect() protoreflect.Message {
+func (x *UserRoomRole) ProtoReflect() protoreflect.Message {
 	mi := &file_user_user_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -98,40 +201,82 @@ func (x *GetUserResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetUserResponse.ProtoReflect.Descriptor instead.
-func (*GetUserResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use UserRoomRole.ProtoReflect.Descriptor instead.
+func (*UserRoomRole) Descriptor() ([]byte, []int) {
 	return file_user_user_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *GetUserResponse) GetUser() *User {
+func (x *UserRoomRole) GetUserId() string {
 	if x != nil {
-		return x.User
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *UserRoomRole) GetRoomId() string {
+	if x != nil {
+		return x.RoomId
+	}
+	return ""
+}
+
+func (x *UserRoomRole) GetRoleName() string {
+	if x != nil {
+		return x.RoleName
+	}
+	return ""
+}
+
+func (x *UserRoomRole) GetIsOwner() bool {
+	if x != nil {
+		return x.IsOwner
+	}
+	return false
+}
+
+func (x *UserRoomRole) GetPermissions() []Permission {
+	if x != nil {
+		return x.Permissions
 	}
 	return nil
 }
 
-// ==================== 校验 Token ====================
-type ValidateTokenRequest struct {
+func (x *UserRoomRole) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+func (x *UserRoomRole) GetUpdatedAt() int64 {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return 0
+}
+
+type UserIdentity struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	AccessToken   string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	DeviceId      string                 `protobuf:"bytes,2,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ValidateTokenRequest) Reset() {
-	*x = ValidateTokenRequest{}
+func (x *UserIdentity) Reset() {
+	*x = UserIdentity{}
 	mi := &file_user_user_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ValidateTokenRequest) String() string {
+func (x *UserIdentity) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ValidateTokenRequest) ProtoMessage() {}
+func (*UserIdentity) ProtoMessage() {}
 
-func (x *ValidateTokenRequest) ProtoReflect() protoreflect.Message {
+func (x *UserIdentity) ProtoReflect() protoreflect.Message {
 	mi := &file_user_user_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -143,41 +288,48 @@ func (x *ValidateTokenRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ValidateTokenRequest.ProtoReflect.Descriptor instead.
-func (*ValidateTokenRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use UserIdentity.ProtoReflect.Descriptor instead.
+func (*UserIdentity) Descriptor() ([]byte, []int) {
 	return file_user_user_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *ValidateTokenRequest) GetAccessToken() string {
+func (x *UserIdentity) GetUserId() string {
 	if x != nil {
-		return x.AccessToken
+		return x.UserId
 	}
 	return ""
 }
 
-type ValidateTokenResponse struct {
+func (x *UserIdentity) GetDeviceId() string {
+	if x != nil {
+		return x.DeviceId
+	}
+	return ""
+}
+
+type TokenPayload struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	IsValid       bool                   `protobuf:"varint,1,opt,name=is_valid,json=isValid,proto3" json:"is_valid,omitempty"`
-	IsExpired     bool                   `protobuf:"varint,2,opt,name=is_expired,json=isExpired,proto3" json:"is_expired,omitempty"`
-	ErrorMessage  string                 `protobuf:"bytes,3,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	UserIdentity  *UserIdentity          `protobuf:"bytes,1,opt,name=user_identity,json=userIdentity,proto3" json:"user_identity,omitempty"`
+	IssAt         int64                  `protobuf:"varint,2,opt,name=iss_at,json=issAt,proto3" json:"iss_at,omitempty"` // Unix timestamp
+	ExpAt         int64                  `protobuf:"varint,3,opt,name=exp_at,json=expAt,proto3" json:"exp_at,omitempty"` // Unix timestamp
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ValidateTokenResponse) Reset() {
-	*x = ValidateTokenResponse{}
+func (x *TokenPayload) Reset() {
+	*x = TokenPayload{}
 	mi := &file_user_user_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ValidateTokenResponse) String() string {
+func (x *TokenPayload) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ValidateTokenResponse) ProtoMessage() {}
+func (*TokenPayload) ProtoMessage() {}
 
-func (x *ValidateTokenResponse) ProtoReflect() protoreflect.Message {
+func (x *TokenPayload) ProtoReflect() protoreflect.Message {
 	mi := &file_user_user_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -189,478 +341,144 @@ func (x *ValidateTokenResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ValidateTokenResponse.ProtoReflect.Descriptor instead.
-func (*ValidateTokenResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use TokenPayload.ProtoReflect.Descriptor instead.
+func (*TokenPayload) Descriptor() ([]byte, []int) {
 	return file_user_user_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ValidateTokenResponse) GetIsValid() bool {
-	if x != nil {
-		return x.IsValid
-	}
-	return false
-}
-
-func (x *ValidateTokenResponse) GetIsExpired() bool {
-	if x != nil {
-		return x.IsExpired
-	}
-	return false
-}
-
-func (x *ValidateTokenResponse) GetErrorMessage() string {
-	if x != nil {
-		return x.ErrorMessage
-	}
-	return ""
-}
-
-// ==================== 解析 Token ====================
-type ParseTokenRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AccessToken   string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ParseTokenRequest) Reset() {
-	*x = ParseTokenRequest{}
-	mi := &file_user_user_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ParseTokenRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ParseTokenRequest) ProtoMessage() {}
-
-func (x *ParseTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ParseTokenRequest.ProtoReflect.Descriptor instead.
-func (*ParseTokenRequest) Descriptor() ([]byte, []int) {
-	return file_user_user_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *ParseTokenRequest) GetAccessToken() string {
-	if x != nil {
-		return x.AccessToken
-	}
-	return ""
-}
-
-type ParseTokenResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Payload       *TokenPayload          `protobuf:"bytes,1,opt,name=payload,proto3" json:"payload,omitempty"`
-	ErrorMessage  string                 `protobuf:"bytes,2,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ParseTokenResponse) Reset() {
-	*x = ParseTokenResponse{}
-	mi := &file_user_user_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ParseTokenResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ParseTokenResponse) ProtoMessage() {}
-
-func (x *ParseTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ParseTokenResponse.ProtoReflect.Descriptor instead.
-func (*ParseTokenResponse) Descriptor() ([]byte, []int) {
-	return file_user_user_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *ParseTokenResponse) GetPayload() *TokenPayload {
-	if x != nil {
-		return x.Payload
-	}
-	return nil
-}
-
-func (x *ParseTokenResponse) GetErrorMessage() string {
-	if x != nil {
-		return x.ErrorMessage
-	}
-	return ""
-}
-
-// ==================== Refresh Token ====================
-type RefreshTokenRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserIdentity  *UserIdentity          `protobuf:"bytes,1,opt,name=user_identity,json=userIdentity,proto3" json:"user_identity,omitempty"`
-	RefreshToken  string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RefreshTokenRequest) Reset() {
-	*x = RefreshTokenRequest{}
-	mi := &file_user_user_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RefreshTokenRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RefreshTokenRequest) ProtoMessage() {}
-
-func (x *RefreshTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RefreshTokenRequest.ProtoReflect.Descriptor instead.
-func (*RefreshTokenRequest) Descriptor() ([]byte, []int) {
-	return file_user_user_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *RefreshTokenRequest) GetUserIdentity() *UserIdentity {
+func (x *TokenPayload) GetUserIdentity() *UserIdentity {
 	if x != nil {
 		return x.UserIdentity
 	}
 	return nil
 }
 
-func (x *RefreshTokenRequest) GetRefreshToken() string {
+func (x *TokenPayload) GetIssAt() int64 {
+	if x != nil {
+		return x.IssAt
+	}
+	return 0
+}
+
+func (x *TokenPayload) GetExpAt() int64 {
+	if x != nil {
+		return x.ExpAt
+	}
+	return 0
+}
+
+type TokenPair struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	AccessToken      string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+	RefreshToken     string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
+	AccessExpiresAt  int64                  `protobuf:"varint,3,opt,name=access_expires_at,json=accessExpiresAt,proto3" json:"access_expires_at,omitempty"`    // Unix timestamp
+	RefreshExpiresAt int64                  `protobuf:"varint,4,opt,name=refresh_expires_at,json=refreshExpiresAt,proto3" json:"refresh_expires_at,omitempty"` // Unix timestamp
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *TokenPair) Reset() {
+	*x = TokenPair{}
+	mi := &file_user_user_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TokenPair) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TokenPair) ProtoMessage() {}
+
+func (x *TokenPair) ProtoReflect() protoreflect.Message {
+	mi := &file_user_user_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TokenPair.ProtoReflect.Descriptor instead.
+func (*TokenPair) Descriptor() ([]byte, []int) {
+	return file_user_user_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *TokenPair) GetAccessToken() string {
+	if x != nil {
+		return x.AccessToken
+	}
+	return ""
+}
+
+func (x *TokenPair) GetRefreshToken() string {
 	if x != nil {
 		return x.RefreshToken
 	}
 	return ""
 }
 
-type RefreshTokenResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TokenPair     *TokenPair             `protobuf:"bytes,1,opt,name=token_pair,json=tokenPair,proto3" json:"token_pair,omitempty"`
-	ErrorMessage  string                 `protobuf:"bytes,2,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RefreshTokenResponse) Reset() {
-	*x = RefreshTokenResponse{}
-	mi := &file_user_user_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RefreshTokenResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RefreshTokenResponse) ProtoMessage() {}
-
-func (x *RefreshTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_proto_msgTypes[7]
+func (x *TokenPair) GetAccessExpiresAt() int64 {
 	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
+		return x.AccessExpiresAt
 	}
-	return mi.MessageOf(x)
+	return 0
 }
 
-// Deprecated: Use RefreshTokenResponse.ProtoReflect.Descriptor instead.
-func (*RefreshTokenResponse) Descriptor() ([]byte, []int) {
-	return file_user_user_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *RefreshTokenResponse) GetTokenPair() *TokenPair {
+func (x *TokenPair) GetRefreshExpiresAt() int64 {
 	if x != nil {
-		return x.TokenPair
+		return x.RefreshExpiresAt
 	}
-	return nil
-}
-
-func (x *RefreshTokenResponse) GetErrorMessage() string {
-	if x != nil {
-		return x.ErrorMessage
-	}
-	return ""
-}
-
-// ==================== 获取房间角色信息 ====================
-type GetUserRoomRoleRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	RoomId        string                 `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetUserRoomRoleRequest) Reset() {
-	*x = GetUserRoomRoleRequest{}
-	mi := &file_user_user_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetUserRoomRoleRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetUserRoomRoleRequest) ProtoMessage() {}
-
-func (x *GetUserRoomRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetUserRoomRoleRequest.ProtoReflect.Descriptor instead.
-func (*GetUserRoomRoleRequest) Descriptor() ([]byte, []int) {
-	return file_user_user_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *GetUserRoomRoleRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *GetUserRoomRoleRequest) GetRoomId() string {
-	if x != nil {
-		return x.RoomId
-	}
-	return ""
-}
-
-type GetUserRoomRoleResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserRoomRole  *UserRoomRole          `protobuf:"bytes,1,opt,name=user_room_role,json=userRoomRole,proto3" json:"user_room_role,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetUserRoomRoleResponse) Reset() {
-	*x = GetUserRoomRoleResponse{}
-	mi := &file_user_user_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetUserRoomRoleResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetUserRoomRoleResponse) ProtoMessage() {}
-
-func (x *GetUserRoomRoleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetUserRoomRoleResponse.ProtoReflect.Descriptor instead.
-func (*GetUserRoomRoleResponse) Descriptor() ([]byte, []int) {
-	return file_user_user_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *GetUserRoomRoleResponse) GetUserRoomRole() *UserRoomRole {
-	if x != nil {
-		return x.UserRoomRole
-	}
-	return nil
-}
-
-// ==================== 检查房间权限 ====================
-type CheckPermissionRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Permission    Permission             `protobuf:"varint,2,opt,name=permission,proto3,enum=user.Permission" json:"permission,omitempty"`
-	RoomId        string                 `protobuf:"bytes,3,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"` // 房间 ID
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CheckPermissionRequest) Reset() {
-	*x = CheckPermissionRequest{}
-	mi := &file_user_user_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CheckPermissionRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CheckPermissionRequest) ProtoMessage() {}
-
-func (x *CheckPermissionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CheckPermissionRequest.ProtoReflect.Descriptor instead.
-func (*CheckPermissionRequest) Descriptor() ([]byte, []int) {
-	return file_user_user_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *CheckPermissionRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *CheckPermissionRequest) GetPermission() Permission {
-	if x != nil {
-		return x.Permission
-	}
-	return Permission_PERMISSION_UNSPECIFIED
-}
-
-func (x *CheckPermissionRequest) GetRoomId() string {
-	if x != nil {
-		return x.RoomId
-	}
-	return ""
-}
-
-type CheckPermissionResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	HasPermission bool                   `protobuf:"varint,1,opt,name=has_permission,json=hasPermission,proto3" json:"has_permission,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CheckPermissionResponse) Reset() {
-	*x = CheckPermissionResponse{}
-	mi := &file_user_user_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CheckPermissionResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CheckPermissionResponse) ProtoMessage() {}
-
-func (x *CheckPermissionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CheckPermissionResponse.ProtoReflect.Descriptor instead.
-func (*CheckPermissionResponse) Descriptor() ([]byte, []int) {
-	return file_user_user_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *CheckPermissionResponse) GetHasPermission() bool {
-	if x != nil {
-		return x.HasPermission
-	}
-	return false
+	return 0
 }
 
 var File_user_user_proto protoreflect.FileDescriptor
 
 const file_user_user_proto_rawDesc = "" +
 	"\n" +
-	"\x0fuser/user.proto\x12\x04user\x1a\x10user/types.proto\")\n" +
-	"\x0eGetUserRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\"1\n" +
-	"\x0fGetUserResponse\x12\x1e\n" +
-	"\x04user\x18\x01 \x01(\v2\n" +
-	".user.UserR\x04user\"9\n" +
-	"\x14ValidateTokenRequest\x12!\n" +
-	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"v\n" +
-	"\x15ValidateTokenResponse\x12\x19\n" +
-	"\bis_valid\x18\x01 \x01(\bR\aisValid\x12\x1d\n" +
+	"\x0fuser/user.proto\x12\x04user\"\xac\x01\n" +
+	"\x04User\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
+	"\x05email\x18\x03 \x01(\tR\x05email\x12\x1d\n" +
 	"\n" +
-	"is_expired\x18\x02 \x01(\bR\tisExpired\x12#\n" +
-	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage\"6\n" +
-	"\x11ParseTokenRequest\x12!\n" +
-	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"g\n" +
-	"\x12ParseTokenResponse\x12,\n" +
-	"\apayload\x18\x01 \x01(\v2\x12.user.TokenPayloadR\apayload\x12#\n" +
-	"\rerror_message\x18\x02 \x01(\tR\ferrorMessage\"s\n" +
-	"\x13RefreshTokenRequest\x127\n" +
-	"\ruser_identity\x18\x01 \x01(\v2\x12.user.UserIdentityR\fuserIdentity\x12#\n" +
-	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\"k\n" +
-	"\x14RefreshTokenResponse\x12.\n" +
+	"created_at\x18\x04 \x01(\x03R\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"token_pair\x18\x01 \x01(\v2\x0f.user.TokenPairR\ttokenPair\x12#\n" +
-	"\rerror_message\x18\x02 \x01(\tR\ferrorMessage\"J\n" +
-	"\x16GetUserRoomRoleRequest\x12\x17\n" +
+	"updated_at\x18\x05 \x01(\x03R\tupdatedAt\x12\x1b\n" +
+	"\tis_active\x18\x06 \x01(\bR\bisActive\"\xea\x01\n" +
+	"\fUserRoomRole\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x17\n" +
-	"\aroom_id\x18\x02 \x01(\tR\x06roomId\"S\n" +
-	"\x17GetUserRoomRoleResponse\x128\n" +
-	"\x0euser_room_role\x18\x01 \x01(\v2\x12.user.UserRoomRoleR\fuserRoomRole\"|\n" +
-	"\x16CheckPermissionRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x120\n" +
+	"\aroom_id\x18\x02 \x01(\tR\x06roomId\x12\x1b\n" +
+	"\trole_name\x18\x03 \x01(\tR\broleName\x12\x19\n" +
+	"\bis_owner\x18\x04 \x01(\bR\aisOwner\x122\n" +
+	"\vpermissions\x18\x05 \x03(\x0e2\x10.user.PermissionR\vpermissions\x12\x1d\n" +
 	"\n" +
-	"permission\x18\x02 \x01(\x0e2\x10.user.PermissionR\n" +
-	"permission\x12\x17\n" +
-	"\aroom_id\x18\x03 \x01(\tR\x06roomId\"@\n" +
-	"\x17CheckPermissionResponse\x12%\n" +
-	"\x0ehas_permission\x18\x01 \x01(\bR\rhasPermissionB\x18Z\x16shared/proto/user;userb\x06proto3"
+	"created_at\x18\x06 \x01(\x03R\tcreatedAt\x12\x1d\n" +
+	"\n" +
+	"updated_at\x18\a \x01(\x03R\tupdatedAt\"D\n" +
+	"\fUserIdentity\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
+	"\tdevice_id\x18\x02 \x01(\tR\bdeviceId\"u\n" +
+	"\fTokenPayload\x127\n" +
+	"\ruser_identity\x18\x01 \x01(\v2\x12.user.UserIdentityR\fuserIdentity\x12\x15\n" +
+	"\x06iss_at\x18\x02 \x01(\x03R\x05issAt\x12\x15\n" +
+	"\x06exp_at\x18\x03 \x01(\x03R\x05expAt\"\xad\x01\n" +
+	"\tTokenPair\x12!\n" +
+	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
+	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x12*\n" +
+	"\x11access_expires_at\x18\x03 \x01(\x03R\x0faccessExpiresAt\x12,\n" +
+	"\x12refresh_expires_at\x18\x04 \x01(\x03R\x10refreshExpiresAt*\x81\x01\n" +
+	"\n" +
+	"Permission\x12\x1a\n" +
+	"\x16PERMISSION_UNSPECIFIED\x10\x00\x12\x10\n" +
+	"\fDANMAKU_SEND\x10\x01\x12\x0f\n" +
+	"\vDANMAKU_PIN\x10\x02\x12\x12\n" +
+	"\x0eDANMAKU_DELETE\x10\x03\x12\x0f\n" +
+	"\vUSER_MANAGE\x10\x04\x12\x0f\n" +
+	"\vROLE_MANAGE\x10\x05B\x18Z\x16shared/proto/user;userb\x06proto3"
 
 var (
 	file_user_user_proto_rawDescOnce sync.Once
@@ -674,39 +492,24 @@ func file_user_user_proto_rawDescGZIP() []byte {
 	return file_user_user_proto_rawDescData
 }
 
-var file_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_user_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_user_user_proto_goTypes = []any{
-	(*GetUserRequest)(nil),          // 0: user.GetUserRequest
-	(*GetUserResponse)(nil),         // 1: user.GetUserResponse
-	(*ValidateTokenRequest)(nil),    // 2: user.ValidateTokenRequest
-	(*ValidateTokenResponse)(nil),   // 3: user.ValidateTokenResponse
-	(*ParseTokenRequest)(nil),       // 4: user.ParseTokenRequest
-	(*ParseTokenResponse)(nil),      // 5: user.ParseTokenResponse
-	(*RefreshTokenRequest)(nil),     // 6: user.RefreshTokenRequest
-	(*RefreshTokenResponse)(nil),    // 7: user.RefreshTokenResponse
-	(*GetUserRoomRoleRequest)(nil),  // 8: user.GetUserRoomRoleRequest
-	(*GetUserRoomRoleResponse)(nil), // 9: user.GetUserRoomRoleResponse
-	(*CheckPermissionRequest)(nil),  // 10: user.CheckPermissionRequest
-	(*CheckPermissionResponse)(nil), // 11: user.CheckPermissionResponse
-	(*User)(nil),                    // 12: user.User
-	(*TokenPayload)(nil),            // 13: user.TokenPayload
-	(*UserIdentity)(nil),            // 14: user.UserIdentity
-	(*TokenPair)(nil),               // 15: user.TokenPair
-	(*UserRoomRole)(nil),            // 16: user.UserRoomRole
-	(Permission)(0),                 // 17: user.Permission
+	(Permission)(0),      // 0: user.Permission
+	(*User)(nil),         // 1: user.User
+	(*UserRoomRole)(nil), // 2: user.UserRoomRole
+	(*UserIdentity)(nil), // 3: user.UserIdentity
+	(*TokenPayload)(nil), // 4: user.TokenPayload
+	(*TokenPair)(nil),    // 5: user.TokenPair
 }
 var file_user_user_proto_depIdxs = []int32{
-	12, // 0: user.GetUserResponse.user:type_name -> user.User
-	13, // 1: user.ParseTokenResponse.payload:type_name -> user.TokenPayload
-	14, // 2: user.RefreshTokenRequest.user_identity:type_name -> user.UserIdentity
-	15, // 3: user.RefreshTokenResponse.token_pair:type_name -> user.TokenPair
-	16, // 4: user.GetUserRoomRoleResponse.user_room_role:type_name -> user.UserRoomRole
-	17, // 5: user.CheckPermissionRequest.permission:type_name -> user.Permission
-	6,  // [6:6] is the sub-list for method output_type
-	6,  // [6:6] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	0, // 0: user.UserRoomRole.permissions:type_name -> user.Permission
+	3, // 1: user.TokenPayload.user_identity:type_name -> user.UserIdentity
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_user_user_proto_init() }
@@ -714,19 +517,19 @@ func file_user_user_proto_init() {
 	if File_user_user_proto != nil {
 		return
 	}
-	file_user_types_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_user_proto_rawDesc), len(file_user_user_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   12,
+			NumEnums:      1,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_user_user_proto_goTypes,
 		DependencyIndexes: file_user_user_proto_depIdxs,
+		EnumInfos:         file_user_user_proto_enumTypes,
 		MessageInfos:      file_user_user_proto_msgTypes,
 	}.Build()
 	File_user_user_proto = out.File

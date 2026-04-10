@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v6.33.4
-// source: user/service.proto
+// source: user/user_service.proto
 
 package user
 
@@ -20,11 +20,11 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-var File_user_service_proto protoreflect.FileDescriptor
+var File_user_user_service_proto protoreflect.FileDescriptor
 
-const file_user_service_proto_rawDesc = "" +
+const file_user_user_service_proto_rawDesc = "" +
 	"\n" +
-	"\x12user/service.proto\x12\x04user\x1a\x0fuser/user.proto\x1a\x10user/types.proto2\xb2\x01\n" +
+	"\x17user/user_service.proto\x12\x04user\x1a\x13user/user_api.proto2\xb2\x01\n" +
 	"\vUserService\x126\n" +
 	"\aGetUser\x12\x14.user.GetUserRequest\x1a\x15.user.GetUserResponse\x129\n" +
 	"\bRegister\x12\x15.user.RegisterRequest\x1a\x16.user.RegisterResponse\x120\n" +
@@ -38,7 +38,7 @@ const file_user_service_proto_rawDesc = "" +
 	"ParseToken\x12\x17.user.ParseTokenRequest\x1a\x18.user.ParseTokenResponse\x12E\n" +
 	"\fRefreshToken\x12\x19.user.RefreshTokenRequest\x1a\x1a.user.RefreshTokenResponseB\x18Z\x16shared/proto/user;userb\x06proto3"
 
-var file_user_service_proto_goTypes = []any{
+var file_user_user_service_proto_goTypes = []any{
 	(*GetUserRequest)(nil),          // 0: user.GetUserRequest
 	(*RegisterRequest)(nil),         // 1: user.RegisterRequest
 	(*LoginRequest)(nil),            // 2: user.LoginRequest
@@ -56,7 +56,7 @@ var file_user_service_proto_goTypes = []any{
 	(*ParseTokenResponse)(nil),      // 14: user.ParseTokenResponse
 	(*RefreshTokenResponse)(nil),    // 15: user.RefreshTokenResponse
 }
-var file_user_service_proto_depIdxs = []int32{
+var file_user_user_service_proto_depIdxs = []int32{
 	0,  // 0: user.UserService.GetUser:input_type -> user.GetUserRequest
 	1,  // 1: user.UserService.Register:input_type -> user.RegisterRequest
 	2,  // 2: user.UserService.Login:input_type -> user.LoginRequest
@@ -80,27 +80,26 @@ var file_user_service_proto_depIdxs = []int32{
 	0,  // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_user_service_proto_init() }
-func file_user_service_proto_init() {
-	if File_user_service_proto != nil {
+func init() { file_user_user_service_proto_init() }
+func file_user_user_service_proto_init() {
+	if File_user_user_service_proto != nil {
 		return
 	}
-	file_user_user_proto_init()
-	file_user_types_proto_init()
+	file_user_user_api_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_service_proto_rawDesc), len(file_user_service_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_user_service_proto_rawDesc), len(file_user_user_service_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   3,
 		},
-		GoTypes:           file_user_service_proto_goTypes,
-		DependencyIndexes: file_user_service_proto_depIdxs,
+		GoTypes:           file_user_user_service_proto_goTypes,
+		DependencyIndexes: file_user_user_service_proto_depIdxs,
 	}.Build()
-	File_user_service_proto = out.File
-	file_user_service_proto_goTypes = nil
-	file_user_service_proto_depIdxs = nil
+	File_user_user_service_proto = out.File
+	file_user_user_service_proto_goTypes = nil
+	file_user_user_service_proto_depIdxs = nil
 }

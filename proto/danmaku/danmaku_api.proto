@@ -5,7 +5,8 @@ package danmaku;
 option go_package = "shared/proto/danmaku;danmaku";
 
 import "danmaku/danmaku.proto";
-import "danmaku/types.proto";
+
+// ==================== Request/Response Messages ====================
 
 message SendDanmakuRequest {
   string      room_id           = 1;
@@ -13,26 +14,19 @@ message SendDanmakuRequest {
   string      username          = 3;
   string      content           = 4;
   DanmakuType type              = 5;
-  string      mentioned_user_id = 6;  // ← 可选，空字符串表示没有 mention
+  string      mentioned_user_id = 6; // ← 可选，空字符串表示没有 mention
 }
 
 message SendDanmakuResponse {
-  Danmaku danmaku = 1;          // 创建的弹幕
-  string  message = 2;           // 状态信息
+  Danmaku danmaku = 1; // 创建的弹幕
+  string  message = 2; // 状态信息
 }
 
-// SubscribeDanmaku 请求（用于流式订阅）
 message SubscribeDanmakuRequest {
   string room_id = 1;
   string user_id = 2;
 }
 
-// SubscribeDanmaku 响应（流式返回）
 message SubscribeDanmakuResponse {
   Danmaku danmaku = 1;
-}
-
-service DanmakuService {
-  rpc SendDanmaku(SendDanmakuRequest) returns (SendDanmakuResponse);
-  rpc SubscribeDanmaku(SubscribeDanmakuRequest) returns (stream SubscribeDanmakuResponse);
 }

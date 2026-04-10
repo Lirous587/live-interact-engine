@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package danmaku;
+
+option go_package = "shared/proto/danmaku;danmaku";
+
+import "danmaku/danmaku_api.proto";
+
+service DanmakuService {
+  rpc SendDanmaku(SendDanmakuRequest) returns (SendDanmakuResponse);
+  rpc SubscribeDanmaku(SubscribeDanmakuRequest) returns (stream SubscribeDanmakuResponse);
+}

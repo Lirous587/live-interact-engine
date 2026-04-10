@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package room;
+
+option go_package = "shared/proto/room;room";
+
+import "room/room_api.proto";
+
+service RoomService {
+  rpc CreateRoom(CreateRoomRequest) returns (CreateRoomResponse);
+  rpc GetRoom(GetRoomRequest) returns (GetRoomResponse);
+  rpc AssignRole(AssignRoleRequest) returns (AssignRoleResponse);
+  rpc GetUserRoomRole(GetUserRoomRoleRequest) returns (GetUserRoomRoleResponse);
+  rpc CheckPermission(CheckPermissionRequest) returns (CheckPermissionResponse);
+}

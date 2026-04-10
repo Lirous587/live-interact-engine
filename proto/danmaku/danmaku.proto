@@ -1,11 +1,28 @@
 syntax = "proto3";
 
 package danmaku;
-import "danmaku/types.proto";
 
 option go_package = "shared/proto/danmaku;danmaku";
 
 import "google/protobuf/timestamp.proto";
+
+// ==================== Enums ====================
+
+enum DanmakuType {
+  DANMAKU_TYPE_NORMAL = 0;
+  DANMAKU_TYPE_SUPER  = 1;
+  DANMAKU_TYPE_GIFT   = 2;
+  DANMAKU_TYPE_PINNED = 3;
+}
+
+enum RoomState {
+  ROOM_STATE_UNSPECIFIED = 0;
+  ROOM_STATE_ACTIVE      = 1; // 直播中
+  ROOM_STATE_CLOSED      = 2; // 已关闭
+  ROOM_STATE_HIDDEN      = 3; // 隐藏
+}
+
+// ==================== Core Messages ====================
 
 message Danmaku {
   string                    id                = 1;
@@ -18,10 +35,9 @@ message Danmaku {
   string                    mentioned_user_id = 8;
 }
 
-// 房间实体
 message Room {
   string                    id            = 1;
-  string                    host_id       = 2;  // 主播id
+  string                    host_id       = 2; // 主播id
   string                    title         = 3;
   RoomState                 state         = 4;
   int32                     viewer_count  = 5;

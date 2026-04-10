@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.0
 // - protoc             v6.33.4
-// source: user/service.proto
+// source: user/user_service.proto
 
 package user
 
@@ -27,14 +27,9 @@ const (
 // UserServiceClient is the client API for UserService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// UserService 提供用户基本信息相关的 gRPC 服务
 type UserServiceClient interface {
-	// 获取用户信息
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
-	// 注册新用户
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
-	// 登录
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 }
 
@@ -79,14 +74,9 @@ func (c *userServiceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
-//
-// UserService 提供用户基本信息相关的 gRPC 服务
 type UserServiceServer interface {
-	// 获取用户信息
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
-	// 注册新用户
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
-	// 登录
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
@@ -203,7 +193,7 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "user/service.proto",
+	Metadata: "user/user_service.proto",
 }
 
 const (
@@ -214,12 +204,8 @@ const (
 // RoomAuthorizationServiceClient is the client API for RoomAuthorizationService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// RoomAuthorizationService 提供房间授权相关的 gRPC 服务
 type RoomAuthorizationServiceClient interface {
-	// 获取用户在某房间的权限角色信息
 	GetUserRoomRole(ctx context.Context, in *GetUserRoomRoleRequest, opts ...grpc.CallOption) (*GetUserRoomRoleResponse, error)
-	// 检查用户在某房间是否有特定权限
 	CheckPermission(ctx context.Context, in *CheckPermissionRequest, opts ...grpc.CallOption) (*CheckPermissionResponse, error)
 }
 
@@ -254,12 +240,8 @@ func (c *roomAuthorizationServiceClient) CheckPermission(ctx context.Context, in
 // RoomAuthorizationServiceServer is the server API for RoomAuthorizationService service.
 // All implementations must embed UnimplementedRoomAuthorizationServiceServer
 // for forward compatibility.
-//
-// RoomAuthorizationService 提供房间授权相关的 gRPC 服务
 type RoomAuthorizationServiceServer interface {
-	// 获取用户在某房间的权限角色信息
 	GetUserRoomRole(context.Context, *GetUserRoomRoleRequest) (*GetUserRoomRoleResponse, error)
-	// 检查用户在某房间是否有特定权限
 	CheckPermission(context.Context, *CheckPermissionRequest) (*CheckPermissionResponse, error)
 	mustEmbedUnimplementedRoomAuthorizationServiceServer()
 }
@@ -352,7 +334,7 @@ var RoomAuthorizationService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "user/service.proto",
+	Metadata: "user/user_service.proto",
 }
 
 const (
@@ -364,14 +346,9 @@ const (
 // TokenServiceClient is the client API for TokenService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// TokenService 提供 Token 相关的 gRPC 服务
 type TokenServiceClient interface {
-	// 校验 Access Token 是否有效
 	ValidateToken(ctx context.Context, in *ValidateTokenRequest, opts ...grpc.CallOption) (*ValidateTokenResponse, error)
-	// 解析 Access Token 获取负载信息
 	ParseToken(ctx context.Context, in *ParseTokenRequest, opts ...grpc.CallOption) (*ParseTokenResponse, error)
-	// Refresh Token（用旧 refresh token 换新的 access + refresh token）
 	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error)
 }
 
@@ -416,14 +393,9 @@ func (c *tokenServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenR
 // TokenServiceServer is the server API for TokenService service.
 // All implementations must embed UnimplementedTokenServiceServer
 // for forward compatibility.
-//
-// TokenService 提供 Token 相关的 gRPC 服务
 type TokenServiceServer interface {
-	// 校验 Access Token 是否有效
 	ValidateToken(context.Context, *ValidateTokenRequest) (*ValidateTokenResponse, error)
-	// 解析 Access Token 获取负载信息
 	ParseToken(context.Context, *ParseTokenRequest) (*ParseTokenResponse, error)
-	// Refresh Token（用旧 refresh token 换新的 access + refresh token）
 	RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
 	mustEmbedUnimplementedTokenServiceServer()
 }
@@ -540,5 +512,5 @@ var TokenService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "user/service.proto",
+	Metadata: "user/user_service.proto",
 }

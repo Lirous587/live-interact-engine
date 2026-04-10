@@ -4,38 +4,21 @@ package user;
 
 option go_package = "shared/proto/user;user";
 
-import "user/user.proto";
-import "user/types.proto";
+import "user/user_api.proto";
 
-// UserService 提供用户基本信息相关的 gRPC 服务
 service UserService {
-    // 获取用户信息
   rpc GetUser(GetUserRequest) returns (GetUserResponse);
-
-    // 注册新用户
   rpc Register(RegisterRequest) returns (RegisterResponse);
-
-    // 登录
   rpc Login(LoginRequest) returns (LoginResponse);
 }
 
-// RoomAuthorizationService 提供房间授权相关的 gRPC 服务
 service RoomAuthorizationService {
-    // 获取用户在某房间的权限角色信息
   rpc GetUserRoomRole(GetUserRoomRoleRequest) returns (GetUserRoomRoleResponse);
-
-    // 检查用户在某房间是否有特定权限
   rpc CheckPermission(CheckPermissionRequest) returns (CheckPermissionResponse);
 }
 
-// TokenService 提供 Token 相关的 gRPC 服务
 service TokenService {
-    // 校验 Access Token 是否有效
   rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
-
-    // 解析 Access Token 获取负载信息
   rpc ParseToken(ParseTokenRequest) returns (ParseTokenResponse);
-
-    // Refresh Token（用旧 refresh token 换新的 access + refresh token）
   rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
 }

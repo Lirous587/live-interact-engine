@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.0
 // - protoc             v6.33.4
-// source: danmaku/service.proto
+// source: danmaku/danmaku_service.proto
 
 package danmaku
 
@@ -159,5 +159,5 @@ var DanmakuService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "danmaku/service.proto",
+	Metadata: "danmaku/danmaku_service.proto",
 }

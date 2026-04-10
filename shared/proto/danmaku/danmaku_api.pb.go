@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v6.33.4
-// source: danmaku/service.proto
+// source: danmaku/danmaku_api.proto
 
 package danmaku
 
@@ -35,7 +35,7 @@ type SendDanmakuRequest struct {
 
 func (x *SendDanmakuRequest) Reset() {
 	*x = SendDanmakuRequest{}
-	mi := &file_danmaku_service_proto_msgTypes[0]
+	mi := &file_danmaku_danmaku_api_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -47,7 +47,7 @@ func (x *SendDanmakuRequest) String() string {
 func (*SendDanmakuRequest) ProtoMessage() {}
 
 func (x *SendDanmakuRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_danmaku_service_proto_msgTypes[0]
+	mi := &file_danmaku_danmaku_api_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -60,7 +60,7 @@ func (x *SendDanmakuRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendDanmakuRequest.ProtoReflect.Descriptor instead.
 func (*SendDanmakuRequest) Descriptor() ([]byte, []int) {
-	return file_danmaku_service_proto_rawDescGZIP(), []int{0}
+	return file_danmaku_danmaku_api_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *SendDanmakuRequest) GetRoomId() string {
@@ -115,7 +115,7 @@ type SendDanmakuResponse struct {
 
 func (x *SendDanmakuResponse) Reset() {
 	*x = SendDanmakuResponse{}
-	mi := &file_danmaku_service_proto_msgTypes[1]
+	mi := &file_danmaku_danmaku_api_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -127,7 +127,7 @@ func (x *SendDanmakuResponse) String() string {
 func (*SendDanmakuResponse) ProtoMessage() {}
 
 func (x *SendDanmakuResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_danmaku_service_proto_msgTypes[1]
+	mi := &file_danmaku_danmaku_api_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -140,7 +140,7 @@ func (x *SendDanmakuResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendDanmakuResponse.ProtoReflect.Descriptor instead.
 func (*SendDanmakuResponse) Descriptor() ([]byte, []int) {
-	return file_danmaku_service_proto_rawDescGZIP(), []int{1}
+	return file_danmaku_danmaku_api_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *SendDanmakuResponse) GetDanmaku() *Danmaku {
@@ -157,7 +157,6 @@ func (x *SendDanmakuResponse) GetMessage() string {
 	return ""
 }
 
-// SubscribeDanmaku 请求（用于流式订阅）
 type SubscribeDanmakuRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RoomId        string                 `protobuf:"bytes,1,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
@@ -168,7 +167,7 @@ type SubscribeDanmakuRequest struct {
 
 func (x *SubscribeDanmakuRequest) Reset() {
 	*x = SubscribeDanmakuRequest{}
-	mi := &file_danmaku_service_proto_msgTypes[2]
+	mi := &file_danmaku_danmaku_api_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -180,7 +179,7 @@ func (x *SubscribeDanmakuRequest) String() string {
 func (*SubscribeDanmakuRequest) ProtoMessage() {}
 
 func (x *SubscribeDanmakuRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_danmaku_service_proto_msgTypes[2]
+	mi := &file_danmaku_danmaku_api_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -193,7 +192,7 @@ func (x *SubscribeDanmakuRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubscribeDanmakuRequest.ProtoReflect.Descriptor instead.
 func (*SubscribeDanmakuRequest) Descriptor() ([]byte, []int) {
-	return file_danmaku_service_proto_rawDescGZIP(), []int{2}
+	return file_danmaku_danmaku_api_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *SubscribeDanmakuRequest) GetRoomId() string {
@@ -210,7 +209,6 @@ func (x *SubscribeDanmakuRequest) GetUserId() string {
 	return ""
 }
 
-// SubscribeDanmaku 响应（流式返回）
 type SubscribeDanmakuResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Danmaku       *Danmaku               `protobuf:"bytes,1,opt,name=danmaku,proto3" json:"danmaku,omitempty"`
@@ -220,7 +218,7 @@ type SubscribeDanmakuResponse struct {
 
 func (x *SubscribeDanmakuResponse) Reset() {
 	*x = SubscribeDanmakuResponse{}
-	mi := &file_danmaku_service_proto_msgTypes[3]
+	mi := &file_danmaku_danmaku_api_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -232,7 +230,7 @@ func (x *SubscribeDanmakuResponse) String() string {
 func (*SubscribeDanmakuResponse) ProtoMessage() {}
 
 func (x *SubscribeDanmakuResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_danmaku_service_proto_msgTypes[3]
+	mi := &file_danmaku_danmaku_api_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -245,7 +243,7 @@ func (x *SubscribeDanmakuResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubscribeDanmakuResponse.ProtoReflect.Descriptor instead.
 func (*SubscribeDanmakuResponse) Descriptor() ([]byte, []int) {
-	return file_danmaku_service_proto_rawDescGZIP(), []int{3}
+	return file_danmaku_danmaku_api_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *SubscribeDanmakuResponse) GetDanmaku() *Danmaku {
@@ -255,11 +253,11 @@ func (x *SubscribeDanmakuResponse) GetDanmaku() *Danmaku {
 	return nil
 }
 
-var File_danmaku_service_proto protoreflect.FileDescriptor
+var File_danmaku_danmaku_api_proto protoreflect.FileDescriptor
 
-const file_danmaku_service_proto_rawDesc = "" +
+const file_danmaku_danmaku_api_proto_rawDesc = "" +
 	"\n" +
-	"\x15danmaku/service.proto\x12\adanmaku\x1a\x15danmaku/danmaku.proto\x1a\x13danmaku/types.proto\"\xd2\x01\n" +
+	"\x19danmaku/danmaku_api.proto\x12\adanmaku\x1a\x15danmaku/danmaku.proto\"\xd2\x01\n" +
 	"\x12SendDanmakuRequest\x12\x17\n" +
 	"\aroom_id\x18\x01 \x01(\tR\x06roomId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1a\n" +
@@ -274,25 +272,22 @@ const file_danmaku_service_proto_rawDesc = "" +
 	"\aroom_id\x18\x01 \x01(\tR\x06roomId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\"F\n" +
 	"\x18SubscribeDanmakuResponse\x12*\n" +
-	"\adanmaku\x18\x01 \x01(\v2\x10.danmaku.DanmakuR\adanmaku2\xb5\x01\n" +
-	"\x0eDanmakuService\x12H\n" +
-	"\vSendDanmaku\x12\x1b.danmaku.SendDanmakuRequest\x1a\x1c.danmaku.SendDanmakuResponse\x12Y\n" +
-	"\x10SubscribeDanmaku\x12 .danmaku.SubscribeDanmakuRequest\x1a!.danmaku.SubscribeDanmakuResponse0\x01B\x1eZ\x1cshared/proto/danmaku;danmakub\x06proto3"
+	"\adanmaku\x18\x01 \x01(\v2\x10.danmaku.DanmakuR\adanmakuB\x1eZ\x1cshared/proto/danmaku;danmakub\x06proto3"
 
 var (
-	file_danmaku_service_proto_rawDescOnce sync.Once
-	file_danmaku_service_proto_rawDescData []byte
+	file_danmaku_danmaku_api_proto_rawDescOnce sync.Once
+	file_danmaku_danmaku_api_proto_rawDescData []byte
 )
 
-func file_danmaku_service_proto_rawDescGZIP() []byte {
-	file_danmaku_service_proto_rawDescOnce.Do(func() {
-		file_danmaku_service_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_danmaku_service_proto_rawDesc), len(file_danmaku_service_proto_rawDesc)))
+func file_danmaku_danmaku_api_proto_rawDescGZIP() []byte {
+	file_danmaku_danmaku_api_proto_rawDescOnce.Do(func() {
+		file_danmaku_danmaku_api_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_danmaku_danmaku_api_proto_rawDesc), len(file_danmaku_danmaku_api_proto_rawDesc)))
 	})
-	return file_danmaku_service_proto_rawDescData
+	return file_danmaku_danmaku_api_proto_rawDescData
 }
 
-var file_danmaku_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_danmaku_service_proto_goTypes = []any{
+var file_danmaku_danmaku_api_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_danmaku_danmaku_api_proto_goTypes = []any{
 	(*SendDanmakuRequest)(nil),       // 0: danmaku.SendDanmakuRequest
 	(*SendDanmakuResponse)(nil),      // 1: danmaku.SendDanmakuResponse
 	(*SubscribeDanmakuRequest)(nil),  // 2: danmaku.SubscribeDanmakuRequest
@@ -300,43 +295,38 @@ var file_danmaku_service_proto_goTypes = []any{
 	(DanmakuType)(0),                 // 4: danmaku.DanmakuType
 	(*Danmaku)(nil),                  // 5: danmaku.Danmaku
 }
-var file_danmaku_service_proto_depIdxs = []int32{
+var file_danmaku_danmaku_api_proto_depIdxs = []int32{
 	4, // 0: danmaku.SendDanmakuRequest.type:type_name -> danmaku.DanmakuType
 	5, // 1: danmaku.SendDanmakuResponse.danmaku:type_name -> danmaku.Danmaku
 	5, // 2: danmaku.SubscribeDanmakuResponse.danmaku:type_name -> danmaku.Danmaku
-	0, // 3: danmaku.DanmakuService.SendDanmaku:input_type -> danmaku.SendDanmakuRequest
-	2, // 4: danmaku.DanmakuService.SubscribeDanmaku:input_type -> danmaku.SubscribeDanmakuRequest
-	1, // 5: danmaku.DanmakuService.SendDanmaku:output_type -> danmaku.SendDanmakuResponse
-	3, // 6: danmaku.DanmakuService.SubscribeDanmaku:output_type -> danmaku.SubscribeDanmakuResponse
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
 	3, // [3:3] is the sub-list for extension extendee
 	0, // [0:3] is the sub-list for field type_name
 }
 
-func init() { file_danmaku_service_proto_init() }
-func file_danmaku_service_proto_init() {
-	if File_danmaku_service_proto != nil {
+func init() { file_danmaku_danmaku_api_proto_init() }
+func file_danmaku_danmaku_api_proto_init() {
+	if File_danmaku_danmaku_api_proto != nil {
 		return
 	}
 	file_danmaku_danmaku_proto_init()
-	file_danmaku_types_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_danmaku_service_proto_rawDesc), len(file_danmaku_service_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_danmaku_danmaku_api_proto_rawDesc), len(file_danmaku_danmaku_api_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   4,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   0,
 		},
-		GoTypes:           file_danmaku_service_proto_goTypes,
-		DependencyIndexes: file_danmaku_service_proto_depIdxs,
-		MessageInfos:      file_danmaku_service_proto_msgTypes,
+		GoTypes:           file_danmaku_danmaku_api_proto_goTypes,
+		DependencyIndexes: file_danmaku_danmaku_api_proto_depIdxs,
+		MessageInfos:      file_danmaku_danmaku_api_proto_msgTypes,
 	}.Build()
-	File_danmaku_service_proto = out.File
-	file_danmaku_service_proto_goTypes = nil
-	file_danmaku_service_proto_depIdxs = nil
+	File_danmaku_danmaku_api_proto = out.File
+	file_danmaku_danmaku_api_proto_goTypes = nil
+	file_danmaku_danmaku_api_proto_depIdxs = nil
 }

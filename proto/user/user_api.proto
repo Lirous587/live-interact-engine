@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "shared/proto/user;user";
+
+import "user/user.proto";
+
+// ==================== UserService Request/Response Messages ====================
+
+message RegisterRequest {
+  string email    = 1;
+  string username = 2;
+  string password = 3;
+}
+
+message RegisterResponse {
+  User user = 1;
+}
+
+message LoginRequest {
+  string email     = 1;
+  string password  = 2;
+  string device_id = 3;
+}
+
+message LoginResponse {
+  User      user       = 1;
+  TokenPair token_pair = 2;
+}
+
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+// ==================== TokenService Request/Response Messages ====================
+
+message ValidateTokenRequest {
+  string access_token = 1;
+}
+
+message ValidateTokenResponse {
+  bool   is_valid      = 1;
+  bool   is_expired    = 2;
+  string error_message = 3;
+}
+
+message ParseTokenRequest {
+  string access_token = 1;
+}
+
+message ParseTokenResponse {
+  TokenPayload payload       = 1;
+  string       error_message = 2;
+}
+
+message RefreshTokenRequest {
+  UserIdentity user_identity = 1;
+  string       refresh_token = 2;
+}
+
+message RefreshTokenResponse {
+  TokenPair token_pair    = 1;
+  string    error_message = 2;
+}
+
+// ==================== RoomAuthorizationService Request/Response Messages ====================
+
+message GetUserRoomRoleRequest {
+  string user_id = 1;
+  string room_id = 2;
+}
+
+message GetUserRoomRoleResponse {
+  UserRoomRole user_room_role = 1;
+}
+
+message CheckPermissionRequest {
+  string     user_id    = 1;
+  Permission permission = 2;
+  string     room_id    = 3; // 房间 ID
+}
+
+message CheckPermissionResponse {
+  bool has_permission = 1;
+}

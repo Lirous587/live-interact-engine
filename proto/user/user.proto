@@ -4,66 +4,52 @@ package user;
 
 option go_package = "shared/proto/user;user";
 
-import "user/types.proto";
+// ==================== Permission Enum ====================
 
-// ==================== 获取用户信息 ====================
-message GetUserRequest {
-  string user_id = 1;
+enum Permission {
+  PERMISSION_UNSPECIFIED = 0;
+  DANMAKU_SEND           = 1; // 发送普通弹幕
+  DANMAKU_PIN            = 2; // 发送精选/固定弹幕
+  DANMAKU_DELETE         = 3; // 删除弹幕
+  USER_MANAGE            = 4; // 用户管理
+  ROLE_MANAGE            = 5; // 角色管理
 }
 
-message GetUserResponse {
-  User user = 1;
+// ==================== Core Messages ====================
+
+message User {
+  string user_id    = 1;
+  string username   = 2;
+  string email      = 3;
+  int64  created_at = 4; // Unix timestamp
+  int64  updated_at = 5; // Unix timestamp
+  bool   is_active  = 6;
 }
 
-// ==================== 校验 Token ====================
-message ValidateTokenRequest {
-  string access_token = 1;
+message UserRoomRole {
+  string              user_id     = 1;
+  string              room_id     = 2;
+  string              role_name   = 3;
+  bool                is_owner    = 4; // 是否是房主
+  repeated Permission permissions = 5; // 具体权限列表
+  int64               created_at  = 6; // Unix timestamp
+  int64               updated_at  = 7; // Unix timestamp
 }
 
-message ValidateTokenResponse {
-  bool   is_valid      = 1;
-  bool   is_expired    = 2;
-  string error_message = 3;
+message UserIdentity {
+  string user_id   = 1;
+  string device_id = 2;
 }
 
-// ==================== 解析 Token ====================
-message ParseTokenRequest {
-  string access_token = 1;
-}
-
-message ParseTokenResponse {
-  TokenPayload payload       = 1;
-  string       error_message = 2;
-}
-
-// ==================== Refresh Token ====================
-message RefreshTokenRequest {
+message TokenPayload {
   UserIdentity user_identity = 1;
-  string       refresh_token = 2;
+  int64        iss_at        = 2; // Unix timestamp
+  int64        exp_at        = 3; // Unix timestamp
 }
 
-message RefreshTokenResponse {
-  TokenPair token_pair    = 1;
-  string    error_message = 2;
-}
-
-// ==================== 获取房间角色信息 ====================
-message GetUserRoomRoleRequest {
-  string user_id = 1;
-  string room_id = 2;
-}
-
-message GetUserRoomRoleResponse {
-  UserRoomRole user_room_role = 1;
-}
-
-// ==================== 检查房间权限 ====================
-message CheckPermissionRequest {
-  string     user_id    = 1;
-  Permission permission = 2;
-  string     room_id    = 3; // 房间 ID
-}
-
-message CheckPermissionResponse {
-  bool has_permission = 1;
+message TokenPair {
+  string access_token       = 1;
+  string refresh_token      = 2;
+  int64  access_expires_at  = 3; // Unix timestamp
+  int64  refresh_expires_at = 4; // Unix timestamp
 }

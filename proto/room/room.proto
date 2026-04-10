@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package room;
+
+option go_package = "shared/proto/room;room";
+
+// ==================== Permission Enum ====================
+
+enum Permission {
+  PERMISSION_UNSPECIFIED = 0;
+  PERMISSION_DANMAKU_SEND = 1;
+  PERMISSION_DANMAKU_PIN = 2;
+  PERMISSION_DANMAKU_DELETE = 3;
+  PERMISSION_USER_MANAGE = 4;
+  PERMISSION_ROLE_MANAGE = 5;
+}
+
+// ==================== Core Messages ====================
+
+message Room {
+  string room_id = 1;
+  string owner_id = 2;
+  string name = 3;
+  string description = 4;
+  int64 created_at = 5;
+  int64 updated_at = 6;
+  bool is_active = 7;
+}
+
+message UserRoomRole {
+  string user_id = 1;
+  string room_id = 2;
+  string role_name = 3;
+  repeated Permission permissions = 4;
+  int64 created_at = 5;
+  int64 updated_at = 6;
+}
+

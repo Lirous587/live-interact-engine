@@ -22,6 +22,110 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type DanmakuType int32
+
+const (
+	DanmakuType_DANMAKU_TYPE_NORMAL DanmakuType = 0
+	DanmakuType_DANMAKU_TYPE_SUPER  DanmakuType = 1
+	DanmakuType_DANMAKU_TYPE_GIFT   DanmakuType = 2
+	DanmakuType_DANMAKU_TYPE_PINNED DanmakuType = 3
+)
+
+// Enum value maps for DanmakuType.
+var (
+	DanmakuType_name = map[int32]string{
+		0: "DANMAKU_TYPE_NORMAL",
+		1: "DANMAKU_TYPE_SUPER",
+		2: "DANMAKU_TYPE_GIFT",
+		3: "DANMAKU_TYPE_PINNED",
+	}
+	DanmakuType_value = map[string]int32{
+		"DANMAKU_TYPE_NORMAL": 0,
+		"DANMAKU_TYPE_SUPER":  1,
+		"DANMAKU_TYPE_GIFT":   2,
+		"DANMAKU_TYPE_PINNED": 3,
+	}
+)
+
+func (x DanmakuType) Enum() *DanmakuType {
+	p := new(DanmakuType)
+	*p = x
+	return p
+}
+
+func (x DanmakuType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DanmakuType) Descriptor() protoreflect.EnumDescriptor {
+	return file_danmaku_danmaku_proto_enumTypes[0].Descriptor()
+}
+
+func (DanmakuType) Type() protoreflect.EnumType {
+	return &file_danmaku_danmaku_proto_enumTypes[0]
+}
+
+func (x DanmakuType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DanmakuType.Descriptor instead.
+func (DanmakuType) EnumDescriptor() ([]byte, []int) {
+	return file_danmaku_danmaku_proto_rawDescGZIP(), []int{0}
+}
+
+type RoomState int32
+
+const (
+	RoomState_ROOM_STATE_UNSPECIFIED RoomState = 0
+	RoomState_ROOM_STATE_ACTIVE      RoomState = 1 // 直播中
+	RoomState_ROOM_STATE_CLOSED      RoomState = 2 // 已关闭
+	RoomState_ROOM_STATE_HIDDEN      RoomState = 3 // 隐藏
+)
+
+// Enum value maps for RoomState.
+var (
+	RoomState_name = map[int32]string{
+		0: "ROOM_STATE_UNSPECIFIED",
+		1: "ROOM_STATE_ACTIVE",
+		2: "ROOM_STATE_CLOSED",
+		3: "ROOM_STATE_HIDDEN",
+	}
+	RoomState_value = map[string]int32{
+		"ROOM_STATE_UNSPECIFIED": 0,
+		"ROOM_STATE_ACTIVE":      1,
+		"ROOM_STATE_CLOSED":      2,
+		"ROOM_STATE_HIDDEN":      3,
+	}
+)
+
+func (x RoomState) Enum() *RoomState {
+	p := new(RoomState)
+	*p = x
+	return p
+}
+
+func (x RoomState) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RoomState) Descriptor() protoreflect.EnumDescriptor {
+	return file_danmaku_danmaku_proto_enumTypes[1].Descriptor()
+}
+
+func (RoomState) Type() protoreflect.EnumType {
+	return &file_danmaku_danmaku_proto_enumTypes[1]
+}
+
+func (x RoomState) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RoomState.Descriptor instead.
+func (RoomState) EnumDescriptor() ([]byte, []int) {
+	return file_danmaku_danmaku_proto_rawDescGZIP(), []int{1}
+}
+
 type Danmaku struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -122,7 +226,6 @@ func (x *Danmaku) GetMentionedUserId() string {
 	return ""
 }
 
-// 房间实体
 type Room struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -219,7 +322,7 @@ var File_danmaku_danmaku_proto protoreflect.FileDescriptor
 
 const file_danmaku_danmaku_proto_rawDesc = "" +
 	"\n" +
-	"\x15danmaku/danmaku.proto\x12\adanmaku\x1a\x13danmaku/types.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x92\x02\n" +
+	"\x15danmaku/danmaku.proto\x12\adanmaku\x1a\x1fgoogle/protobuf/timestamp.proto\"\x92\x02\n" +
 	"\aDanmaku\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\aroom_id\x18\x02 \x01(\tR\x06roomId\x12\x17\n" +
@@ -238,7 +341,17 @@ const file_danmaku_danmaku_proto_rawDesc = "" +
 	"\fviewer_count\x18\x05 \x01(\x05R\vviewerCount\x129\n" +
 	"\n" +
 	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12#\n" +
-	"\rblocked_users\x18\a \x03(\tR\fblockedUsersB\x1eZ\x1cshared/proto/danmaku;danmakub\x06proto3"
+	"\rblocked_users\x18\a \x03(\tR\fblockedUsers*n\n" +
+	"\vDanmakuType\x12\x17\n" +
+	"\x13DANMAKU_TYPE_NORMAL\x10\x00\x12\x16\n" +
+	"\x12DANMAKU_TYPE_SUPER\x10\x01\x12\x15\n" +
+	"\x11DANMAKU_TYPE_GIFT\x10\x02\x12\x17\n" +
+	"\x13DANMAKU_TYPE_PINNED\x10\x03*l\n" +
+	"\tRoomState\x12\x1a\n" +
+	"\x16ROOM_STATE_UNSPECIFIED\x10\x00\x12\x15\n" +
+	"\x11ROOM_STATE_ACTIVE\x10\x01\x12\x15\n" +
+	"\x11ROOM_STATE_CLOSED\x10\x02\x12\x15\n" +
+	"\x11ROOM_STATE_HIDDEN\x10\x03B\x1eZ\x1cshared/proto/danmaku;danmakub\x06proto3"
 
 var (
 	file_danmaku_danmaku_proto_rawDescOnce sync.Once
@@ -252,19 +365,20 @@ func file_danmaku_danmaku_proto_rawDescGZIP() []byte {
 	return file_danmaku_danmaku_proto_rawDescData
 }
 
+var file_danmaku_danmaku_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_danmaku_danmaku_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_danmaku_danmaku_proto_goTypes = []any{
-	(*Danmaku)(nil),               // 0: danmaku.Danmaku
-	(*Room)(nil),                  // 1: danmaku.Room
-	(DanmakuType)(0),              // 2: danmaku.DanmakuType
-	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
-	(RoomState)(0),                // 4: danmaku.RoomState
+	(DanmakuType)(0),              // 0: danmaku.DanmakuType
+	(RoomState)(0),                // 1: danmaku.RoomState
+	(*Danmaku)(nil),               // 2: danmaku.Danmaku
+	(*Room)(nil),                  // 3: danmaku.Room
+	(*timestamppb.Timestamp)(nil), // 4: google.protobuf.Timestamp
 }
 var file_danmaku_danmaku_proto_depIdxs = []int32{
-	2, // 0: danmaku.Danmaku.type:type_name -> danmaku.DanmakuType
-	3, // 1: danmaku.Danmaku.created_at:type_name -> google.protobuf.Timestamp
-	4, // 2: danmaku.Room.state:type_name -> danmaku.RoomState
-	3, // 3: danmaku.Room.created_at:type_name -> google.protobuf.Timestamp
+	0, // 0: danmaku.Danmaku.type:type_name -> danmaku.DanmakuType
+	4, // 1: danmaku.Danmaku.created_at:type_name -> google.protobuf.Timestamp
+	1, // 2: danmaku.Room.state:type_name -> danmaku.RoomState
+	4, // 3: danmaku.Room.created_at:type_name -> google.protobuf.Timestamp
 	4, // [4:4] is the sub-list for method output_type
 	4, // [4:4] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name
@@ -277,19 +391,19 @@ func file_danmaku_danmaku_proto_init() {
 	if File_danmaku_danmaku_proto != nil {
 		return
 	}
-	file_danmaku_types_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_danmaku_danmaku_proto_rawDesc), len(file_danmaku_danmaku_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      2,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_danmaku_danmaku_proto_goTypes,
 		DependencyIndexes: file_danmaku_danmaku_proto_depIdxs,
+		EnumInfos:         file_danmaku_danmaku_proto_enumTypes,
 		MessageInfos:      file_danmaku_danmaku_proto_msgTypes,
 	}.Build()
 	File_danmaku_danmaku_proto = out.File

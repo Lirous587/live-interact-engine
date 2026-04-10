@@ -2,7 +2,6 @@ PROTO_DIR := proto
 PROTO_SRC := \
 		$(wildcard proto/danmaku/*.proto) \
 		$(wildcard proto/user/*.proto) \
-		$(wildcard proto/payment/*.proto) \
 		$(wildcard proto/room/*.proto)
 GO_OUT := .
 
