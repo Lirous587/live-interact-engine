@@ -5,6 +5,7 @@ import (
 	"live-interact-engine/shared/env"
 	"time"
 
+	redisotel "github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -19,6 +20,11 @@ func NewClient() (*redis.Client, error) {
 		Password: password,
 		DB:       db,
 	})
+
+	// 注册 OpenTelemetry 链路追踪
+	if err := redisotel.InstrumentTracing(client); err != nil {
+		return nil, err
+	}
 
 	// 测试连接
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

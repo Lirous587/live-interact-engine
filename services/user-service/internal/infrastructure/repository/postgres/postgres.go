@@ -5,6 +5,7 @@ import (
 	"live-interact-engine/shared/env"
 	"time"
 
+	"github.com/exaring/otelpgx"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -36,8 +37,16 @@ func NewPostgresDB(ctx context.Context) (*pgxpool.Pool, error) {
 	config.MaxConnLifetime = time.Duration(maxConnLifetimeSec) * time.Second
 	config.MaxConnIdleTime = time.Duration(maxConnIdleTimeSec) * time.Second
 
+	// 注册 OpenTelemetry 链路追踪
+	config.ConnConfig.Tracer = otelpgx.NewTracer()
+
 	pool, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := otelpgx.RecordStats(pool); err != nil {
+		pool.Close()
 		return nil, err
 	}
 
