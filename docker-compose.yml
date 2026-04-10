@@ -33,9 +33,11 @@ services:
       # 依赖服务
       - DANMAKU_SERVICE_URL=danmaku-service:9093
       - USER_SERVICE_URL=user-service:9094
+      - ROOM_SERVICE_URL=room-service:9095
     depends_on:
       - jaeger
       - user-service
+      - room-service
     networks:
       - live-interact
 
@@ -57,8 +59,14 @@ services:
       - LOG_MAX_AGE=7
       - LOG_MAX_BACKUPS=5
 
-      # 链路追踪（如果需要）
+      # 链路追踪
       - JAEGER_ENDPOINT=jaeger:4318
+
+      # 依赖服务
+      - ROOM_SERVICE_URL=room-service:9095
+    depends_on:
+      - jaeger
+      - room-service
     networks:
       - live-interact
 
@@ -103,6 +111,40 @@ services:
     depends_on:
       - jaeger
       - redis
+      - postgres
+    networks:
+      - live-interact
+
+  # Room Service
+  room-service:
+    build:
+      context: .
+      dockerfile: Dockerfile-room
+    container_name: room-service
+    ports:
+      - "9095:9095" # gRPC API 端口
+    environment:
+      # 服务配置
+      - GRPC_ADDR=:9095
+
+      # 日志配置
+      - LOG_LEVEL=debug
+      - LOG_FILENAME=logs/room-service.log
+      - LOG_MAX_SIZE=100
+      - LOG_MAX_AGE=7
+      - LOG_MAX_BACKUPS=5
+
+      # PostgreSQL 配置
+      - DATABASE_DSN=postgres://postgres:password@postgres:5432/room_service?sslmode=disable
+      - POSTGRES_MAX_CONNS=25
+      - POSTGRES_MIN_CONNS=5
+      - POSTGRES_MAX_CONN_LIFETIME_SECONDS=300
+      - POSTGRES_MAX_CONN_IDLE_TIME_SECONDS=60
+
+      # 链路追踪
+      - JAEGER_ENDPOINT=jaeger:4318
+    depends_on:
+      - jaeger
       - postgres
     networks:
       - live-interact

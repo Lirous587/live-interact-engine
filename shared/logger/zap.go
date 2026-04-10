@@ -72,6 +72,8 @@ func init() {
 
 		// 步骤 5: 全局替换
 		zap.ReplaceGlobals(lg)
+
+		log.Println("初始化zap成功")
 	})
 
 	if result != nil {

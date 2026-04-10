@@ -23,7 +23,7 @@ const (
 
 type CreateRoomRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RoomName      string                 `protobuf:"bytes,1,opt,name=room_name,json=roomName,proto3" json:"room_name,omitempty"`
+	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
 	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
 	OwnerId       string                 `protobuf:"bytes,3,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -60,9 +60,9 @@ func (*CreateRoomRequest) Descriptor() ([]byte, []int) {
 	return file_room_room_api_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *CreateRoomRequest) GetRoomName() string {
+func (x *CreateRoomRequest) GetTitle() string {
 	if x != nil {
-		return x.RoomName
+		return x.Title
 	}
 	return ""
 }
@@ -529,9 +529,9 @@ var File_room_room_api_proto protoreflect.FileDescriptor
 
 const file_room_room_api_proto_rawDesc = "" +
 	"\n" +
-	"\x13room/room_api.proto\x12\x04room\x1a\x0froom/room.proto\"m\n" +
-	"\x11CreateRoomRequest\x12\x1b\n" +
-	"\troom_name\x18\x01 \x01(\tR\broomName\x12 \n" +
+	"\x13room/room_api.proto\x12\x04room\x1a\x0froom/room.proto\"f\n" +
+	"\x11CreateRoomRequest\x12\x14\n" +
+	"\x05title\x18\x01 \x01(\tR\x05title\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x19\n" +
 	"\bowner_id\x18\x03 \x01(\tR\aownerId\"4\n" +
 	"\x12CreateRoomResponse\x12\x1e\n" +
