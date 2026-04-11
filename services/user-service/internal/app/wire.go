@@ -28,14 +28,14 @@ func InitDependencies() (*Handlers, error) {
 
 	// ==================== 初始化 Repositories ====================
 
-	// PostgreSQL 连接池
-	pool, err := postgres.NewPostgresDB(ctx)
+	// Ent Client
+	client, err := postgres.NewEntClient(ctx)
 	if err != nil {
-		log.Fatalf("初始化 PostgreSQL 失败: %v", err)
+		log.Fatalf("初始化 Ent Client 失败: %v", err)
 	}
 
 	// 用户 Repository
-	userRepo := postgres.NewUserRepository(pool)
+	userRepo := postgres.NewUserRepository(client)
 
 	// Redis Token Repository
 	tokenRepo, err := redis.NewTokenRepository()
