@@ -89,59 +89,6 @@ func (h *UserHandler) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Logi
 	}, nil
 }
 
-// ==================== RoomAuthorizationService Handler ====================
-
-type RoomAuthorizationHandler struct {
-	pb.UnimplementedRoomAuthorizationServiceServer
-	authService domain.RoomAuthorizationService
-}
-
-func NewRoomAuthorizationHandler(svc domain.RoomAuthorizationService) *RoomAuthorizationHandler {
-	return &RoomAuthorizationHandler{
-		authService: svc,
-	}
-}
-
-func (h *RoomAuthorizationHandler) GetUserRoomRole(ctx context.Context, req *pb.GetUserRoomRoleRequest) (*pb.GetUserRoomRoleResponse, error) {
-	span := trace.SpanFromContext(ctx)
-
-	role, err := h.authService.GetUserRoomRole(ctx, req.UserId, req.RoomId)
-	if err != nil {
-		return nil, svcerr.MapServiceErrorToGRPC(err, span)
-	}
-
-	// 转换 Permission 数组
-	permissions := make([]pb.Permission, len(role.Permissions))
-	for i, perm := range role.Permissions {
-		permissions[i] = pb.Permission(perm)
-	}
-
-	return &pb.GetUserRoomRoleResponse{
-		UserRoomRole: &pb.UserRoomRole{
-			UserId:      role.UserID,
-			RoomId:      role.RoomID,
-			RoleName:    role.RoleName,
-			IsOwner:     role.IsOwner,
-			Permissions: permissions,
-			CreatedAt:   role.CreatedAt.Unix(),
-			UpdatedAt:   role.UpdatedAt.Unix(),
-		},
-	}, nil
-}
-
-func (h *RoomAuthorizationHandler) CheckPermission(ctx context.Context, req *pb.CheckPermissionRequest) (*pb.CheckPermissionResponse, error) {
-	span := trace.SpanFromContext(ctx)
-
-	has, err := h.authService.CheckPermission(ctx, req.UserId, domain.Permission(req.Permission), req.RoomId)
-	if err != nil {
-		return nil, svcerr.MapServiceErrorToGRPC(err, span)
-	}
-
-	return &pb.CheckPermissionResponse{
-		HasPermission: has,
-	}, nil
-}
-
 // ==================== TokenService Handler ====================
 
 type TokenHandler struct {

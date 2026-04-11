@@ -4,18 +4,7 @@ package user;
 
 option go_package = "shared/proto/user;user";
 
-// ==================== Permission Enum ====================
-
-enum Permission {
-  PERMISSION_UNSPECIFIED = 0;
-  DANMAKU_SEND           = 1; // 发送普通弹幕
-  DANMAKU_PIN            = 2; // 发送精选/固定弹幕
-  DANMAKU_DELETE         = 3; // 删除弹幕
-  USER_MANAGE            = 4; // 用户管理
-  ROLE_MANAGE            = 5; // 角色管理
-}
-
-// ==================== Core Messages ====================
+// ==================== User Messages ====================
 
 message User {
   string user_id    = 1;
@@ -24,16 +13,6 @@ message User {
   int64  created_at = 4; // Unix timestamp
   int64  updated_at = 5; // Unix timestamp
   bool   is_active  = 6;
-}
-
-message UserRoomRole {
-  string              user_id     = 1;
-  string              room_id     = 2;
-  string              role_name   = 3;
-  bool                is_owner    = 4; // 是否是房主
-  repeated Permission permissions = 5; // 具体权限列表
-  int64               created_at  = 6; // Unix timestamp
-  int64               updated_at  = 7; // Unix timestamp
 }
 
 message UserIdentity {

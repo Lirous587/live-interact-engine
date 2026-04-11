@@ -629,206 +629,6 @@ func (x *RefreshTokenResponse) GetErrorMessage() string {
 	return ""
 }
 
-type GetUserRoomRoleRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	RoomId        string                 `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetUserRoomRoleRequest) Reset() {
-	*x = GetUserRoomRoleRequest{}
-	mi := &file_user_user_api_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetUserRoomRoleRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetUserRoomRoleRequest) ProtoMessage() {}
-
-func (x *GetUserRoomRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_api_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetUserRoomRoleRequest.ProtoReflect.Descriptor instead.
-func (*GetUserRoomRoleRequest) Descriptor() ([]byte, []int) {
-	return file_user_user_api_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *GetUserRoomRoleRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *GetUserRoomRoleRequest) GetRoomId() string {
-	if x != nil {
-		return x.RoomId
-	}
-	return ""
-}
-
-type GetUserRoomRoleResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserRoomRole  *UserRoomRole          `protobuf:"bytes,1,opt,name=user_room_role,json=userRoomRole,proto3" json:"user_room_role,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetUserRoomRoleResponse) Reset() {
-	*x = GetUserRoomRoleResponse{}
-	mi := &file_user_user_api_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetUserRoomRoleResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetUserRoomRoleResponse) ProtoMessage() {}
-
-func (x *GetUserRoomRoleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_api_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetUserRoomRoleResponse.ProtoReflect.Descriptor instead.
-func (*GetUserRoomRoleResponse) Descriptor() ([]byte, []int) {
-	return file_user_user_api_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *GetUserRoomRoleResponse) GetUserRoomRole() *UserRoomRole {
-	if x != nil {
-		return x.UserRoomRole
-	}
-	return nil
-}
-
-type CheckPermissionRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Permission    Permission             `protobuf:"varint,2,opt,name=permission,proto3,enum=user.Permission" json:"permission,omitempty"`
-	RoomId        string                 `protobuf:"bytes,3,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"` // 房间 ID
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CheckPermissionRequest) Reset() {
-	*x = CheckPermissionRequest{}
-	mi := &file_user_user_api_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CheckPermissionRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CheckPermissionRequest) ProtoMessage() {}
-
-func (x *CheckPermissionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_api_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CheckPermissionRequest.ProtoReflect.Descriptor instead.
-func (*CheckPermissionRequest) Descriptor() ([]byte, []int) {
-	return file_user_user_api_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *CheckPermissionRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *CheckPermissionRequest) GetPermission() Permission {
-	if x != nil {
-		return x.Permission
-	}
-	return Permission_PERMISSION_UNSPECIFIED
-}
-
-func (x *CheckPermissionRequest) GetRoomId() string {
-	if x != nil {
-		return x.RoomId
-	}
-	return ""
-}
-
-type CheckPermissionResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	HasPermission bool                   `protobuf:"varint,1,opt,name=has_permission,json=hasPermission,proto3" json:"has_permission,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CheckPermissionResponse) Reset() {
-	*x = CheckPermissionResponse{}
-	mi := &file_user_user_api_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CheckPermissionResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CheckPermissionResponse) ProtoMessage() {}
-
-func (x *CheckPermissionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_api_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CheckPermissionResponse.ProtoReflect.Descriptor instead.
-func (*CheckPermissionResponse) Descriptor() ([]byte, []int) {
-	return file_user_user_api_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *CheckPermissionResponse) GetHasPermission() bool {
-	if x != nil {
-		return x.HasPermission
-	}
-	return false
-}
-
 var File_user_user_api_proto protoreflect.FileDescriptor
 
 const file_user_user_api_proto_rawDesc = "" +
@@ -873,20 +673,7 @@ const file_user_user_api_proto_rawDesc = "" +
 	"\x14RefreshTokenResponse\x12.\n" +
 	"\n" +
 	"token_pair\x18\x01 \x01(\v2\x0f.user.TokenPairR\ttokenPair\x12#\n" +
-	"\rerror_message\x18\x02 \x01(\tR\ferrorMessage\"J\n" +
-	"\x16GetUserRoomRoleRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x17\n" +
-	"\aroom_id\x18\x02 \x01(\tR\x06roomId\"S\n" +
-	"\x17GetUserRoomRoleResponse\x128\n" +
-	"\x0euser_room_role\x18\x01 \x01(\v2\x12.user.UserRoomRoleR\fuserRoomRole\"|\n" +
-	"\x16CheckPermissionRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x120\n" +
-	"\n" +
-	"permission\x18\x02 \x01(\x0e2\x10.user.PermissionR\n" +
-	"permission\x12\x17\n" +
-	"\aroom_id\x18\x03 \x01(\tR\x06roomId\"@\n" +
-	"\x17CheckPermissionResponse\x12%\n" +
-	"\x0ehas_permission\x18\x01 \x01(\bR\rhasPermissionB\x18Z\x16shared/proto/user;userb\x06proto3"
+	"\rerror_message\x18\x02 \x01(\tR\ferrorMessageB\x18Z\x16shared/proto/user;userb\x06proto3"
 
 var (
 	file_user_user_api_proto_rawDescOnce sync.Once
@@ -900,46 +687,38 @@ func file_user_user_api_proto_rawDescGZIP() []byte {
 	return file_user_user_api_proto_rawDescData
 }
 
-var file_user_user_api_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_user_user_api_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_user_user_api_proto_goTypes = []any{
-	(*RegisterRequest)(nil),         // 0: user.RegisterRequest
-	(*RegisterResponse)(nil),        // 1: user.RegisterResponse
-	(*LoginRequest)(nil),            // 2: user.LoginRequest
-	(*LoginResponse)(nil),           // 3: user.LoginResponse
-	(*GetUserRequest)(nil),          // 4: user.GetUserRequest
-	(*GetUserResponse)(nil),         // 5: user.GetUserResponse
-	(*ValidateTokenRequest)(nil),    // 6: user.ValidateTokenRequest
-	(*ValidateTokenResponse)(nil),   // 7: user.ValidateTokenResponse
-	(*ParseTokenRequest)(nil),       // 8: user.ParseTokenRequest
-	(*ParseTokenResponse)(nil),      // 9: user.ParseTokenResponse
-	(*RefreshTokenRequest)(nil),     // 10: user.RefreshTokenRequest
-	(*RefreshTokenResponse)(nil),    // 11: user.RefreshTokenResponse
-	(*GetUserRoomRoleRequest)(nil),  // 12: user.GetUserRoomRoleRequest
-	(*GetUserRoomRoleResponse)(nil), // 13: user.GetUserRoomRoleResponse
-	(*CheckPermissionRequest)(nil),  // 14: user.CheckPermissionRequest
-	(*CheckPermissionResponse)(nil), // 15: user.CheckPermissionResponse
-	(*User)(nil),                    // 16: user.User
-	(*TokenPair)(nil),               // 17: user.TokenPair
-	(*TokenPayload)(nil),            // 18: user.TokenPayload
-	(*UserIdentity)(nil),            // 19: user.UserIdentity
-	(*UserRoomRole)(nil),            // 20: user.UserRoomRole
-	(Permission)(0),                 // 21: user.Permission
+	(*RegisterRequest)(nil),       // 0: user.RegisterRequest
+	(*RegisterResponse)(nil),      // 1: user.RegisterResponse
+	(*LoginRequest)(nil),          // 2: user.LoginRequest
+	(*LoginResponse)(nil),         // 3: user.LoginResponse
+	(*GetUserRequest)(nil),        // 4: user.GetUserRequest
+	(*GetUserResponse)(nil),       // 5: user.GetUserResponse
+	(*ValidateTokenRequest)(nil),  // 6: user.ValidateTokenRequest
+	(*ValidateTokenResponse)(nil), // 7: user.ValidateTokenResponse
+	(*ParseTokenRequest)(nil),     // 8: user.ParseTokenRequest
+	(*ParseTokenResponse)(nil),    // 9: user.ParseTokenResponse
+	(*RefreshTokenRequest)(nil),   // 10: user.RefreshTokenRequest
+	(*RefreshTokenResponse)(nil),  // 11: user.RefreshTokenResponse
+	(*User)(nil),                  // 12: user.User
+	(*TokenPair)(nil),             // 13: user.TokenPair
+	(*TokenPayload)(nil),          // 14: user.TokenPayload
+	(*UserIdentity)(nil),          // 15: user.UserIdentity
 }
 var file_user_user_api_proto_depIdxs = []int32{
-	16, // 0: user.RegisterResponse.user:type_name -> user.User
-	16, // 1: user.LoginResponse.user:type_name -> user.User
-	17, // 2: user.LoginResponse.token_pair:type_name -> user.TokenPair
-	16, // 3: user.GetUserResponse.user:type_name -> user.User
-	18, // 4: user.ParseTokenResponse.payload:type_name -> user.TokenPayload
-	19, // 5: user.RefreshTokenRequest.user_identity:type_name -> user.UserIdentity
-	17, // 6: user.RefreshTokenResponse.token_pair:type_name -> user.TokenPair
-	20, // 7: user.GetUserRoomRoleResponse.user_room_role:type_name -> user.UserRoomRole
-	21, // 8: user.CheckPermissionRequest.permission:type_name -> user.Permission
-	9,  // [9:9] is the sub-list for method output_type
-	9,  // [9:9] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	12, // 0: user.RegisterResponse.user:type_name -> user.User
+	12, // 1: user.LoginResponse.user:type_name -> user.User
+	13, // 2: user.LoginResponse.token_pair:type_name -> user.TokenPair
+	12, // 3: user.GetUserResponse.user:type_name -> user.User
+	14, // 4: user.ParseTokenResponse.payload:type_name -> user.TokenPayload
+	15, // 5: user.RefreshTokenRequest.user_identity:type_name -> user.UserIdentity
+	13, // 6: user.RefreshTokenResponse.token_pair:type_name -> user.TokenPair
+	7,  // [7:7] is the sub-list for method output_type
+	7,  // [7:7] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_user_user_api_proto_init() }
@@ -954,7 +733,7 @@ func file_user_user_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_user_api_proto_rawDesc), len(file_user_user_api_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   16,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

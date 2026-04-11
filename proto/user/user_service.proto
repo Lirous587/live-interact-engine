@@ -12,11 +12,6 @@ service UserService {
   rpc Login(LoginRequest) returns (LoginResponse);
 }
 
-service RoomAuthorizationService {
-  rpc GetUserRoomRole(GetUserRoomRoleRequest) returns (GetUserRoomRoleResponse);
-  rpc CheckPermission(CheckPermissionRequest) returns (CheckPermissionResponse);
-}
-
 service TokenService {
   rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
   rpc ParseToken(ParseTokenRequest) returns (ParseTokenResponse);

@@ -21,64 +21,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Permission int32
-
-const (
-	Permission_PERMISSION_UNSPECIFIED Permission = 0
-	Permission_DANMAKU_SEND           Permission = 1 // 发送普通弹幕
-	Permission_DANMAKU_PIN            Permission = 2 // 发送精选/固定弹幕
-	Permission_DANMAKU_DELETE         Permission = 3 // 删除弹幕
-	Permission_USER_MANAGE            Permission = 4 // 用户管理
-	Permission_ROLE_MANAGE            Permission = 5 // 角色管理
-)
-
-// Enum value maps for Permission.
-var (
-	Permission_name = map[int32]string{
-		0: "PERMISSION_UNSPECIFIED",
-		1: "DANMAKU_SEND",
-		2: "DANMAKU_PIN",
-		3: "DANMAKU_DELETE",
-		4: "USER_MANAGE",
-		5: "ROLE_MANAGE",
-	}
-	Permission_value = map[string]int32{
-		"PERMISSION_UNSPECIFIED": 0,
-		"DANMAKU_SEND":           1,
-		"DANMAKU_PIN":            2,
-		"DANMAKU_DELETE":         3,
-		"USER_MANAGE":            4,
-		"ROLE_MANAGE":            5,
-	}
-)
-
-func (x Permission) Enum() *Permission {
-	p := new(Permission)
-	*p = x
-	return p
-}
-
-func (x Permission) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (Permission) Descriptor() protoreflect.EnumDescriptor {
-	return file_user_user_proto_enumTypes[0].Descriptor()
-}
-
-func (Permission) Type() protoreflect.EnumType {
-	return &file_user_user_proto_enumTypes[0]
-}
-
-func (x Permission) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use Permission.Descriptor instead.
-func (Permission) EnumDescriptor() ([]byte, []int) {
-	return file_user_user_proto_rawDescGZIP(), []int{0}
-}
-
 type User struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -163,98 +105,6 @@ func (x *User) GetIsActive() bool {
 	return false
 }
 
-type UserRoomRole struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	RoomId        string                 `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
-	RoleName      string                 `protobuf:"bytes,3,opt,name=role_name,json=roleName,proto3" json:"role_name,omitempty"`
-	IsOwner       bool                   `protobuf:"varint,4,opt,name=is_owner,json=isOwner,proto3" json:"is_owner,omitempty"`                      // 是否是房主
-	Permissions   []Permission           `protobuf:"varint,5,rep,packed,name=permissions,proto3,enum=user.Permission" json:"permissions,omitempty"` // 具体权限列表
-	CreatedAt     int64                  `protobuf:"varint,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                // Unix timestamp
-	UpdatedAt     int64                  `protobuf:"varint,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                // Unix timestamp
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UserRoomRole) Reset() {
-	*x = UserRoomRole{}
-	mi := &file_user_user_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UserRoomRole) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UserRoomRole) ProtoMessage() {}
-
-func (x *UserRoomRole) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UserRoomRole.ProtoReflect.Descriptor instead.
-func (*UserRoomRole) Descriptor() ([]byte, []int) {
-	return file_user_user_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *UserRoomRole) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *UserRoomRole) GetRoomId() string {
-	if x != nil {
-		return x.RoomId
-	}
-	return ""
-}
-
-func (x *UserRoomRole) GetRoleName() string {
-	if x != nil {
-		return x.RoleName
-	}
-	return ""
-}
-
-func (x *UserRoomRole) GetIsOwner() bool {
-	if x != nil {
-		return x.IsOwner
-	}
-	return false
-}
-
-func (x *UserRoomRole) GetPermissions() []Permission {
-	if x != nil {
-		return x.Permissions
-	}
-	return nil
-}
-
-func (x *UserRoomRole) GetCreatedAt() int64 {
-	if x != nil {
-		return x.CreatedAt
-	}
-	return 0
-}
-
-func (x *UserRoomRole) GetUpdatedAt() int64 {
-	if x != nil {
-		return x.UpdatedAt
-	}
-	return 0
-}
-
 type UserIdentity struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -265,7 +115,7 @@ type UserIdentity struct {
 
 func (x *UserIdentity) Reset() {
 	*x = UserIdentity{}
-	mi := &file_user_user_proto_msgTypes[2]
+	mi := &file_user_user_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -277,7 +127,7 @@ func (x *UserIdentity) String() string {
 func (*UserIdentity) ProtoMessage() {}
 
 func (x *UserIdentity) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_proto_msgTypes[2]
+	mi := &file_user_user_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -290,7 +140,7 @@ func (x *UserIdentity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserIdentity.ProtoReflect.Descriptor instead.
 func (*UserIdentity) Descriptor() ([]byte, []int) {
-	return file_user_user_proto_rawDescGZIP(), []int{2}
+	return file_user_user_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *UserIdentity) GetUserId() string {
@@ -318,7 +168,7 @@ type TokenPayload struct {
 
 func (x *TokenPayload) Reset() {
 	*x = TokenPayload{}
-	mi := &file_user_user_proto_msgTypes[3]
+	mi := &file_user_user_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -330,7 +180,7 @@ func (x *TokenPayload) String() string {
 func (*TokenPayload) ProtoMessage() {}
 
 func (x *TokenPayload) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_proto_msgTypes[3]
+	mi := &file_user_user_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -343,7 +193,7 @@ func (x *TokenPayload) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TokenPayload.ProtoReflect.Descriptor instead.
 func (*TokenPayload) Descriptor() ([]byte, []int) {
-	return file_user_user_proto_rawDescGZIP(), []int{3}
+	return file_user_user_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *TokenPayload) GetUserIdentity() *UserIdentity {
@@ -379,7 +229,7 @@ type TokenPair struct {
 
 func (x *TokenPair) Reset() {
 	*x = TokenPair{}
-	mi := &file_user_user_proto_msgTypes[4]
+	mi := &file_user_user_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -391,7 +241,7 @@ func (x *TokenPair) String() string {
 func (*TokenPair) ProtoMessage() {}
 
 func (x *TokenPair) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_proto_msgTypes[4]
+	mi := &file_user_user_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -404,7 +254,7 @@ func (x *TokenPair) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TokenPair.ProtoReflect.Descriptor instead.
 func (*TokenPair) Descriptor() ([]byte, []int) {
-	return file_user_user_proto_rawDescGZIP(), []int{4}
+	return file_user_user_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *TokenPair) GetAccessToken() string {
@@ -448,17 +298,7 @@ const file_user_user_proto_rawDesc = "" +
 	"created_at\x18\x04 \x01(\x03R\tcreatedAt\x12\x1d\n" +
 	"\n" +
 	"updated_at\x18\x05 \x01(\x03R\tupdatedAt\x12\x1b\n" +
-	"\tis_active\x18\x06 \x01(\bR\bisActive\"\xea\x01\n" +
-	"\fUserRoomRole\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x17\n" +
-	"\aroom_id\x18\x02 \x01(\tR\x06roomId\x12\x1b\n" +
-	"\trole_name\x18\x03 \x01(\tR\broleName\x12\x19\n" +
-	"\bis_owner\x18\x04 \x01(\bR\aisOwner\x122\n" +
-	"\vpermissions\x18\x05 \x03(\x0e2\x10.user.PermissionR\vpermissions\x12\x1d\n" +
-	"\n" +
-	"created_at\x18\x06 \x01(\x03R\tcreatedAt\x12\x1d\n" +
-	"\n" +
-	"updated_at\x18\a \x01(\x03R\tupdatedAt\"D\n" +
+	"\tis_active\x18\x06 \x01(\bR\bisActive\"D\n" +
 	"\fUserIdentity\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
 	"\tdevice_id\x18\x02 \x01(\tR\bdeviceId\"u\n" +
@@ -470,15 +310,7 @@ const file_user_user_proto_rawDesc = "" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x12*\n" +
 	"\x11access_expires_at\x18\x03 \x01(\x03R\x0faccessExpiresAt\x12,\n" +
-	"\x12refresh_expires_at\x18\x04 \x01(\x03R\x10refreshExpiresAt*\x81\x01\n" +
-	"\n" +
-	"Permission\x12\x1a\n" +
-	"\x16PERMISSION_UNSPECIFIED\x10\x00\x12\x10\n" +
-	"\fDANMAKU_SEND\x10\x01\x12\x0f\n" +
-	"\vDANMAKU_PIN\x10\x02\x12\x12\n" +
-	"\x0eDANMAKU_DELETE\x10\x03\x12\x0f\n" +
-	"\vUSER_MANAGE\x10\x04\x12\x0f\n" +
-	"\vROLE_MANAGE\x10\x05B\x18Z\x16shared/proto/user;userb\x06proto3"
+	"\x12refresh_expires_at\x18\x04 \x01(\x03R\x10refreshExpiresAtB\x18Z\x16shared/proto/user;userb\x06proto3"
 
 var (
 	file_user_user_proto_rawDescOnce sync.Once
@@ -492,24 +324,20 @@ func file_user_user_proto_rawDescGZIP() []byte {
 	return file_user_user_proto_rawDescData
 }
 
-var file_user_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_user_user_proto_goTypes = []any{
-	(Permission)(0),      // 0: user.Permission
-	(*User)(nil),         // 1: user.User
-	(*UserRoomRole)(nil), // 2: user.UserRoomRole
-	(*UserIdentity)(nil), // 3: user.UserIdentity
-	(*TokenPayload)(nil), // 4: user.TokenPayload
-	(*TokenPair)(nil),    // 5: user.TokenPair
+	(*User)(nil),         // 0: user.User
+	(*UserIdentity)(nil), // 1: user.UserIdentity
+	(*TokenPayload)(nil), // 2: user.TokenPayload
+	(*TokenPair)(nil),    // 3: user.TokenPair
 }
 var file_user_user_proto_depIdxs = []int32{
-	0, // 0: user.UserRoomRole.permissions:type_name -> user.Permission
-	3, // 1: user.TokenPayload.user_identity:type_name -> user.UserIdentity
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	1, // 0: user.TokenPayload.user_identity:type_name -> user.UserIdentity
+	1, // [1:1] is the sub-list for method output_type
+	1, // [1:1] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_user_user_proto_init() }
@@ -522,14 +350,13 @@ func file_user_user_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_user_proto_rawDesc), len(file_user_user_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   5,
+			NumEnums:      0,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_user_user_proto_goTypes,
 		DependencyIndexes: file_user_user_proto_depIdxs,
-		EnumInfos:         file_user_user_proto_enumTypes,
 		MessageInfos:      file_user_user_proto_msgTypes,
 	}.Build()
 	File_user_user_proto = out.File

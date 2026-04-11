@@ -67,24 +67,3 @@ message RefreshTokenResponse {
   TokenPair token_pair    = 1;
   string    error_message = 2;
 }
-
-// ==================== RoomAuthorizationService Request/Response Messages ====================
-
-message GetUserRoomRoleRequest {
-  string user_id = 1;
-  string room_id = 2;
-}
-
-message GetUserRoomRoleResponse {
-  UserRoomRole user_room_role = 1;
-}
-
-message CheckPermissionRequest {
-  string     user_id    = 1;
-  Permission permission = 2;
-  string     room_id    = 3; // 房间 ID
-}
-
-message CheckPermissionResponse {
-  bool has_permission = 1;
-}

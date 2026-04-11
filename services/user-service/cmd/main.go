@@ -46,7 +46,6 @@ func main() {
 
 	// 注册所有 gRPC 服务
 	pb.RegisterUserServiceServer(grpcServer, handlers.UserHandler)
-	pb.RegisterRoomAuthorizationServiceServer(grpcServer, handlers.RoomAuthorizationHandler)
 	pb.RegisterTokenServiceServer(grpcServer, handlers.TokenHandler)
 
 	// 启动监听

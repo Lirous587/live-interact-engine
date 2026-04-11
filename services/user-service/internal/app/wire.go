@@ -12,16 +12,14 @@ import (
 
 // Services 包含所有业务服务
 type Services struct {
-	UserService              domain.UserService
-	RoomAuthorizationService domain.RoomAuthorizationService
-	TokenService             domain.TokenService
+	UserService  domain.UserService
+	TokenService domain.TokenService
 }
 
 // Handlers 包含所有 gRPC handlers
 type Handlers struct {
-	UserHandler              *grpc_handler.UserHandler
-	RoomAuthorizationHandler *grpc_handler.RoomAuthorizationHandler
-	TokenHandler             *grpc_handler.TokenHandler
+	UserHandler  *grpc_handler.UserHandler
+	TokenHandler *grpc_handler.TokenHandler
 }
 
 // InitDependencies 初始化所有依赖
@@ -38,9 +36,6 @@ func InitDependencies() (*Handlers, error) {
 
 	// 用户 Repository
 	userRepo := postgres.NewUserRepository(pool)
-
-	// 房间角色 Repository
-	roomRoleRepo := postgres.NewUserRoomRoleRepository(pool)
 
 	// Redis Token Repository
 	tokenRepo, err := redis.NewTokenRepository()
@@ -67,21 +62,13 @@ func InitDependencies() (*Handlers, error) {
 		userSvc.SetTokenService(tokenService)
 	}
 
-	// 初始化 RoomAuthorizationService
-	roomAuthService, err := service.NewRoomAuthorizationService(roomRoleRepo)
-	if err != nil {
-		log.Fatalf("初始化 RoomAuthorizationService 失败: %v", err)
-	}
-
 	// ==================== 初始化 Handlers ====================
 
 	userHandler := grpc_handler.NewUserHandler(userService)
-	roomAuthHandler := grpc_handler.NewRoomAuthorizationHandler(roomAuthService)
 	tokenHandler := grpc_handler.NewTokenHandler(tokenService)
 
 	return &Handlers{
-		UserHandler:              userHandler,
-		RoomAuthorizationHandler: roomAuthHandler,
-		TokenHandler:             tokenHandler,
+		UserHandler:  userHandler,
+		TokenHandler: tokenHandler,
 	}, nil
 }
