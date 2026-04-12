@@ -106,6 +106,9 @@ services:
       - POSTGRES_MAX_CONN_LIFETIME_SECONDS=300
       - POSTGRES_MAX_CONN_IDLE_TIME_SECONDS=60
 
+      # ent配置
+      - ENT_MODE=dev
+
       # 链路追踪
       - JAEGER_ENDPOINT=jaeger:4318
     depends_on:

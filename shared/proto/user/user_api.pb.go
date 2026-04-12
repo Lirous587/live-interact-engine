@@ -129,7 +129,7 @@ type LoginRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
 	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	DeviceId      string                 `protobuf:"bytes,3,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	Metadata      *UserIdentityMetadata  `protobuf:"bytes,3,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -178,11 +178,11 @@ func (x *LoginRequest) GetPassword() string {
 	return ""
 }
 
-func (x *LoginRequest) GetDeviceId() string {
+func (x *LoginRequest) GetMetadata() *UserIdentityMetadata {
 	if x != nil {
-		return x.DeviceId
+		return x.Metadata
 	}
-	return ""
+	return nil
 }
 
 type LoginResponse struct {
@@ -640,11 +640,11 @@ const file_user_user_api_proto_rawDesc = "" +
 	"\bpassword\x18\x03 \x01(\tR\bpassword\"2\n" +
 	"\x10RegisterResponse\x12\x1e\n" +
 	"\x04user\x18\x01 \x01(\v2\n" +
-	".user.UserR\x04user\"]\n" +
+	".user.UserR\x04user\"x\n" +
 	"\fLoginRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x1b\n" +
-	"\tdevice_id\x18\x03 \x01(\tR\bdeviceId\"_\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\x126\n" +
+	"\bmetadata\x18\x03 \x01(\v2\x1a.user.UserIdentityMetadataR\bmetadata\"_\n" +
 	"\rLoginResponse\x12\x1e\n" +
 	"\x04user\x18\x01 \x01(\v2\n" +
 	".user.UserR\x04user\x12.\n" +
@@ -702,23 +702,25 @@ var file_user_user_api_proto_goTypes = []any{
 	(*RefreshTokenRequest)(nil),   // 10: user.RefreshTokenRequest
 	(*RefreshTokenResponse)(nil),  // 11: user.RefreshTokenResponse
 	(*User)(nil),                  // 12: user.User
-	(*TokenPair)(nil),             // 13: user.TokenPair
-	(*TokenPayload)(nil),          // 14: user.TokenPayload
-	(*UserIdentity)(nil),          // 15: user.UserIdentity
+	(*UserIdentityMetadata)(nil),  // 13: user.UserIdentityMetadata
+	(*TokenPair)(nil),             // 14: user.TokenPair
+	(*TokenPayload)(nil),          // 15: user.TokenPayload
+	(*UserIdentity)(nil),          // 16: user.UserIdentity
 }
 var file_user_user_api_proto_depIdxs = []int32{
 	12, // 0: user.RegisterResponse.user:type_name -> user.User
-	12, // 1: user.LoginResponse.user:type_name -> user.User
-	13, // 2: user.LoginResponse.token_pair:type_name -> user.TokenPair
-	12, // 3: user.GetUserResponse.user:type_name -> user.User
-	14, // 4: user.ParseTokenResponse.payload:type_name -> user.TokenPayload
-	15, // 5: user.RefreshTokenRequest.user_identity:type_name -> user.UserIdentity
-	13, // 6: user.RefreshTokenResponse.token_pair:type_name -> user.TokenPair
-	7,  // [7:7] is the sub-list for method output_type
-	7,  // [7:7] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	13, // 1: user.LoginRequest.metadata:type_name -> user.UserIdentityMetadata
+	12, // 2: user.LoginResponse.user:type_name -> user.User
+	14, // 3: user.LoginResponse.token_pair:type_name -> user.TokenPair
+	12, // 4: user.GetUserResponse.user:type_name -> user.User
+	15, // 5: user.ParseTokenResponse.payload:type_name -> user.TokenPayload
+	16, // 6: user.RefreshTokenRequest.user_identity:type_name -> user.UserIdentity
+	14, // 7: user.RefreshTokenResponse.token_pair:type_name -> user.TokenPair
+	8,  // [8:8] is the sub-list for method output_type
+	8,  // [8:8] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_user_user_api_proto_init() }

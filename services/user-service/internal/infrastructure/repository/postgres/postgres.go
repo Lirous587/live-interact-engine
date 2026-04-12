@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"live-interact-engine/services/user-service/ent"
+	"live-interact-engine/services/user-service/ent/migrate"
 	"live-interact-engine/shared/env"
 	"time"
 
@@ -34,7 +35,22 @@ func NewEntClient(ctx context.Context) (*ent.Client, error) {
 	sqlDB := stdlib.OpenDB(*pool.Config().ConnConfig)
 	drv := entsql.OpenDB(dialect.Postgres, sqlDB)
 
-	return ent.NewClient(ent.Driver(drv)), nil
+	client := ent.NewClient(ent.Driver(drv))
+
+	entmode := env.GetString("ENT_MODE", "dev")
+
+	if entmode == "dev" {
+		err := client.Debug().Schema.Create(
+			ctx,
+			migrate.WithDropIndex(true),
+			migrate.WithDropColumn(true),
+		)
+		if err != nil {
+			return nil, fmt.Errorf("running migration: %w", err)
+		}
+	}
+
+	return client, nil
 }
 
 // NewPostgresPool 初始化 PostgreSQL 连接池（带OpenTelemetry自动追踪）

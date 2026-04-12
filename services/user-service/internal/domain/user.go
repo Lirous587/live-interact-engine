@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
+	"github.com/google/uuid"
 )
 
 // ==================== 用户定义 ====================
 
 // User 用户基础信息
 type User struct {
-	UserID       string
+	UserID       uuid.UUID
 	Username     string
 	Email        string
 	PasswordHash string // 存储 bcrypt 哈希密码，不包含明文
@@ -21,25 +21,17 @@ type User struct {
 	IsActive     bool
 }
 
-// IsValid 验证用户数据有效性
-func (u *User) IsValid() error {
-	if u.UserID == "" {
-		return errors.New("user_id required")
-	}
-	if u.Username == "" {
-		return errors.New("username required")
-	}
-	if u.Email == "" {
-		return errors.New("email required")
-	}
-	return nil
+// ==================== Token 定义 ====================
+// UserIdentityMetadata 用户身份的元数据（设备、客户端等）
+type UserIdentityMetadata struct {
+	DeviceID string // 设备标识
+	// 未来可扩展：ClientVersion, Platform, IP 等
 }
 
-// ==================== Token 定义 ====================
-// UserIdentity 用户标识（可包含 userID、设备号等）
+// UserIdentity 用户标识
 type UserIdentity struct {
-	UserID   string
-	DeviceID string // 未来可扩展：AppVersion, Platform 等
+	UserID uuid.UUID
+	UserIdentityMetadata
 }
 
 // GetUniqueID 生成唯一标识
@@ -47,7 +39,7 @@ func (ui *UserIdentity) GetUniqueID() string {
 	if ui.DeviceID != "" {
 		return fmt.Sprintf("%s:%s", ui.UserID, ui.DeviceID)
 	}
-	return ui.UserID
+	return ui.UserID.String()
 }
 
 // TokenPayload Token 载荷
@@ -74,13 +66,13 @@ type TokenPair struct {
 // UserService 用户基本信息服务接口
 type UserService interface {
 	// 获取用户基本信息
-	GetUser(ctx context.Context, userID string) (*User, error)
+	GetUser(ctx context.Context, userID uuid.UUID) (*User, error)
 
 	// 注册新用户 (不返回 token，客户端需要调用 Login 获取 token)
 	Register(ctx context.Context, username, email, password string) (*User, error)
 
 	// 登录
-	Login(ctx context.Context, email, password, deviceID string) (*User, *TokenPair, error)
+	Login(ctx context.Context, email, password string, metadata UserIdentityMetadata) (*User, *TokenPair, error)
 }
 
 // TokenService Token 操作服务接口
@@ -103,7 +95,7 @@ type TokenService interface {
 // UserRepository 用户数据访问接口
 type UserRepository interface {
 	// 获取用户
-	GetUser(ctx context.Context, userID string) (*User, error)
+	GetUser(ctx context.Context, userID uuid.UUID) (*User, error)
 
 	// 按邮箱获取用户（用于登录）
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
@@ -112,7 +104,7 @@ type UserRepository interface {
 	SaveUser(ctx context.Context, user *User) error
 
 	// 删除用户
-	DeleteUser(ctx context.Context, userID string) error
+	DeleteUser(ctx context.Context, userID uuid.UUID) error
 }
 
 // TokenRepository Token 存储接口

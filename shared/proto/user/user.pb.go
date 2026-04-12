@@ -105,17 +105,61 @@ func (x *User) GetIsActive() bool {
 	return false
 }
 
+type UserIdentityMetadata struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DeviceId      string                 `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"` // 设备标识
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserIdentityMetadata) Reset() {
+	*x = UserIdentityMetadata{}
+	mi := &file_user_user_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserIdentityMetadata) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserIdentityMetadata) ProtoMessage() {}
+
+func (x *UserIdentityMetadata) ProtoReflect() protoreflect.Message {
+	mi := &file_user_user_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserIdentityMetadata.ProtoReflect.Descriptor instead.
+func (*UserIdentityMetadata) Descriptor() ([]byte, []int) {
+	return file_user_user_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *UserIdentityMetadata) GetDeviceId() string {
+	if x != nil {
+		return x.DeviceId
+	}
+	return ""
+}
+
 type UserIdentity struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	DeviceId      string                 `protobuf:"bytes,2,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"` // UUID 格式
+	Metadata      *UserIdentityMetadata  `protobuf:"bytes,2,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UserIdentity) Reset() {
 	*x = UserIdentity{}
-	mi := &file_user_user_proto_msgTypes[1]
+	mi := &file_user_user_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -127,7 +171,7 @@ func (x *UserIdentity) String() string {
 func (*UserIdentity) ProtoMessage() {}
 
 func (x *UserIdentity) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_proto_msgTypes[1]
+	mi := &file_user_user_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -140,7 +184,7 @@ func (x *UserIdentity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserIdentity.ProtoReflect.Descriptor instead.
 func (*UserIdentity) Descriptor() ([]byte, []int) {
-	return file_user_user_proto_rawDescGZIP(), []int{1}
+	return file_user_user_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *UserIdentity) GetUserId() string {
@@ -150,11 +194,11 @@ func (x *UserIdentity) GetUserId() string {
 	return ""
 }
 
-func (x *UserIdentity) GetDeviceId() string {
+func (x *UserIdentity) GetMetadata() *UserIdentityMetadata {
 	if x != nil {
-		return x.DeviceId
+		return x.Metadata
 	}
-	return ""
+	return nil
 }
 
 type TokenPayload struct {
@@ -168,7 +212,7 @@ type TokenPayload struct {
 
 func (x *TokenPayload) Reset() {
 	*x = TokenPayload{}
-	mi := &file_user_user_proto_msgTypes[2]
+	mi := &file_user_user_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -180,7 +224,7 @@ func (x *TokenPayload) String() string {
 func (*TokenPayload) ProtoMessage() {}
 
 func (x *TokenPayload) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_proto_msgTypes[2]
+	mi := &file_user_user_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -193,7 +237,7 @@ func (x *TokenPayload) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TokenPayload.ProtoReflect.Descriptor instead.
 func (*TokenPayload) Descriptor() ([]byte, []int) {
-	return file_user_user_proto_rawDescGZIP(), []int{2}
+	return file_user_user_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *TokenPayload) GetUserIdentity() *UserIdentity {
@@ -229,7 +273,7 @@ type TokenPair struct {
 
 func (x *TokenPair) Reset() {
 	*x = TokenPair{}
-	mi := &file_user_user_proto_msgTypes[3]
+	mi := &file_user_user_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -241,7 +285,7 @@ func (x *TokenPair) String() string {
 func (*TokenPair) ProtoMessage() {}
 
 func (x *TokenPair) ProtoReflect() protoreflect.Message {
-	mi := &file_user_user_proto_msgTypes[3]
+	mi := &file_user_user_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -254,7 +298,7 @@ func (x *TokenPair) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TokenPair.ProtoReflect.Descriptor instead.
 func (*TokenPair) Descriptor() ([]byte, []int) {
-	return file_user_user_proto_rawDescGZIP(), []int{3}
+	return file_user_user_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *TokenPair) GetAccessToken() string {
@@ -298,10 +342,12 @@ const file_user_user_proto_rawDesc = "" +
 	"created_at\x18\x04 \x01(\x03R\tcreatedAt\x12\x1d\n" +
 	"\n" +
 	"updated_at\x18\x05 \x01(\x03R\tupdatedAt\x12\x1b\n" +
-	"\tis_active\x18\x06 \x01(\bR\bisActive\"D\n" +
+	"\tis_active\x18\x06 \x01(\bR\bisActive\"3\n" +
+	"\x14UserIdentityMetadata\x12\x1b\n" +
+	"\tdevice_id\x18\x01 \x01(\tR\bdeviceId\"_\n" +
 	"\fUserIdentity\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
-	"\tdevice_id\x18\x02 \x01(\tR\bdeviceId\"u\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x126\n" +
+	"\bmetadata\x18\x02 \x01(\v2\x1a.user.UserIdentityMetadataR\bmetadata\"u\n" +
 	"\fTokenPayload\x127\n" +
 	"\ruser_identity\x18\x01 \x01(\v2\x12.user.UserIdentityR\fuserIdentity\x12\x15\n" +
 	"\x06iss_at\x18\x02 \x01(\x03R\x05issAt\x12\x15\n" +
@@ -324,20 +370,22 @@ func file_user_user_proto_rawDescGZIP() []byte {
 	return file_user_user_proto_rawDescData
 }
 
-var file_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_user_user_proto_goTypes = []any{
-	(*User)(nil),         // 0: user.User
-	(*UserIdentity)(nil), // 1: user.UserIdentity
-	(*TokenPayload)(nil), // 2: user.TokenPayload
-	(*TokenPair)(nil),    // 3: user.TokenPair
+	(*User)(nil),                 // 0: user.User
+	(*UserIdentityMetadata)(nil), // 1: user.UserIdentityMetadata
+	(*UserIdentity)(nil),         // 2: user.UserIdentity
+	(*TokenPayload)(nil),         // 3: user.TokenPayload
+	(*TokenPair)(nil),            // 4: user.TokenPair
 }
 var file_user_user_proto_depIdxs = []int32{
-	1, // 0: user.TokenPayload.user_identity:type_name -> user.UserIdentity
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	1, // 0: user.UserIdentity.metadata:type_name -> user.UserIdentityMetadata
+	2, // 1: user.TokenPayload.user_identity:type_name -> user.UserIdentity
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_user_user_proto_init() }
@@ -351,7 +399,7 @@ func file_user_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_user_proto_rawDesc), len(file_user_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

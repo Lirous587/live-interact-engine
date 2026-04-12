@@ -6,6 +6,8 @@ import (
 	entuser "live-interact-engine/services/user-service/ent/user"
 	"live-interact-engine/services/user-service/internal/domain"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type UserRepository struct {
@@ -17,7 +19,7 @@ func NewUserRepository(client *ent.Client) domain.UserRepository {
 }
 
 // GetUser 获取用户
-func (r *UserRepository) GetUser(ctx context.Context, userID string) (*domain.User, error) {
+func (r *UserRepository) GetUser(ctx context.Context, userID uuid.UUID) (*domain.User, error) {
 	entUser, err := r.client.User.Query().
 		Where(entuser.IDEQ(userID)).
 		First(ctx)
@@ -100,7 +102,7 @@ func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (*dom
 }
 
 // DeleteUser 删除用户
-func (r *UserRepository) DeleteUser(ctx context.Context, userID string) error {
+func (r *UserRepository) DeleteUser(ctx context.Context, userID uuid.UUID) error {
 	err := r.client.User.
 		DeleteOneID(userID).
 		Exec(ctx)

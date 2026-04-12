@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"live-interact-engine/services/user-service/internal/domain"
@@ -31,7 +30,7 @@ func (s *UserService) SetTokenService(tokenService domain.TokenService) {
 }
 
 // 获取用户基本信息
-func (s *UserService) GetUser(ctx context.Context, userID string) (*domain.User, error) {
+func (s *UserService) GetUser(ctx context.Context, userID uuid.UUID) (*domain.User, error) {
 	user, err := s.userRepo.GetUser(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -60,7 +59,10 @@ func (s *UserService) Register(ctx context.Context, username, email, password st
 
 	// 3. 创建新用户
 	now := time.Now()
-	userID := fmt.Sprintf("user_%s", uuid.New().String())
+	userID, err := uuid.NewV7()
+	if err != nil {
+		return nil, err
+	}
 	passwordHash, err := s.passwordMgr.HashPassword(password)
 	if err != nil {
 		return nil, types.ErrPasswordHashFailed
@@ -85,7 +87,7 @@ func (s *UserService) Register(ctx context.Context, username, email, password st
 }
 
 // Login 登录
-func (s *UserService) Login(ctx context.Context, email, password, deviceID string) (*domain.User, *domain.TokenPair, error) {
+func (s *UserService) Login(ctx context.Context, email, password string, metadata domain.UserIdentityMetadata) (*domain.User, *domain.TokenPair, error) {
 	// 1. 验证输入
 	if email == "" || password == "" {
 		return nil, nil, types.ErrInvalidInput
@@ -113,8 +115,8 @@ func (s *UserService) Login(ctx context.Context, email, password, deviceID strin
 	// 5. 生成 token pair
 	now := time.Now()
 	identity := &domain.UserIdentity{
-		UserID:   user.UserID,
-		DeviceID: deviceID,
+		UserID:               user.UserID,
+		UserIdentityMetadata: metadata,
 	}
 
 	tokenPair, err := s.tokenService.GenTokenPair(ctx, &domain.TokenPayload{

@@ -3,6 +3,8 @@ package adapter
 import (
 	"live-interact-engine/services/user-service/internal/domain"
 	pb "live-interact-engine/shared/proto/user"
+
+	"github.com/google/uuid"
 )
 
 func DomainUserIdentityToProto(identity *domain.UserIdentity) *pb.UserIdentity {
@@ -10,7 +12,7 @@ func DomainUserIdentityToProto(identity *domain.UserIdentity) *pb.UserIdentity {
 		return nil
 	}
 	return &pb.UserIdentity{
-		UserId: identity.UserID,
+		UserId: identity.UserID.String(),
 	}
 }
 
@@ -19,7 +21,9 @@ func ProtoUserIdentityToDomain(identity *pb.UserIdentity) *domain.UserIdentity {
 		return nil
 	}
 	return &domain.UserIdentity{
-		UserID:   identity.UserId,
-		DeviceID: "", // proto 中没有 DeviceID 字段，暂时设为空
+		UserID: uuid.MustParse(identity.UserId),
+		UserIdentityMetadata: domain.UserIdentityMetadata{
+			DeviceID: identity.Metadata.DeviceId,
+		},
 	}
 }

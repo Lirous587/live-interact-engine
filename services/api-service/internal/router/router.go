@@ -1,6 +1,7 @@
 package router
 
 import (
+	"live-interact-engine/services/api-service/internal/adapter/mapper"
 	"live-interact-engine/services/api-service/internal/grpc_clients"
 	"live-interact-engine/services/api-service/internal/handler"
 	"live-interact-engine/shared/env"
@@ -66,8 +67,11 @@ func registerUser(r *gin.RouterGroup) {
 	// 加入管理列表
 	clients = append(clients, userClient)
 
+	// 创建 user mapper（业务适配层）
+	userMapper := mapper.NewUserMapper(userClient)
+
 	// 创建 handler
-	userHandler := handler.NewUserHandler(userClient)
+	userHandler := handler.NewUserHandler(userMapper)
 
 	// 注册路由
 	ug := r.Group("/user")

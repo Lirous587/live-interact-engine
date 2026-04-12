@@ -15,9 +15,13 @@ message User {
   bool   is_active  = 6;
 }
 
+message UserIdentityMetadata {
+  string device_id = 1; // 设备标识
+}
+
 message UserIdentity {
-  string user_id   = 1;
-  string device_id = 2;
+  string               user_id  = 1; // UUID 格式
+  UserIdentityMetadata metadata = 2;
 }
 
 message TokenPayload {

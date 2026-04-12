@@ -5,6 +5,8 @@ package ent
 import (
 	"live-interact-engine/services/user-service/ent/schema"
 	"live-interact-engine/services/user-service/ent/user"
+
+	"github.com/google/uuid"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -39,6 +41,6 @@ func init() {
 	user.DefaultIsActive = userDescIsActive.Default.(bool)
 	// userDescID is the schema descriptor for id field.
 	userDescID := userFields[0].Descriptor()
-	// user.IDValidator is a validator for the "id" field. It is called by the builders before save.
-	user.IDValidator = userDescID.Validators[0].(func(string) error)
+	// user.DefaultID holds the default value on creation for the id field.
+	user.DefaultID = userDescID.Default.(func() uuid.UUID)
 }

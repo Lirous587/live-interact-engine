@@ -55,7 +55,9 @@ func (c *UserClient) Login(ctx context.Context, email, password, deviceID string
 	req := &pb.LoginRequest{
 		Email:    email,
 		Password: password,
-		DeviceId: deviceID,
+		Metadata: &pb.UserIdentityMetadata{
+			DeviceId: deviceID,
+		},
 	}
 	return c.client.Login(ctx, req)
 }
