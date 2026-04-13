@@ -21,6 +21,58 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type TokenStatus int32
+
+const (
+	TokenStatus_TOKEN_STATUS_UNSPECIFIED TokenStatus = 0
+	TokenStatus_TOKEN_STATUS_VALID       TokenStatus = 1
+	TokenStatus_TOKEN_STATUS_EXPIRED     TokenStatus = 2
+	TokenStatus_TOKEN_STATUS_INVALID     TokenStatus = 3
+)
+
+// Enum value maps for TokenStatus.
+var (
+	TokenStatus_name = map[int32]string{
+		0: "TOKEN_STATUS_UNSPECIFIED",
+		1: "TOKEN_STATUS_VALID",
+		2: "TOKEN_STATUS_EXPIRED",
+		3: "TOKEN_STATUS_INVALID",
+	}
+	TokenStatus_value = map[string]int32{
+		"TOKEN_STATUS_UNSPECIFIED": 0,
+		"TOKEN_STATUS_VALID":       1,
+		"TOKEN_STATUS_EXPIRED":     2,
+		"TOKEN_STATUS_INVALID":     3,
+	}
+)
+
+func (x TokenStatus) Enum() *TokenStatus {
+	p := new(TokenStatus)
+	*p = x
+	return p
+}
+
+func (x TokenStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (TokenStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_user_user_api_proto_enumTypes[0].Descriptor()
+}
+
+func (TokenStatus) Type() protoreflect.EnumType {
+	return &file_user_user_api_proto_enumTypes[0]
+}
+
+func (x TokenStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use TokenStatus.Descriptor instead.
+func (TokenStatus) EnumDescriptor() ([]byte, []int) {
+	return file_user_user_api_proto_rawDescGZIP(), []int{0}
+}
+
 type RegisterRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
@@ -371,9 +423,8 @@ func (x *ValidateTokenRequest) GetAccessToken() string {
 
 type ValidateTokenResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	IsValid       bool                   `protobuf:"varint,1,opt,name=is_valid,json=isValid,proto3" json:"is_valid,omitempty"`
-	IsExpired     bool                   `protobuf:"varint,2,opt,name=is_expired,json=isExpired,proto3" json:"is_expired,omitempty"`
-	ErrorMessage  string                 `protobuf:"bytes,3,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	Status        TokenStatus            `protobuf:"varint,1,opt,name=status,proto3,enum=user.TokenStatus" json:"status,omitempty"`
+	Payload       *TokenPayload          `protobuf:"bytes,2,opt,name=payload,proto3" json:"payload,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -408,25 +459,18 @@ func (*ValidateTokenResponse) Descriptor() ([]byte, []int) {
 	return file_user_user_api_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *ValidateTokenResponse) GetIsValid() bool {
+func (x *ValidateTokenResponse) GetStatus() TokenStatus {
 	if x != nil {
-		return x.IsValid
+		return x.Status
 	}
-	return false
+	return TokenStatus_TOKEN_STATUS_UNSPECIFIED
 }
 
-func (x *ValidateTokenResponse) GetIsExpired() bool {
+func (x *ValidateTokenResponse) GetPayload() *TokenPayload {
 	if x != nil {
-		return x.IsExpired
+		return x.Payload
 	}
-	return false
-}
-
-func (x *ValidateTokenResponse) GetErrorMessage() string {
-	if x != nil {
-		return x.ErrorMessage
-	}
-	return ""
+	return nil
 }
 
 type ParseTokenRequest struct {
@@ -476,7 +520,7 @@ func (x *ParseTokenRequest) GetAccessToken() string {
 type ParseTokenResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Payload       *TokenPayload          `protobuf:"bytes,1,opt,name=payload,proto3" json:"payload,omitempty"`
-	ErrorMessage  string                 `protobuf:"bytes,2,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	Status        TokenStatus            `protobuf:"varint,2,opt,name=status,proto3,enum=user.TokenStatus" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -518,11 +562,11 @@ func (x *ParseTokenResponse) GetPayload() *TokenPayload {
 	return nil
 }
 
-func (x *ParseTokenResponse) GetErrorMessage() string {
+func (x *ParseTokenResponse) GetStatus() TokenStatus {
 	if x != nil {
-		return x.ErrorMessage
+		return x.Status
 	}
-	return ""
+	return TokenStatus_TOKEN_STATUS_UNSPECIFIED
 }
 
 type RefreshTokenRequest struct {
@@ -580,7 +624,6 @@ func (x *RefreshTokenRequest) GetRefreshToken() string {
 type RefreshTokenResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TokenPair     *TokenPair             `protobuf:"bytes,1,opt,name=token_pair,json=tokenPair,proto3" json:"token_pair,omitempty"`
-	ErrorMessage  string                 `protobuf:"bytes,2,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -622,13 +665,6 @@ func (x *RefreshTokenResponse) GetTokenPair() *TokenPair {
 	return nil
 }
 
-func (x *RefreshTokenResponse) GetErrorMessage() string {
-	if x != nil {
-		return x.ErrorMessage
-	}
-	return ""
-}
-
 var File_user_user_api_proto protoreflect.FileDescriptor
 
 const file_user_user_api_proto_rawDesc = "" +
@@ -656,24 +692,26 @@ const file_user_user_api_proto_rawDesc = "" +
 	"\x04user\x18\x01 \x01(\v2\n" +
 	".user.UserR\x04user\"9\n" +
 	"\x14ValidateTokenRequest\x12!\n" +
-	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"v\n" +
-	"\x15ValidateTokenResponse\x12\x19\n" +
-	"\bis_valid\x18\x01 \x01(\bR\aisValid\x12\x1d\n" +
-	"\n" +
-	"is_expired\x18\x02 \x01(\bR\tisExpired\x12#\n" +
-	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage\"6\n" +
+	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"p\n" +
+	"\x15ValidateTokenResponse\x12)\n" +
+	"\x06status\x18\x01 \x01(\x0e2\x11.user.TokenStatusR\x06status\x12,\n" +
+	"\apayload\x18\x02 \x01(\v2\x12.user.TokenPayloadR\apayload\"6\n" +
 	"\x11ParseTokenRequest\x12!\n" +
-	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"g\n" +
+	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"m\n" +
 	"\x12ParseTokenResponse\x12,\n" +
-	"\apayload\x18\x01 \x01(\v2\x12.user.TokenPayloadR\apayload\x12#\n" +
-	"\rerror_message\x18\x02 \x01(\tR\ferrorMessage\"s\n" +
+	"\apayload\x18\x01 \x01(\v2\x12.user.TokenPayloadR\apayload\x12)\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.user.TokenStatusR\x06status\"s\n" +
 	"\x13RefreshTokenRequest\x127\n" +
 	"\ruser_identity\x18\x01 \x01(\v2\x12.user.UserIdentityR\fuserIdentity\x12#\n" +
-	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\"k\n" +
+	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\"F\n" +
 	"\x14RefreshTokenResponse\x12.\n" +
 	"\n" +
-	"token_pair\x18\x01 \x01(\v2\x0f.user.TokenPairR\ttokenPair\x12#\n" +
-	"\rerror_message\x18\x02 \x01(\tR\ferrorMessageB\x18Z\x16shared/proto/user;userb\x06proto3"
+	"token_pair\x18\x01 \x01(\v2\x0f.user.TokenPairR\ttokenPair*w\n" +
+	"\vTokenStatus\x12\x1c\n" +
+	"\x18TOKEN_STATUS_UNSPECIFIED\x10\x00\x12\x16\n" +
+	"\x12TOKEN_STATUS_VALID\x10\x01\x12\x18\n" +
+	"\x14TOKEN_STATUS_EXPIRED\x10\x02\x12\x18\n" +
+	"\x14TOKEN_STATUS_INVALID\x10\x03B\x18Z\x16shared/proto/user;userb\x06proto3"
 
 var (
 	file_user_user_api_proto_rawDescOnce sync.Once
@@ -687,40 +725,45 @@ func file_user_user_api_proto_rawDescGZIP() []byte {
 	return file_user_user_api_proto_rawDescData
 }
 
+var file_user_user_api_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_user_user_api_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_user_user_api_proto_goTypes = []any{
-	(*RegisterRequest)(nil),       // 0: user.RegisterRequest
-	(*RegisterResponse)(nil),      // 1: user.RegisterResponse
-	(*LoginRequest)(nil),          // 2: user.LoginRequest
-	(*LoginResponse)(nil),         // 3: user.LoginResponse
-	(*GetUserRequest)(nil),        // 4: user.GetUserRequest
-	(*GetUserResponse)(nil),       // 5: user.GetUserResponse
-	(*ValidateTokenRequest)(nil),  // 6: user.ValidateTokenRequest
-	(*ValidateTokenResponse)(nil), // 7: user.ValidateTokenResponse
-	(*ParseTokenRequest)(nil),     // 8: user.ParseTokenRequest
-	(*ParseTokenResponse)(nil),    // 9: user.ParseTokenResponse
-	(*RefreshTokenRequest)(nil),   // 10: user.RefreshTokenRequest
-	(*RefreshTokenResponse)(nil),  // 11: user.RefreshTokenResponse
-	(*User)(nil),                  // 12: user.User
-	(*UserIdentityMetadata)(nil),  // 13: user.UserIdentityMetadata
-	(*TokenPair)(nil),             // 14: user.TokenPair
-	(*TokenPayload)(nil),          // 15: user.TokenPayload
-	(*UserIdentity)(nil),          // 16: user.UserIdentity
+	(TokenStatus)(0),              // 0: user.TokenStatus
+	(*RegisterRequest)(nil),       // 1: user.RegisterRequest
+	(*RegisterResponse)(nil),      // 2: user.RegisterResponse
+	(*LoginRequest)(nil),          // 3: user.LoginRequest
+	(*LoginResponse)(nil),         // 4: user.LoginResponse
+	(*GetUserRequest)(nil),        // 5: user.GetUserRequest
+	(*GetUserResponse)(nil),       // 6: user.GetUserResponse
+	(*ValidateTokenRequest)(nil),  // 7: user.ValidateTokenRequest
+	(*ValidateTokenResponse)(nil), // 8: user.ValidateTokenResponse
+	(*ParseTokenRequest)(nil),     // 9: user.ParseTokenRequest
+	(*ParseTokenResponse)(nil),    // 10: user.ParseTokenResponse
+	(*RefreshTokenRequest)(nil),   // 11: user.RefreshTokenRequest
+	(*RefreshTokenResponse)(nil),  // 12: user.RefreshTokenResponse
+	(*User)(nil),                  // 13: user.User
+	(*UserIdentityMetadata)(nil),  // 14: user.UserIdentityMetadata
+	(*TokenPair)(nil),             // 15: user.TokenPair
+	(*TokenPayload)(nil),          // 16: user.TokenPayload
+	(*UserIdentity)(nil),          // 17: user.UserIdentity
 }
 var file_user_user_api_proto_depIdxs = []int32{
-	12, // 0: user.RegisterResponse.user:type_name -> user.User
-	13, // 1: user.LoginRequest.metadata:type_name -> user.UserIdentityMetadata
-	12, // 2: user.LoginResponse.user:type_name -> user.User
-	14, // 3: user.LoginResponse.token_pair:type_name -> user.TokenPair
-	12, // 4: user.GetUserResponse.user:type_name -> user.User
-	15, // 5: user.ParseTokenResponse.payload:type_name -> user.TokenPayload
-	16, // 6: user.RefreshTokenRequest.user_identity:type_name -> user.UserIdentity
-	14, // 7: user.RefreshTokenResponse.token_pair:type_name -> user.TokenPair
-	8,  // [8:8] is the sub-list for method output_type
-	8,  // [8:8] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	13, // 0: user.RegisterResponse.user:type_name -> user.User
+	14, // 1: user.LoginRequest.metadata:type_name -> user.UserIdentityMetadata
+	13, // 2: user.LoginResponse.user:type_name -> user.User
+	15, // 3: user.LoginResponse.token_pair:type_name -> user.TokenPair
+	13, // 4: user.GetUserResponse.user:type_name -> user.User
+	0,  // 5: user.ValidateTokenResponse.status:type_name -> user.TokenStatus
+	16, // 6: user.ValidateTokenResponse.payload:type_name -> user.TokenPayload
+	16, // 7: user.ParseTokenResponse.payload:type_name -> user.TokenPayload
+	0,  // 8: user.ParseTokenResponse.status:type_name -> user.TokenStatus
+	17, // 9: user.RefreshTokenRequest.user_identity:type_name -> user.UserIdentity
+	15, // 10: user.RefreshTokenResponse.token_pair:type_name -> user.TokenPair
+	11, // [11:11] is the sub-list for method output_type
+	11, // [11:11] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_user_user_api_proto_init() }
@@ -734,13 +777,14 @@ func file_user_user_api_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_user_api_proto_rawDesc), len(file_user_user_api_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_user_user_api_proto_goTypes,
 		DependencyIndexes: file_user_user_api_proto_depIdxs,
+		EnumInfos:         file_user_user_api_proto_enumTypes,
 		MessageInfos:      file_user_user_api_proto_msgTypes,
 	}.Build()
 	File_user_user_api_proto = out.File

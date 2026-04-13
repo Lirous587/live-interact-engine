@@ -4,6 +4,7 @@ import (
 	"live-interact-engine/services/api-service/internal/adapter/mapper"
 	"live-interact-engine/services/api-service/internal/grpc_clients"
 	"live-interact-engine/services/api-service/internal/handler"
+	"live-interact-engine/services/api-service/internal/middleware"
 	"live-interact-engine/shared/env"
 	"log"
 
@@ -96,6 +97,12 @@ func registerUser(r *gin.RouterGroup) {
 }
 
 func registerRoom(r *gin.RouterGroup) {
+	userServiceAddr := env.GetString("USER_SERVICE_URL", "user-service:9094")
+	authMiddleware, err := middleware.NewAuthMiddleware(userServiceAddr)
+	if err != nil {
+		log.Fatalf("初始化 auth 中间件失败: %v", err)
+	}
+
 	roomServiceURL := env.GetString("ROOM_SERVICE_URL", "room-service:9095")
 
 	// 创建 room 客户端
@@ -116,7 +123,7 @@ func registerRoom(r *gin.RouterGroup) {
 	// 注册路由
 	rg := r.Group("/room")
 	{
-		rg.POST("/create", roomHandler.CreateRoom)
+		rg.POST("/create", authMiddleware.Validate(), roomHandler.CreateRoom)
 		rg.GET("/:room_id", roomHandler.GetRoom)
 		rg.POST("/assign-role", roomHandler.AssignRole)
 		rg.GET("/:room_id/user/:user_id/role", roomHandler.GetUserRoomRole)

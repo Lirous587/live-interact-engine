@@ -53,32 +53,39 @@ func (s *TokenService) GenTokenPair(ctx context.Context, payload *domain.TokenPa
 	}, nil
 }
 
-func (s *TokenService) ValidateToken(ctx context.Context, accessToken string) (isValid bool, isExpired bool, err error) {
-	_, err = jwt.ParseToken[domain.TokenPayload](accessToken, s.accessTokenSecret)
+func (s *TokenService) ValidateToken(ctx context.Context, accessToken string) (*domain.TokenPayload, domain.TokenStatus, error) {
+	claims, err := jwt.ParseToken[domain.TokenPayload](accessToken, s.accessTokenSecret)
 
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
-			// Token 已过期
-			return false, true, types.ErrTokenExpired
+			// Token 已过期: 作为合法的业务状态返回，不作为系统错误
+			// 尝试从抛出错误的 claims 里获取 payload 
+			if claims != nil {
+				return claims.PayLoad, domain.TokenStatusExpired, nil
+			}
+			return nil, domain.TokenStatusExpired, nil
 		}
-		// Token 无效（格式错误、签名错误等）
-		return false, false, types.ErrTokenInvalid
+		// Token 无效: 同样可以不作为 RPC error 抛出
+		return nil, domain.TokenStatusInvalid, nil
 	}
 
 	// Token 有效
-	return true, false, nil
+	return claims.PayLoad, domain.TokenStatusValid, nil
 }
 
-func (s *TokenService) ParseToken(ctx context.Context, accessToken string) (*domain.TokenPayload, error) {
+func (s *TokenService) ParseToken(ctx context.Context, accessToken string) (*domain.TokenPayload, domain.TokenStatus, error) {
 	claims, err := jwt.ParseToken[domain.TokenPayload](accessToken, s.accessTokenSecret)
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
-			return nil, types.ErrTokenExpired
+			if claims != nil {
+				return claims.PayLoad, domain.TokenStatusExpired, nil
+			}
+			return nil, domain.TokenStatusExpired, nil
 		}
-		return nil, types.ErrTokenInvalid
+		return nil, domain.TokenStatusInvalid, nil
 	}
 
-	return claims.PayLoad, nil
+	return claims.PayLoad, domain.TokenStatusValid, nil
 }
 
 // 刷新token 返回TokenPair

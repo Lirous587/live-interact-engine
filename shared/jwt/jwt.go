@@ -42,13 +42,19 @@ func ParseToken[T any](tokenString string, secret string) (*MyClaims[T], error) 
 		return []byte(secret), nil
 	})
 
+	var claims *MyClaims[T]
+	if token != nil {
+		claims, _ = token.Claims.(*MyClaims[T])
+	}
+
 	if err != nil {
 		// 对于 JWT v5，直接判断错误类型
 		switch {
 		case errors.Is(err, jwt.ErrTokenExpired):
-			return nil, ErrTokenExpired
+			// 即使过期也返回 claims 以满足需要获取过期信息的需求
+			return claims, ErrTokenExpired
 		default:
-			return nil, ErrInvalidToken
+			return claims, ErrInvalidToken
 		}
 	}
 

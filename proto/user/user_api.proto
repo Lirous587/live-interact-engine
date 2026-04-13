@@ -39,14 +39,20 @@ message GetUserResponse {
 
 // ==================== TokenService Request/Response Messages ====================
 
+enum TokenStatus {
+  TOKEN_STATUS_UNSPECIFIED = 0;
+  TOKEN_STATUS_VALID       = 1;
+  TOKEN_STATUS_EXPIRED     = 2;
+  TOKEN_STATUS_INVALID     = 3;
+}
+
 message ValidateTokenRequest {
   string access_token = 1;
 }
 
 message ValidateTokenResponse {
-  bool   is_valid      = 1;
-  bool   is_expired    = 2;
-  string error_message = 3;
+  TokenStatus  status  = 1;
+  TokenPayload payload = 2;
 }
 
 message ParseTokenRequest {
@@ -54,8 +60,8 @@ message ParseTokenRequest {
 }
 
 message ParseTokenResponse {
-  TokenPayload payload       = 1;
-  string       error_message = 2;
+  TokenPayload payload = 1;
+  TokenStatus  status  = 2;
 }
 
 message RefreshTokenRequest {
@@ -64,6 +70,5 @@ message RefreshTokenRequest {
 }
 
 message RefreshTokenResponse {
-  TokenPair token_pair    = 1;
-  string    error_message = 2;
+  TokenPair token_pair = 1;
 }

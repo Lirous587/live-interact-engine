@@ -115,34 +115,47 @@ func NewTokenHandler(svc domain.TokenService) *TokenHandler {
 func (h *TokenHandler) ValidateToken(ctx context.Context, req *pb.ValidateTokenRequest) (*pb.ValidateTokenResponse, error) {
 	span := trace.SpanFromContext(ctx)
 
-	isValid, isExpired, err := h.tokenService.ValidateToken(ctx, req.AccessToken)
+	payload, status, err := h.tokenService.ValidateToken(ctx, req.AccessToken)
 	if err != nil {
 		return nil, svcerr.MapServiceErrorToGRPC(err, span)
 	}
 
-	return &pb.ValidateTokenResponse{
-		IsValid:      isValid,
-		IsExpired:    isExpired,
-		ErrorMessage: "",
-	}, nil
+	res := &pb.ValidateTokenResponse{
+		Status: pb.TokenStatus(status),
+	}
+
+	if payload != nil {
+		res.Payload = &pb.TokenPayload{
+			UserIdentity: adapter.DomainUserIdentityToProto(payload.Identity),
+			IssAt:        payload.IssuedAt,
+			ExpAt:        payload.ExpiresAt,
+		}
+	}
+
+	return res, nil
 }
 
 func (h *TokenHandler) ParseToken(ctx context.Context, req *pb.ParseTokenRequest) (*pb.ParseTokenResponse, error) {
 	span := trace.SpanFromContext(ctx)
 
-	payload, err := h.tokenService.ParseToken(ctx, req.AccessToken)
+	payload, status, err := h.tokenService.ParseToken(ctx, req.AccessToken)
 	if err != nil {
 		return nil, svcerr.MapServiceErrorToGRPC(err, span)
 	}
 
-	return &pb.ParseTokenResponse{
-		Payload: &pb.TokenPayload{
+	res := &pb.ParseTokenResponse{
+		Status: pb.TokenStatus(status),
+	}
+
+	if payload != nil {
+		res.Payload = &pb.TokenPayload{
 			UserIdentity: adapter.DomainUserIdentityToProto(payload.Identity),
 			IssAt:        payload.IssuedAt,
 			ExpAt:        payload.ExpiresAt,
-		},
-		ErrorMessage: "",
-	}, nil
+		}
+	}
+
+	return res, nil
 }
 
 func (h *TokenHandler) RefreshToken(ctx context.Context, req *pb.RefreshTokenRequest) (*pb.RefreshTokenResponse, error) {
@@ -160,6 +173,5 @@ func (h *TokenHandler) RefreshToken(ctx context.Context, req *pb.RefreshTokenReq
 			AccessExpiresAt:  tokenPair.AccessExpiresAt,
 			RefreshExpiresAt: tokenPair.RefreshExpiresAt,
 		},
-		ErrorMessage: "",
 	}, nil
 }

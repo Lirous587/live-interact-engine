@@ -23,7 +23,7 @@ type DanmakuClient struct {
 }
 
 // NewDanmakuClient 创建新的 danmaku 客户端
-func NewDanmakuClient(danmakuServiceAddr string) (*DanmakuClient, error) {
+func NewDanmakuClient(danmakuServiceURL string) (*DanmakuClient, error) {
 	dialOptions := append(
 		telemetry.SetupGRPCClientTracing(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -31,7 +31,7 @@ func NewDanmakuClient(danmakuServiceAddr string) (*DanmakuClient, error) {
 
 	// 连接到 danmaku-service
 	conn, err := grpc.NewClient(
-		danmakuServiceAddr,
+		danmakuServiceURL,
 		dialOptions...,
 	)
 	if err != nil {

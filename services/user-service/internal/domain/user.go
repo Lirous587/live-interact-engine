@@ -75,16 +75,28 @@ type UserService interface {
 	Login(ctx context.Context, email, password string, metadata UserIdentityMetadata) (*User, *TokenPair, error)
 }
 
+// ==================== TokenStatus 枚举 ====================
+
+type TokenStatus int
+
+const (
+	TokenStatusUnspecified TokenStatus = iota
+	TokenStatusValid
+	TokenStatusExpired
+	TokenStatusInvalid
+	TokenStatusMissing
+)
+
 // TokenService Token 操作服务接口
 type TokenService interface {
 	// 生成token对
 	GenTokenPair(ctx context.Context, payload *TokenPayload) (*TokenPair, error)
 
 	// 校验 Token
-	ValidateToken(ctx context.Context, accessToken string) (isValid bool, isExpired bool, err error)
+	ValidateToken(ctx context.Context, accessToken string) (*TokenPayload, TokenStatus, error)
 
 	// 解析 Token
-	ParseToken(ctx context.Context, accessToken string) (*TokenPayload, error)
+	ParseToken(ctx context.Context, accessToken string) (*TokenPayload, TokenStatus, error)
 
 	// 刷新 Token
 	RefreshToken(ctx context.Context, identity *UserIdentity, refreshToken string) (*TokenPair, error)

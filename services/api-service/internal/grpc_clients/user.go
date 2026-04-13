@@ -16,7 +16,7 @@ type UserClient struct {
 }
 
 // NewUserClient 创建新的用户客户端
-func NewUserClient(userServiceAddr string) (*UserClient, error) {
+func NewUserClient(userServiceURL string) (*UserClient, error) {
 	dialOptions := append(
 		telemetry.SetupGRPCClientTracing(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -24,7 +24,7 @@ func NewUserClient(userServiceAddr string) (*UserClient, error) {
 
 	// 连接到 user-service
 	conn, err := grpc.NewClient(
-		userServiceAddr,
+		userServiceURL,
 		dialOptions...,
 	)
 	if err != nil {

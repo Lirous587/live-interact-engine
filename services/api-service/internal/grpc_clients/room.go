@@ -16,7 +16,7 @@ type RoomClient struct {
 }
 
 // NewRoomClient 创建新的房间客户端
-func NewRoomClient(roomServiceAddr string) (*RoomClient, error) {
+func NewRoomClient(roomServiceURL string) (*RoomClient, error) {
 	dialOptions := append(
 		telemetry.SetupGRPCClientTracing(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -24,7 +24,7 @@ func NewRoomClient(roomServiceAddr string) (*RoomClient, error) {
 
 	// 连接到 room-service
 	conn, err := grpc.NewClient(
-		roomServiceAddr,
+		roomServiceURL,
 		dialOptions...,
 	)
 	if err != nil {
