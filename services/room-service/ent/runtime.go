@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"live-interact-engine/services/room-service/ent/mute"
 	"live-interact-engine/services/room-service/ent/room"
 	"live-interact-engine/services/room-service/ent/schema"
 	"live-interact-engine/services/room-service/ent/userroomrole"
@@ -14,6 +15,30 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	muteFields := schema.Mute{}.Fields()
+	_ = muteFields
+	// muteDescMutedAt is the schema descriptor for muted_at field.
+	muteDescMutedAt := muteFields[6].Descriptor()
+	// mute.DefaultMutedAt holds the default value on creation for the muted_at field.
+	mute.DefaultMutedAt = muteDescMutedAt.Default.(func() int64)
+	// muteDescExpiresAt is the schema descriptor for expires_at field.
+	muteDescExpiresAt := muteFields[7].Descriptor()
+	// mute.DefaultExpiresAt holds the default value on creation for the expires_at field.
+	mute.DefaultExpiresAt = muteDescExpiresAt.Default.(func() int64)
+	// muteDescCreatedAt is the schema descriptor for created_at field.
+	muteDescCreatedAt := muteFields[8].Descriptor()
+	// mute.DefaultCreatedAt holds the default value on creation for the created_at field.
+	mute.DefaultCreatedAt = muteDescCreatedAt.Default.(func() int64)
+	// muteDescUpdatedAt is the schema descriptor for updated_at field.
+	muteDescUpdatedAt := muteFields[9].Descriptor()
+	// mute.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	mute.DefaultUpdatedAt = muteDescUpdatedAt.Default.(func() int64)
+	// mute.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	mute.UpdateDefaultUpdatedAt = muteDescUpdatedAt.UpdateDefault.(func() int64)
+	// muteDescID is the schema descriptor for id field.
+	muteDescID := muteFields[0].Descriptor()
+	// mute.DefaultID holds the default value on creation for the id field.
+	mute.DefaultID = muteDescID.Default.(func() uuid.UUID)
 	roomFields := schema.Room{}.Fields()
 	_ = roomFields
 	// roomDescTitle is the schema descriptor for title field.

@@ -127,6 +127,11 @@ func registerRoom(r *gin.RouterGroup) {
 		rg.GET("/:room_id", roomHandler.GetRoom)
 		rg.POST("/assign-role", authMiddleware.Validate(), roomHandler.AssignRole)
 		rg.GET("/:room_id/user/:user_id/role", roomHandler.GetUserRoomRole)
+		rg.POST("/mute", authMiddleware.Validate(), roomHandler.MuteUser)
+		rg.POST("/unmute", authMiddleware.Validate(), roomHandler.UnmuteUser)
+		rg.GET("/:room_id/user/:user_id/mute-status", roomHandler.IsMuted)
+		rg.GET("/:room_id/user/:user_id/mute-info", roomHandler.GetMuteInfo)
+		rg.GET("/:room_id/mute-list", roomHandler.GetMuteList)
 	}
 }
 

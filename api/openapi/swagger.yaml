@@ -2,21 +2,18 @@ basePath: /api
 definitions:
   mapper.AssignRoleReq:
     properties:
-      permissions:
-        items:
-          type: integer
-        type: array
-      role_name:
-        maxLength: 50
-        minLength: 1
+      role:
+        enum:
+        - owner
+        - administrator
+        - vip
         type: string
       room_id:
         type: string
       user_id:
         type: string
     required:
-    - permissions
-    - role_name
+    - role
     - room_id
     - user_id
     type: object
@@ -56,6 +53,18 @@ definitions:
       username:
         type: string
     type: object
+  mapper.GetMuteListResp:
+    properties:
+      mutes:
+        items:
+          $ref: '#/definitions/mapper.MuteResp'
+        type: array
+    type: object
+  mapper.IsMutedResp:
+    properties:
+      is_muted:
+        type: boolean
+    type: object
   mapper.LoginReq:
     properties:
       email:
@@ -80,6 +89,42 @@ definitions:
         type: string
       username:
         type: string
+    type: object
+  mapper.MuteResp:
+    properties:
+      admin_id:
+        type: string
+      created_at:
+        type: integer
+      duration:
+        type: integer
+      expires_at:
+        type: integer
+      muted_at:
+        type: integer
+      reason:
+        type: string
+      room_id:
+        type: string
+      user_id:
+        type: string
+    type: object
+  mapper.MuteUserReq:
+    properties:
+      duration:
+        minimum: 1
+        type: integer
+      reason:
+        maxLength: 200
+        type: string
+      room_id:
+        type: string
+      user_id:
+        type: string
+    required:
+    - duration
+    - room_id
+    - user_id
     type: object
   mapper.RegisterReq:
     properties:
@@ -149,6 +194,16 @@ definitions:
     - user_id
     - username
     type: object
+  mapper.UnmuteUserReq:
+    properties:
+      room_id:
+        type: string
+      user_id:
+        type: string
+    required:
+    - room_id
+    - user_id
+    type: object
   mapper.UserResp:
     properties:
       email:
@@ -168,7 +223,7 @@ definitions:
         items:
           type: integer
         type: array
-      role_name:
+      role:
         type: string
       room_id:
         type: string
@@ -279,6 +334,98 @@ paths:
             additionalProperties: true
             type: object
       summary: 获取房间信息
+      tags:
+      - Room
+  /v1/room/{room_id}/mute-list:
+    get:
+      description: 获取房间中被禁言的用户列表
+      parameters:
+      - description: 房间ID
+        in: path
+        name: room_id
+        required: true
+        type: string
+      - default: 0
+        description: 分页偏移量
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: 分页大小
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 禁言列表
+          schema:
+            $ref: '#/definitions/mapper.GetMuteListResp'
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取禁言列表
+      tags:
+      - Room
+  /v1/room/{room_id}/user/{user_id}/mute-info:
+    get:
+      description: 获取用户在房间的禁言详细信息
+      parameters:
+      - description: 房间ID
+        in: path
+        name: room_id
+        required: true
+        type: string
+      - description: 用户ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 禁言信息
+          schema:
+            $ref: '#/definitions/mapper.MuteResp'
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取禁言信息
+      tags:
+      - Room
+  /v1/room/{room_id}/user/{user_id}/mute-status:
+    get:
+      description: 检查用户是否在房间中被禁言
+      parameters:
+      - description: 房间ID
+        in: path
+        name: room_id
+        required: true
+        type: string
+      - description: 用户ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 禁言状态
+          schema:
+            $ref: '#/definitions/mapper.IsMutedResp'
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 检查禁言状态
       tags:
       - Room
   /v1/room/{room_id}/user/{user_id}/permission:
@@ -412,6 +559,72 @@ paths:
             additionalProperties: true
             type: object
       summary: 创建房间
+      tags:
+      - Room
+  /v1/room/mute:
+    post:
+      consumes:
+      - application/json
+      description: 房间管理员禁言指定用户
+      parameters:
+      - description: 禁言用户请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mapper.MuteUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未授权
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 禁言用户
+      tags:
+      - Room
+  /v1/room/unmute:
+    post:
+      consumes:
+      - application/json
+      description: 房间管理员解除用户禁言
+      parameters:
+      - description: 解除禁言请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mapper.UnmuteUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未授权
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 解除禁言
       tags:
       - Room
   /v1/user/{user_id}:

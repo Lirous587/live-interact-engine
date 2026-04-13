@@ -24,25 +24,22 @@ const (
 type RoleType int32
 
 const (
-	RoleType_ROLE_UNSPECIFIED   RoleType = 0 // 未指定（不使用）
-	RoleType_ROLE_OWNER         RoleType = 1 // 房间所有者：拥有全部权限
-	RoleType_ROLE_ADMINISTRATOR RoleType = 2 // 管理员：可删除弹幕、禁言用户
-	RoleType_ROLE_VIP           RoleType = 3 // 付费用户：可发送置顶弹幕
+	RoleType_ROLE_OWNER         RoleType = 0 // 房间所有者：拥有全部权限
+	RoleType_ROLE_ADMINISTRATOR RoleType = 1 // 管理员：可删除弹幕、禁言用户
+	RoleType_ROLE_VIP           RoleType = 2 // 付费用户：可发送置顶弹幕
 )
 
 // Enum value maps for RoleType.
 var (
 	RoleType_name = map[int32]string{
-		0: "ROLE_UNSPECIFIED",
-		1: "ROLE_OWNER",
-		2: "ROLE_ADMINISTRATOR",
-		3: "ROLE_VIP",
+		0: "ROLE_OWNER",
+		1: "ROLE_ADMINISTRATOR",
+		2: "ROLE_VIP",
 	}
 	RoleType_value = map[string]int32{
-		"ROLE_UNSPECIFIED":   0,
-		"ROLE_OWNER":         1,
-		"ROLE_ADMINISTRATOR": 2,
-		"ROLE_VIP":           3,
+		"ROLE_OWNER":         0,
+		"ROLE_ADMINISTRATOR": 1,
+		"ROLE_VIP":           2,
 	}
 )
 
@@ -283,7 +280,7 @@ func (x *UserRoomRole) GetRole() RoleType {
 	if x != nil {
 		return x.Role
 	}
-	return RoleType_ROLE_UNSPECIFIED
+	return RoleType_ROLE_OWNER
 }
 
 func (x *UserRoomRole) GetPermissions() []Permission {
@@ -330,13 +327,12 @@ const file_room_room_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x05 \x01(\x03R\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\x06 \x01(\x03R\tupdatedAt*V\n" +
-	"\bRoleType\x12\x14\n" +
-	"\x10ROLE_UNSPECIFIED\x10\x00\x12\x0e\n" +
+	"updated_at\x18\x06 \x01(\x03R\tupdatedAt*@\n" +
+	"\bRoleType\x12\x0e\n" +
 	"\n" +
-	"ROLE_OWNER\x10\x01\x12\x16\n" +
-	"\x12ROLE_ADMINISTRATOR\x10\x02\x12\f\n" +
-	"\bROLE_VIP\x10\x03*\xb8\x01\n" +
+	"ROLE_OWNER\x10\x00\x12\x16\n" +
+	"\x12ROLE_ADMINISTRATOR\x10\x01\x12\f\n" +
+	"\bROLE_VIP\x10\x02*\xb8\x01\n" +
 	"\n" +
 	"Permission\x12\x1a\n" +
 	"\x16PERMISSION_UNSPECIFIED\x10\x00\x12\x1b\n" +

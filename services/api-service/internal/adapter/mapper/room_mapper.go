@@ -42,6 +42,39 @@ type CheckPermissionReq struct {
 	Permission int32  `uri:"permission" binding:"required,gte=0"`
 }
 
+// MuteUserReq 禁言用户请求体
+type MuteUserReq struct {
+	RoomID   string `json:"room_id" binding:"required"`
+	UserID   string `json:"user_id" binding:"required"`
+	Duration int64  `json:"duration" binding:"required,gte=1"`
+	Reason   string `json:"reason" binding:"max=200"`
+}
+
+// UnmuteUserReq 解除禁言请求体
+type UnmuteUserReq struct {
+	RoomID string `json:"room_id" binding:"required"`
+	UserID string `json:"user_id" binding:"required"`
+}
+
+// IsMutedReq 检查禁言状态请求体
+type IsMutedReq struct {
+	RoomID string `uri:"room_id" binding:"required"`
+	UserID string `uri:"user_id" binding:"required"`
+}
+
+// GetMuteInfoReq 获取禁言信息请求体
+type GetMuteInfoReq struct {
+	RoomID string `uri:"room_id" binding:"required"`
+	UserID string `uri:"user_id" binding:"required"`
+}
+
+// GetMuteListReq 获取禁言列表请求体
+type GetMuteListReq struct {
+	RoomID string `uri:"room_id" binding:"required"`
+	Offset int32  `form:"offset" binding:"gte=0"`
+	Limit  int32  `form:"limit" binding:"gte=1,lte=100"`
+}
+
 // ==================== 响应体定义 ====================
 
 // RoomResp 房间信息响应体
@@ -68,6 +101,28 @@ type UserRoomRoleResp struct {
 // CheckPermissionResp 权限检查响应体
 type CheckPermissionResp struct {
 	HasPermission bool `json:"has_permission"`
+}
+
+// MuteResp 禁言信息响应体
+type MuteResp struct {
+	UserID    string `json:"user_id"`
+	RoomID    string `json:"room_id"`
+	AdminID   string `json:"admin_id"`
+	Reason    string `json:"reason"`
+	Duration  int64  `json:"duration"`
+	MutedAt   int64  `json:"muted_at"`
+	ExpiresAt int64  `json:"expires_at"`
+	CreatedAt int64  `json:"created_at"`
+}
+
+// IsMutedResp 禁言状态响应体
+type IsMutedResp struct {
+	IsMuted bool `json:"is_muted"`
+}
+
+// GetMuteListResp 禁言列表响应体
+type GetMuteListResp struct {
+	Mutes []*MuteResp `json:"mutes"`
 }
 
 // ==================== Mapper 类定义 ====================
@@ -224,5 +279,105 @@ func (m *RoomMapper) CheckPermission(ctx context.Context, req *CheckPermissionRe
 
 	return &CheckPermissionResp{
 		HasPermission: resp,
+	}, nil
+}
+
+// MuteUser 禁言用户
+func (m *RoomMapper) MuteUser(ctx context.Context, adminID string, req *MuteUserReq) error {
+	pbReq := &pb.MuteUserRequest{
+		RoomId:   req.RoomID,
+		UserId:   req.UserID,
+		AdminId:  adminID,
+		Duration: req.Duration,
+		Reason:   req.Reason,
+	}
+
+	return m.roomClient.MuteUser(ctx, pbReq)
+}
+
+// UnmuteUser 解除禁言
+func (m *RoomMapper) UnmuteUser(ctx context.Context, req *UnmuteUserReq) error {
+	pbReq := &pb.UnmuteUserRequest{
+		RoomId: req.RoomID,
+		UserId: req.UserID,
+	}
+
+	return m.roomClient.UnmuteUser(ctx, pbReq)
+}
+
+// IsMuted 检查用户是否被禁言
+func (m *RoomMapper) IsMuted(ctx context.Context, req *IsMutedReq) (*IsMutedResp, error) {
+	pbReq := &pb.IsMutedRequest{
+		RoomId: req.RoomID,
+		UserId: req.UserID,
+	}
+
+	resp, err := m.roomClient.IsMuted(ctx, pbReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return &IsMutedResp{
+		IsMuted: resp,
+	}, nil
+}
+
+// GetMuteInfo 获取禁言信息
+func (m *RoomMapper) GetMuteInfo(ctx context.Context, req *GetMuteInfoReq) (*MuteResp, error) {
+	pbReq := &pb.GetMuteInfoRequest{
+		RoomId: req.RoomID,
+		UserId: req.UserID,
+	}
+
+	mute, err := m.roomClient.GetMuteInfo(ctx, pbReq)
+	if err != nil {
+		return nil, err
+	}
+
+	if mute == nil {
+		return nil, nil
+	}
+
+	return &MuteResp{
+		UserID:    mute.UserId,
+		RoomID:    mute.RoomId,
+		AdminID:   mute.AdminId,
+		Reason:    mute.Reason,
+		Duration:  mute.Duration,
+		MutedAt:   mute.MutedAt,
+		ExpiresAt: mute.ExpiresAt,
+		CreatedAt: mute.CreatedAt,
+	}, nil
+}
+
+// GetMuteList 获取禁言列表
+func (m *RoomMapper) GetMuteList(ctx context.Context, req *GetMuteListReq) (*GetMuteListResp, error) {
+	pbReq := &pb.GetMuteListRequest{
+		RoomId: req.RoomID,
+		Offset: req.Offset,
+		Limit:  req.Limit,
+	}
+
+	mutes, err := m.roomClient.GetMuteList(ctx, pbReq)
+	if err != nil {
+		return nil, err
+	}
+
+	muteResps := make([]*MuteResp, len(mutes))
+	for i, m := range mutes {
+		muteResps[i] = &MuteResp{
+			UserID:    m.UserId,
+			RoomID:    m.RoomId,
+			AdminID:   m.AdminId,
+			Reason:    m.Reason,
+			Duration:  m.Duration,
+			MutedAt:   m.MutedAt,
+			ExpiresAt: m.ExpiresAt,
+			CreatedAt: m.CreatedAt,
+		}
+	}
+
+	return &GetMuteListResp{
+		Mutes: muteResps,
 	}, nil
 }

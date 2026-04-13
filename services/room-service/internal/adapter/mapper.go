@@ -49,6 +49,23 @@ func UserRoomRoleToProto(urr *domain.UserRoomRole) *pb.UserRoomRole {
 	}
 }
 
+// MuteToProto 将 domain.Mute 转换为 proto.Mute
+func MuteToProto(mute *domain.Mute) *pb.Mute {
+	if mute == nil {
+		return nil
+	}
+	return &pb.Mute{
+		UserId:    mute.UserID.String(),
+		RoomId:    mute.RoomID.String(),
+		AdminId:   mute.AdminID.String(),
+		Reason:    mute.Reason,
+		Duration:  mute.Duration,
+		MutedAt:   mute.MutedAt.Unix(),
+		ExpiresAt: mute.ExpiresAt.Unix(),
+		CreatedAt: mute.CreatedAt.Unix(),
+	}
+}
+
 // ==================== Proto → Domain 转换 ====================
 
 // ProtoPermissionsToDomain 将 proto.Permission 数组转换为 domain.Permission 数组

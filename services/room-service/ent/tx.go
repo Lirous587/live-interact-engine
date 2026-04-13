@@ -12,6 +12,8 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// Mute is the client for interacting with the Mute builders.
+	Mute *MuteClient
 	// Room is the client for interacting with the Room builders.
 	Room *RoomClient
 	// UserRoomRole is the client for interacting with the UserRoomRole builders.
@@ -147,6 +149,7 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.Mute = NewMuteClient(tx.config)
 	tx.Room = NewRoomClient(tx.config)
 	tx.UserRoomRole = NewUserRoomRoleClient(tx.config)
 }
@@ -158,7 +161,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: Room.QueryXXX(), the query will be executed
+// applies a query, for example: Mute.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

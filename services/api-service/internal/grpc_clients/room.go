@@ -82,6 +82,45 @@ func (c *RoomClient) CheckPermission(ctx context.Context, req *pb.CheckPermissio
 	return resp.HasPermission, nil
 }
 
+// MuteUser 禁言用户
+func (c *RoomClient) MuteUser(ctx context.Context, req *pb.MuteUserRequest) error {
+	_, err := c.client.MuteUser(ctx, req)
+	return err
+}
+
+// UnmuteUser 解除禁言
+func (c *RoomClient) UnmuteUser(ctx context.Context, req *pb.UnmuteUserRequest) error {
+	_, err := c.client.UnmuteUser(ctx, req)
+	return err
+}
+
+// IsMuted 检查用户是否被禁言
+func (c *RoomClient) IsMuted(ctx context.Context, req *pb.IsMutedRequest) (bool, error) {
+	resp, err := c.client.IsMuted(ctx, req)
+	if err != nil {
+		return false, err
+	}
+	return resp.IsMuted, nil
+}
+
+// GetMuteInfo 获取禁言信息
+func (c *RoomClient) GetMuteInfo(ctx context.Context, req *pb.GetMuteInfoRequest) (*pb.Mute, error) {
+	resp, err := c.client.GetMuteInfo(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Mute, nil
+}
+
+// GetMuteList 获取禁言列表
+func (c *RoomClient) GetMuteList(ctx context.Context, req *pb.GetMuteListRequest) ([]*pb.Mute, error) {
+	resp, err := c.client.GetMuteList(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Mutes, nil
+}
+
 // Close 关闭连接
 func (c *RoomClient) Close() error {
 	if c.conn != nil {

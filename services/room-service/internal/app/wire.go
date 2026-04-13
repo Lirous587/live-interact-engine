@@ -31,9 +31,10 @@ func InitDependencies(ctx context.Context) (*Deps, error) {
 	// 初始化 Repository
 	roomRepo := postgres.NewRoomRepository(client)
 	userRoomRoleRepo := postgres.NewUserRoomRoleRepository(client)
+	muteRepo := postgres.NewMuteRepository(client)
 
 	// 初始化 Service
-	roomService := service.NewRoomService(roomRepo, userRoomRoleRepo)
+	roomService := service.NewRoomService(roomRepo, userRoomRoleRepo, muteRepo)
 
 	// 初始化 gRPC Handler
 	roomHandler := grpc.NewRoomHandler(roomService)

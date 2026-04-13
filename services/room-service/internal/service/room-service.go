@@ -15,13 +15,15 @@ import (
 type RoomService struct {
 	roomRepo         domain.RoomRepository
 	userRoomRoleRepo domain.UserRoomRoleRepository
+	muteRepo         domain.MuteRepository
 }
 
 // NewRoomService 创建 RoomService 实例
-func NewRoomService(roomRepo domain.RoomRepository, userRoomRoleRepo domain.UserRoomRoleRepository) domain.RoomService {
+func NewRoomService(roomRepo domain.RoomRepository, userRoomRoleRepo domain.UserRoomRoleRepository, muteRepo domain.MuteRepository) domain.RoomService {
 	return &RoomService{
 		roomRepo:         roomRepo,
 		userRoomRoleRepo: userRoomRoleRepo,
+		muteRepo:         muteRepo,
 	}
 }
 
@@ -131,4 +133,70 @@ func (s *RoomService) CheckPermission(ctx context.Context, userID, roomID uuid.U
 	}
 
 	return role.HasPermission(permission), nil
+}
+
+func (s *RoomService) MuteUser(ctx context.Context, roomID, userID, adminID uuid.UUID, duration int64, reason string) error {
+	room, err := s.roomRepo.GetRoom(ctx, roomID)
+	if err != nil {
+		return err
+	}
+	if room == nil {
+		return types.ErrRoomNotFound
+	}
+
+	now := time.Now()
+	mute := &domain.Mute{
+		RoomID:    roomID,
+		UserID:    userID,
+		AdminID:   adminID,
+		Reason:    reason,
+		Duration:  duration,
+		MutedAt:   now,
+		ExpiresAt: now.Add(time.Duration(duration) * time.Second),
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+
+	return s.muteRepo.Create(ctx, mute)
+}
+
+func (s *RoomService) UnmuteUser(ctx context.Context, roomID, userID uuid.UUID) error {
+	return s.muteRepo.Delete(ctx, roomID, userID)
+}
+
+func (s *RoomService) IsMuted(ctx context.Context, roomID, userID uuid.UUID) (bool, error) {
+	mute, err := s.muteRepo.GetByRoomAndUser(ctx, roomID, userID)
+	if err != nil {
+		return false, err
+	}
+	if mute == nil {
+		return false, nil
+	}
+	return !mute.IsExpired(), nil
+}
+
+func (s *RoomService) GetMuteInfo(ctx context.Context, roomID, userID uuid.UUID) (*domain.Mute, error) {
+	mute, err := s.muteRepo.GetByRoomAndUser(ctx, roomID, userID)
+	if err != nil {
+		return nil, err
+	}
+	if mute == nil || mute.IsExpired() {
+		return nil, nil
+	}
+	return mute, nil
+}
+
+func (s *RoomService) GetMuteList(ctx context.Context, roomID uuid.UUID, offset, limit int) ([]*domain.Mute, error) {
+	mutes, err := s.muteRepo.ListByRoom(ctx, roomID, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*domain.Mute, 0, len(mutes))
+	for _, m := range mutes {
+		if !m.IsExpired() {
+			result = append(result, m)
+		}
+	}
+	return result, nil
 }

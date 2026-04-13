@@ -153,3 +153,124 @@ func (h *RoomHandler) CheckPermission(ctx context.Context, req *pb.CheckPermissi
 		HasPermission: has,
 	}, nil
 }
+
+// MuteUser 禁言用户
+func (h *RoomHandler) MuteUser(ctx context.Context, req *pb.MuteUserRequest) (*pb.MuteUserResponse, error) {
+	span := trace.SpanFromContext(ctx)
+
+	roomID, err := uuid.Parse(req.RoomId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	adminID, err := uuid.Parse(req.AdminId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	err = h.roomService.MuteUser(ctx, roomID, userID, adminID, req.Duration, req.Reason)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	return &pb.MuteUserResponse{}, nil
+}
+
+// UnmuteUser 解除禁言
+func (h *RoomHandler) UnmuteUser(ctx context.Context, req *pb.UnmuteUserRequest) (*pb.UnmuteUserResponse, error) {
+	span := trace.SpanFromContext(ctx)
+
+	roomID, err := uuid.Parse(req.RoomId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	err = h.roomService.UnmuteUser(ctx, roomID, userID)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	return &pb.UnmuteUserResponse{}, nil
+}
+
+// IsMuted 检查用户是否被禁言
+func (h *RoomHandler) IsMuted(ctx context.Context, req *pb.IsMutedRequest) (*pb.IsMutedResponse, error) {
+	span := trace.SpanFromContext(ctx)
+
+	roomID, err := uuid.Parse(req.RoomId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	isMuted, err := h.roomService.IsMuted(ctx, roomID, userID)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	return &pb.IsMutedResponse{
+		IsMuted: isMuted,
+	}, nil
+}
+
+// GetMuteInfo 获取禁言信息
+func (h *RoomHandler) GetMuteInfo(ctx context.Context, req *pb.GetMuteInfoRequest) (*pb.GetMuteInfoResponse, error) {
+	span := trace.SpanFromContext(ctx)
+
+	roomID, err := uuid.Parse(req.RoomId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	mute, err := h.roomService.GetMuteInfo(ctx, roomID, userID)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	return &pb.GetMuteInfoResponse{
+		Mute: adapter.MuteToProto(mute),
+	}, nil
+}
+
+// GetMuteList 获取禁言列表
+func (h *RoomHandler) GetMuteList(ctx context.Context, req *pb.GetMuteListRequest) (*pb.GetMuteListResponse, error) {
+	span := trace.SpanFromContext(ctx)
+
+	roomID, err := uuid.Parse(req.RoomId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	mutes, err := h.roomService.GetMuteList(ctx, roomID, int(req.Offset), int(req.Limit))
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	mutePbs := make([]*pb.Mute, len(mutes))
+	for i, m := range mutes {
+		mutePbs[i] = adapter.MuteToProto(m)
+	}
+
+	return &pb.GetMuteListResponse{
+		Mutes: mutePbs,
+	}, nil
+}

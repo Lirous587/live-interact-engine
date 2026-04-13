@@ -8,6 +8,42 @@ import (
 )
 
 var (
+	// MutesColumns holds the columns for the "mutes" table.
+	MutesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "room_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "admin_id", Type: field.TypeUUID},
+		{Name: "reason", Type: field.TypeString, Nullable: true},
+		{Name: "duration", Type: field.TypeInt64},
+		{Name: "muted_at", Type: field.TypeInt64},
+		{Name: "expires_at", Type: field.TypeInt64},
+		{Name: "created_at", Type: field.TypeInt64},
+		{Name: "updated_at", Type: field.TypeInt64},
+	}
+	// MutesTable holds the schema information for the "mutes" table.
+	MutesTable = &schema.Table{
+		Name:       "mutes",
+		Columns:    MutesColumns,
+		PrimaryKey: []*schema.Column{MutesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "mute_room_id_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{MutesColumns[1], MutesColumns[2]},
+			},
+			{
+				Name:    "mute_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{MutesColumns[7]},
+			},
+			{
+				Name:    "mute_room_id_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{MutesColumns[1], MutesColumns[7]},
+			},
+		},
+	}
 	// RoomsColumns holds the columns for the "rooms" table.
 	RoomsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -84,6 +120,7 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		MutesTable,
 		RoomsTable,
 		UserRoomRolesTable,
 	}

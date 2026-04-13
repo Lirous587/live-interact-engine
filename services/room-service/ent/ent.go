@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"live-interact-engine/services/room-service/ent/mute"
 	"live-interact-engine/services/room-service/ent/room"
 	"live-interact-engine/services/room-service/ent/userroomrole"
 	"reflect"
@@ -74,6 +75,7 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			mute.Table:         mute.ValidColumn,
 			room.Table:         room.ValidColumn,
 			userroomrole.Table: userroomrole.ValidColumn,
 		})

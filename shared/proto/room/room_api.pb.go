@@ -278,7 +278,7 @@ func (x *AssignRoleRequest) GetRole() RoleType {
 	if x != nil {
 		return x.Role
 	}
-	return RoleType_ROLE_UNSPECIFIED
+	return RoleType_ROLE_OWNER
 }
 
 type AssignRoleResponse struct {
@@ -517,6 +517,602 @@ func (x *CheckPermissionResponse) GetHasPermission() bool {
 	return false
 }
 
+type Mute struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	RoomId        string                 `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	AdminId       string                 `protobuf:"bytes,3,opt,name=admin_id,json=adminId,proto3" json:"admin_id,omitempty"`
+	Reason        string                 `protobuf:"bytes,4,opt,name=reason,proto3" json:"reason,omitempty"`
+	Duration      int64                  `protobuf:"varint,5,opt,name=duration,proto3" json:"duration,omitempty"`
+	MutedAt       int64                  `protobuf:"varint,6,opt,name=muted_at,json=mutedAt,proto3" json:"muted_at,omitempty"`
+	ExpiresAt     int64                  `protobuf:"varint,7,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	CreatedAt     int64                  `protobuf:"varint,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Mute) Reset() {
+	*x = Mute{}
+	mi := &file_room_room_api_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Mute) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Mute) ProtoMessage() {}
+
+func (x *Mute) ProtoReflect() protoreflect.Message {
+	mi := &file_room_room_api_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Mute.ProtoReflect.Descriptor instead.
+func (*Mute) Descriptor() ([]byte, []int) {
+	return file_room_room_api_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *Mute) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *Mute) GetRoomId() string {
+	if x != nil {
+		return x.RoomId
+	}
+	return ""
+}
+
+func (x *Mute) GetAdminId() string {
+	if x != nil {
+		return x.AdminId
+	}
+	return ""
+}
+
+func (x *Mute) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *Mute) GetDuration() int64 {
+	if x != nil {
+		return x.Duration
+	}
+	return 0
+}
+
+func (x *Mute) GetMutedAt() int64 {
+	if x != nil {
+		return x.MutedAt
+	}
+	return 0
+}
+
+func (x *Mute) GetExpiresAt() int64 {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return 0
+}
+
+func (x *Mute) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+type MuteUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AdminId       string                 `protobuf:"bytes,1,opt,name=admin_id,json=adminId,proto3" json:"admin_id,omitempty"`
+	RoomId        string                 `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Duration      int64                  `protobuf:"varint,4,opt,name=duration,proto3" json:"duration,omitempty"`
+	Reason        string                 `protobuf:"bytes,5,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MuteUserRequest) Reset() {
+	*x = MuteUserRequest{}
+	mi := &file_room_room_api_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MuteUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MuteUserRequest) ProtoMessage() {}
+
+func (x *MuteUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_room_room_api_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MuteUserRequest.ProtoReflect.Descriptor instead.
+func (*MuteUserRequest) Descriptor() ([]byte, []int) {
+	return file_room_room_api_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *MuteUserRequest) GetAdminId() string {
+	if x != nil {
+		return x.AdminId
+	}
+	return ""
+}
+
+func (x *MuteUserRequest) GetRoomId() string {
+	if x != nil {
+		return x.RoomId
+	}
+	return ""
+}
+
+func (x *MuteUserRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *MuteUserRequest) GetDuration() int64 {
+	if x != nil {
+		return x.Duration
+	}
+	return 0
+}
+
+func (x *MuteUserRequest) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+type MuteUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MuteUserResponse) Reset() {
+	*x = MuteUserResponse{}
+	mi := &file_room_room_api_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MuteUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MuteUserResponse) ProtoMessage() {}
+
+func (x *MuteUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_room_room_api_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MuteUserResponse.ProtoReflect.Descriptor instead.
+func (*MuteUserResponse) Descriptor() ([]byte, []int) {
+	return file_room_room_api_proto_rawDescGZIP(), []int{12}
+}
+
+type UnmuteUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RoomId        string                 `protobuf:"bytes,1,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnmuteUserRequest) Reset() {
+	*x = UnmuteUserRequest{}
+	mi := &file_room_room_api_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnmuteUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnmuteUserRequest) ProtoMessage() {}
+
+func (x *UnmuteUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_room_room_api_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnmuteUserRequest.ProtoReflect.Descriptor instead.
+func (*UnmuteUserRequest) Descriptor() ([]byte, []int) {
+	return file_room_room_api_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *UnmuteUserRequest) GetRoomId() string {
+	if x != nil {
+		return x.RoomId
+	}
+	return ""
+}
+
+func (x *UnmuteUserRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type UnmuteUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnmuteUserResponse) Reset() {
+	*x = UnmuteUserResponse{}
+	mi := &file_room_room_api_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnmuteUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnmuteUserResponse) ProtoMessage() {}
+
+func (x *UnmuteUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_room_room_api_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnmuteUserResponse.ProtoReflect.Descriptor instead.
+func (*UnmuteUserResponse) Descriptor() ([]byte, []int) {
+	return file_room_room_api_proto_rawDescGZIP(), []int{14}
+}
+
+type IsMutedRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RoomId        string                 `protobuf:"bytes,1,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IsMutedRequest) Reset() {
+	*x = IsMutedRequest{}
+	mi := &file_room_room_api_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IsMutedRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IsMutedRequest) ProtoMessage() {}
+
+func (x *IsMutedRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_room_room_api_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IsMutedRequest.ProtoReflect.Descriptor instead.
+func (*IsMutedRequest) Descriptor() ([]byte, []int) {
+	return file_room_room_api_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *IsMutedRequest) GetRoomId() string {
+	if x != nil {
+		return x.RoomId
+	}
+	return ""
+}
+
+func (x *IsMutedRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type IsMutedResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IsMuted       bool                   `protobuf:"varint,1,opt,name=is_muted,json=isMuted,proto3" json:"is_muted,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IsMutedResponse) Reset() {
+	*x = IsMutedResponse{}
+	mi := &file_room_room_api_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IsMutedResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IsMutedResponse) ProtoMessage() {}
+
+func (x *IsMutedResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_room_room_api_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IsMutedResponse.ProtoReflect.Descriptor instead.
+func (*IsMutedResponse) Descriptor() ([]byte, []int) {
+	return file_room_room_api_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *IsMutedResponse) GetIsMuted() bool {
+	if x != nil {
+		return x.IsMuted
+	}
+	return false
+}
+
+type GetMuteListRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RoomId        string                 `protobuf:"bytes,1,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	Offset        int32                  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	Limit         int32                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMuteListRequest) Reset() {
+	*x = GetMuteListRequest{}
+	mi := &file_room_room_api_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMuteListRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMuteListRequest) ProtoMessage() {}
+
+func (x *GetMuteListRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_room_room_api_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMuteListRequest.ProtoReflect.Descriptor instead.
+func (*GetMuteListRequest) Descriptor() ([]byte, []int) {
+	return file_room_room_api_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *GetMuteListRequest) GetRoomId() string {
+	if x != nil {
+		return x.RoomId
+	}
+	return ""
+}
+
+func (x *GetMuteListRequest) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *GetMuteListRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+type GetMuteListResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Mutes         []*Mute                `protobuf:"bytes,1,rep,name=mutes,proto3" json:"mutes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMuteListResponse) Reset() {
+	*x = GetMuteListResponse{}
+	mi := &file_room_room_api_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMuteListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMuteListResponse) ProtoMessage() {}
+
+func (x *GetMuteListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_room_room_api_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMuteListResponse.ProtoReflect.Descriptor instead.
+func (*GetMuteListResponse) Descriptor() ([]byte, []int) {
+	return file_room_room_api_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *GetMuteListResponse) GetMutes() []*Mute {
+	if x != nil {
+		return x.Mutes
+	}
+	return nil
+}
+
+type GetMuteInfoRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RoomId        string                 `protobuf:"bytes,1,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMuteInfoRequest) Reset() {
+	*x = GetMuteInfoRequest{}
+	mi := &file_room_room_api_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMuteInfoRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMuteInfoRequest) ProtoMessage() {}
+
+func (x *GetMuteInfoRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_room_room_api_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMuteInfoRequest.ProtoReflect.Descriptor instead.
+func (*GetMuteInfoRequest) Descriptor() ([]byte, []int) {
+	return file_room_room_api_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *GetMuteInfoRequest) GetRoomId() string {
+	if x != nil {
+		return x.RoomId
+	}
+	return ""
+}
+
+func (x *GetMuteInfoRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type GetMuteInfoResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Mute          *Mute                  `protobuf:"bytes,1,opt,name=mute,proto3" json:"mute,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMuteInfoResponse) Reset() {
+	*x = GetMuteInfoResponse{}
+	mi := &file_room_room_api_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMuteInfoResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMuteInfoResponse) ProtoMessage() {}
+
+func (x *GetMuteInfoResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_room_room_api_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMuteInfoResponse.ProtoReflect.Descriptor instead.
+func (*GetMuteInfoResponse) Descriptor() ([]byte, []int) {
+	return file_room_room_api_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *GetMuteInfoResponse) GetMute() *Mute {
+	if x != nil {
+		return x.Mute
+	}
+	return nil
+}
+
 var File_room_room_api_proto protoreflect.FileDescriptor
 
 const file_room_room_api_proto_rawDesc = "" +
@@ -552,7 +1148,47 @@ const file_room_room_api_proto_rawDesc = "" +
 	"permission\x18\x03 \x01(\x0e2\x10.room.PermissionR\n" +
 	"permission\"@\n" +
 	"\x17CheckPermissionResponse\x12%\n" +
-	"\x0ehas_permission\x18\x01 \x01(\bR\rhasPermissionB\x18Z\x16shared/proto/room;roomb\x06proto3"
+	"\x0ehas_permission\x18\x01 \x01(\bR\rhasPermission\"\xe0\x01\n" +
+	"\x04Mute\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x17\n" +
+	"\aroom_id\x18\x02 \x01(\tR\x06roomId\x12\x19\n" +
+	"\badmin_id\x18\x03 \x01(\tR\aadminId\x12\x16\n" +
+	"\x06reason\x18\x04 \x01(\tR\x06reason\x12\x1a\n" +
+	"\bduration\x18\x05 \x01(\x03R\bduration\x12\x19\n" +
+	"\bmuted_at\x18\x06 \x01(\x03R\amutedAt\x12\x1d\n" +
+	"\n" +
+	"expires_at\x18\a \x01(\x03R\texpiresAt\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\b \x01(\x03R\tcreatedAt\"\x92\x01\n" +
+	"\x0fMuteUserRequest\x12\x19\n" +
+	"\badmin_id\x18\x01 \x01(\tR\aadminId\x12\x17\n" +
+	"\aroom_id\x18\x02 \x01(\tR\x06roomId\x12\x17\n" +
+	"\auser_id\x18\x03 \x01(\tR\x06userId\x12\x1a\n" +
+	"\bduration\x18\x04 \x01(\x03R\bduration\x12\x16\n" +
+	"\x06reason\x18\x05 \x01(\tR\x06reason\"\x12\n" +
+	"\x10MuteUserResponse\"E\n" +
+	"\x11UnmuteUserRequest\x12\x17\n" +
+	"\aroom_id\x18\x01 \x01(\tR\x06roomId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\"\x14\n" +
+	"\x12UnmuteUserResponse\"B\n" +
+	"\x0eIsMutedRequest\x12\x17\n" +
+	"\aroom_id\x18\x01 \x01(\tR\x06roomId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\",\n" +
+	"\x0fIsMutedResponse\x12\x19\n" +
+	"\bis_muted\x18\x01 \x01(\bR\aisMuted\"[\n" +
+	"\x12GetMuteListRequest\x12\x17\n" +
+	"\aroom_id\x18\x01 \x01(\tR\x06roomId\x12\x16\n" +
+	"\x06offset\x18\x02 \x01(\x05R\x06offset\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\"7\n" +
+	"\x13GetMuteListResponse\x12 \n" +
+	"\x05mutes\x18\x01 \x03(\v2\n" +
+	".room.MuteR\x05mutes\"F\n" +
+	"\x12GetMuteInfoRequest\x12\x17\n" +
+	"\aroom_id\x18\x01 \x01(\tR\x06roomId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\"5\n" +
+	"\x13GetMuteInfoResponse\x12\x1e\n" +
+	"\x04mute\x18\x01 \x01(\v2\n" +
+	".room.MuteR\x04muteB\x18Z\x16shared/proto/room;roomb\x06proto3"
 
 var (
 	file_room_room_api_proto_rawDescOnce sync.Once
@@ -566,7 +1202,7 @@ func file_room_room_api_proto_rawDescGZIP() []byte {
 	return file_room_room_api_proto_rawDescData
 }
 
-var file_room_room_api_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_room_room_api_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_room_room_api_proto_goTypes = []any{
 	(*CreateRoomRequest)(nil),       // 0: room.CreateRoomRequest
 	(*CreateRoomResponse)(nil),      // 1: room.CreateRoomResponse
@@ -578,22 +1214,35 @@ var file_room_room_api_proto_goTypes = []any{
 	(*GetUserRoomRoleResponse)(nil), // 7: room.GetUserRoomRoleResponse
 	(*CheckPermissionRequest)(nil),  // 8: room.CheckPermissionRequest
 	(*CheckPermissionResponse)(nil), // 9: room.CheckPermissionResponse
-	(*Room)(nil),                    // 10: room.Room
-	(RoleType)(0),                   // 11: room.RoleType
-	(*UserRoomRole)(nil),            // 12: room.UserRoomRole
-	(Permission)(0),                 // 13: room.Permission
+	(*Mute)(nil),                    // 10: room.Mute
+	(*MuteUserRequest)(nil),         // 11: room.MuteUserRequest
+	(*MuteUserResponse)(nil),        // 12: room.MuteUserResponse
+	(*UnmuteUserRequest)(nil),       // 13: room.UnmuteUserRequest
+	(*UnmuteUserResponse)(nil),      // 14: room.UnmuteUserResponse
+	(*IsMutedRequest)(nil),          // 15: room.IsMutedRequest
+	(*IsMutedResponse)(nil),         // 16: room.IsMutedResponse
+	(*GetMuteListRequest)(nil),      // 17: room.GetMuteListRequest
+	(*GetMuteListResponse)(nil),     // 18: room.GetMuteListResponse
+	(*GetMuteInfoRequest)(nil),      // 19: room.GetMuteInfoRequest
+	(*GetMuteInfoResponse)(nil),     // 20: room.GetMuteInfoResponse
+	(*Room)(nil),                    // 21: room.Room
+	(RoleType)(0),                   // 22: room.RoleType
+	(*UserRoomRole)(nil),            // 23: room.UserRoomRole
+	(Permission)(0),                 // 24: room.Permission
 }
 var file_room_room_api_proto_depIdxs = []int32{
-	10, // 0: room.CreateRoomResponse.room:type_name -> room.Room
-	10, // 1: room.GetRoomResponse.room:type_name -> room.Room
-	11, // 2: room.AssignRoleRequest.role:type_name -> room.RoleType
-	12, // 3: room.GetUserRoomRoleResponse.user_room_role:type_name -> room.UserRoomRole
-	13, // 4: room.CheckPermissionRequest.permission:type_name -> room.Permission
-	5,  // [5:5] is the sub-list for method output_type
-	5,  // [5:5] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	21, // 0: room.CreateRoomResponse.room:type_name -> room.Room
+	21, // 1: room.GetRoomResponse.room:type_name -> room.Room
+	22, // 2: room.AssignRoleRequest.role:type_name -> room.RoleType
+	23, // 3: room.GetUserRoomRoleResponse.user_room_role:type_name -> room.UserRoomRole
+	24, // 4: room.CheckPermissionRequest.permission:type_name -> room.Permission
+	10, // 5: room.GetMuteListResponse.mutes:type_name -> room.Mute
+	10, // 6: room.GetMuteInfoResponse.mute:type_name -> room.Mute
+	7,  // [7:7] is the sub-list for method output_type
+	7,  // [7:7] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_room_room_api_proto_init() }
@@ -608,7 +1257,7 @@ func file_room_room_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_room_room_api_proto_rawDesc), len(file_room_room_api_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

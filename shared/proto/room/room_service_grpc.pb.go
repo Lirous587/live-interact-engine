@@ -24,6 +24,11 @@ const (
 	RoomService_AssignRole_FullMethodName      = "/room.RoomService/AssignRole"
 	RoomService_GetUserRoomRole_FullMethodName = "/room.RoomService/GetUserRoomRole"
 	RoomService_CheckPermission_FullMethodName = "/room.RoomService/CheckPermission"
+	RoomService_MuteUser_FullMethodName        = "/room.RoomService/MuteUser"
+	RoomService_UnmuteUser_FullMethodName      = "/room.RoomService/UnmuteUser"
+	RoomService_IsMuted_FullMethodName         = "/room.RoomService/IsMuted"
+	RoomService_GetMuteList_FullMethodName     = "/room.RoomService/GetMuteList"
+	RoomService_GetMuteInfo_FullMethodName     = "/room.RoomService/GetMuteInfo"
 )
 
 // RoomServiceClient is the client API for RoomService service.
@@ -35,6 +40,11 @@ type RoomServiceClient interface {
 	AssignRole(ctx context.Context, in *AssignRoleRequest, opts ...grpc.CallOption) (*AssignRoleResponse, error)
 	GetUserRoomRole(ctx context.Context, in *GetUserRoomRoleRequest, opts ...grpc.CallOption) (*GetUserRoomRoleResponse, error)
 	CheckPermission(ctx context.Context, in *CheckPermissionRequest, opts ...grpc.CallOption) (*CheckPermissionResponse, error)
+	MuteUser(ctx context.Context, in *MuteUserRequest, opts ...grpc.CallOption) (*MuteUserResponse, error)
+	UnmuteUser(ctx context.Context, in *UnmuteUserRequest, opts ...grpc.CallOption) (*UnmuteUserResponse, error)
+	IsMuted(ctx context.Context, in *IsMutedRequest, opts ...grpc.CallOption) (*IsMutedResponse, error)
+	GetMuteList(ctx context.Context, in *GetMuteListRequest, opts ...grpc.CallOption) (*GetMuteListResponse, error)
+	GetMuteInfo(ctx context.Context, in *GetMuteInfoRequest, opts ...grpc.CallOption) (*GetMuteInfoResponse, error)
 }
 
 type roomServiceClient struct {
@@ -95,6 +105,56 @@ func (c *roomServiceClient) CheckPermission(ctx context.Context, in *CheckPermis
 	return out, nil
 }
 
+func (c *roomServiceClient) MuteUser(ctx context.Context, in *MuteUserRequest, opts ...grpc.CallOption) (*MuteUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MuteUserResponse)
+	err := c.cc.Invoke(ctx, RoomService_MuteUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roomServiceClient) UnmuteUser(ctx context.Context, in *UnmuteUserRequest, opts ...grpc.CallOption) (*UnmuteUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UnmuteUserResponse)
+	err := c.cc.Invoke(ctx, RoomService_UnmuteUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roomServiceClient) IsMuted(ctx context.Context, in *IsMutedRequest, opts ...grpc.CallOption) (*IsMutedResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(IsMutedResponse)
+	err := c.cc.Invoke(ctx, RoomService_IsMuted_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roomServiceClient) GetMuteList(ctx context.Context, in *GetMuteListRequest, opts ...grpc.CallOption) (*GetMuteListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetMuteListResponse)
+	err := c.cc.Invoke(ctx, RoomService_GetMuteList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roomServiceClient) GetMuteInfo(ctx context.Context, in *GetMuteInfoRequest, opts ...grpc.CallOption) (*GetMuteInfoResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetMuteInfoResponse)
+	err := c.cc.Invoke(ctx, RoomService_GetMuteInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RoomServiceServer is the server API for RoomService service.
 // All implementations must embed UnimplementedRoomServiceServer
 // for forward compatibility.
@@ -104,6 +164,11 @@ type RoomServiceServer interface {
 	AssignRole(context.Context, *AssignRoleRequest) (*AssignRoleResponse, error)
 	GetUserRoomRole(context.Context, *GetUserRoomRoleRequest) (*GetUserRoomRoleResponse, error)
 	CheckPermission(context.Context, *CheckPermissionRequest) (*CheckPermissionResponse, error)
+	MuteUser(context.Context, *MuteUserRequest) (*MuteUserResponse, error)
+	UnmuteUser(context.Context, *UnmuteUserRequest) (*UnmuteUserResponse, error)
+	IsMuted(context.Context, *IsMutedRequest) (*IsMutedResponse, error)
+	GetMuteList(context.Context, *GetMuteListRequest) (*GetMuteListResponse, error)
+	GetMuteInfo(context.Context, *GetMuteInfoRequest) (*GetMuteInfoResponse, error)
 	mustEmbedUnimplementedRoomServiceServer()
 }
 
@@ -128,6 +193,21 @@ func (UnimplementedRoomServiceServer) GetUserRoomRole(context.Context, *GetUserR
 }
 func (UnimplementedRoomServiceServer) CheckPermission(context.Context, *CheckPermissionRequest) (*CheckPermissionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CheckPermission not implemented")
+}
+func (UnimplementedRoomServiceServer) MuteUser(context.Context, *MuteUserRequest) (*MuteUserResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method MuteUser not implemented")
+}
+func (UnimplementedRoomServiceServer) UnmuteUser(context.Context, *UnmuteUserRequest) (*UnmuteUserResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UnmuteUser not implemented")
+}
+func (UnimplementedRoomServiceServer) IsMuted(context.Context, *IsMutedRequest) (*IsMutedResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method IsMuted not implemented")
+}
+func (UnimplementedRoomServiceServer) GetMuteList(context.Context, *GetMuteListRequest) (*GetMuteListResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetMuteList not implemented")
+}
+func (UnimplementedRoomServiceServer) GetMuteInfo(context.Context, *GetMuteInfoRequest) (*GetMuteInfoResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetMuteInfo not implemented")
 }
 func (UnimplementedRoomServiceServer) mustEmbedUnimplementedRoomServiceServer() {}
 func (UnimplementedRoomServiceServer) testEmbeddedByValue()                     {}
@@ -240,6 +320,96 @@ func _RoomService_CheckPermission_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RoomService_MuteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MuteUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoomServiceServer).MuteUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RoomService_MuteUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoomServiceServer).MuteUser(ctx, req.(*MuteUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RoomService_UnmuteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnmuteUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoomServiceServer).UnmuteUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RoomService_UnmuteUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoomServiceServer).UnmuteUser(ctx, req.(*UnmuteUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RoomService_IsMuted_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IsMutedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoomServiceServer).IsMuted(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RoomService_IsMuted_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoomServiceServer).IsMuted(ctx, req.(*IsMutedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RoomService_GetMuteList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMuteListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoomServiceServer).GetMuteList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RoomService_GetMuteList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoomServiceServer).GetMuteList(ctx, req.(*GetMuteListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RoomService_GetMuteInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMuteInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoomServiceServer).GetMuteInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RoomService_GetMuteInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoomServiceServer).GetMuteInfo(ctx, req.(*GetMuteInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RoomService_ServiceDesc is the grpc.ServiceDesc for RoomService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -266,6 +436,26 @@ var RoomService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckPermission",
 			Handler:    _RoomService_CheckPermission_Handler,
+		},
+		{
+			MethodName: "MuteUser",
+			Handler:    _RoomService_MuteUser_Handler,
+		},
+		{
+			MethodName: "UnmuteUser",
+			Handler:    _RoomService_UnmuteUser_Handler,
+		},
+		{
+			MethodName: "IsMuted",
+			Handler:    _RoomService_IsMuted_Handler,
+		},
+		{
+			MethodName: "GetMuteList",
+			Handler:    _RoomService_GetMuteList_Handler,
+		},
+		{
+			MethodName: "GetMuteInfo",
+			Handler:    _RoomService_GetMuteInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

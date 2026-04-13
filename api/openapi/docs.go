@@ -212,6 +212,104 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/room/mute": {
+            "post": {
+                "description": "房间管理员禁言指定用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Room"
+                ],
+                "summary": "禁言用户",
+                "parameters": [
+                    {
+                        "description": "禁言用户请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mapper.MuteUserReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/room/unmute": {
+            "post": {
+                "description": "房间管理员解除用户禁言",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Room"
+                ],
+                "summary": "解除禁言",
+                "parameters": [
+                    {
+                        "description": "解除禁言请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mapper.UnmuteUserReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/v1/room/{room_id}": {
             "get": {
                 "description": "根据房间ID获取房间详细信息",
@@ -247,6 +345,142 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "房间不存在",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/room/{room_id}/mute-list": {
+            "get": {
+                "description": "获取房间中被禁言的用户列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Room"
+                ],
+                "summary": "获取禁言列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "房间ID",
+                        "name": "room_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "分页偏移量",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "分页大小",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "禁言列表",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.GetMuteListResp"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/room/{room_id}/user/{user_id}/mute-info": {
+            "get": {
+                "description": "获取用户在房间的禁言详细信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Room"
+                ],
+                "summary": "获取禁言信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "房间ID",
+                        "name": "room_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "禁言信息",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.MuteResp"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/room/{room_id}/user/{user_id}/mute-status": {
+            "get": {
+                "description": "检查用户是否在房间中被禁言",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Room"
+                ],
+                "summary": "检查禁言状态",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "房间ID",
+                        "name": "room_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "禁言状态",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.IsMutedResp"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -505,22 +739,18 @@ const docTemplate = `{
         "mapper.AssignRoleReq": {
             "type": "object",
             "required": [
-                "permissions",
-                "role_name",
+                "role",
                 "room_id",
                 "user_id"
             ],
             "properties": {
-                "permissions": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "role_name": {
+                "role": {
                     "type": "string",
-                    "maxLength": 50,
-                    "minLength": 1
+                    "enum": [
+                        "owner",
+                        "administrator",
+                        "vip"
+                    ]
                 },
                 "room_id": {
                     "type": "string"
@@ -584,6 +814,25 @@ const docTemplate = `{
                 }
             }
         },
+        "mapper.GetMuteListResp": {
+            "type": "object",
+            "properties": {
+                "mutes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/mapper.MuteResp"
+                    }
+                }
+            }
+        },
+        "mapper.IsMutedResp": {
+            "type": "object",
+            "properties": {
+                "is_muted": {
+                    "type": "boolean"
+                }
+            }
+        },
         "mapper.LoginReq": {
             "type": "object",
             "required": [
@@ -617,6 +866,59 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "mapper.MuteResp": {
+            "type": "object",
+            "properties": {
+                "admin_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "integer"
+                },
+                "duration": {
+                    "type": "integer"
+                },
+                "expires_at": {
+                    "type": "integer"
+                },
+                "muted_at": {
+                    "type": "integer"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "room_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "mapper.MuteUserReq": {
+            "type": "object",
+            "required": [
+                "duration",
+                "room_id",
+                "user_id"
+            ],
+            "properties": {
+                "duration": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "reason": {
+                    "type": "string",
+                    "maxLength": 200
+                },
+                "room_id": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }
@@ -718,6 +1020,21 @@ const docTemplate = `{
                 }
             }
         },
+        "mapper.UnmuteUserReq": {
+            "type": "object",
+            "required": [
+                "room_id",
+                "user_id"
+            ],
+            "properties": {
+                "room_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "mapper.UserResp": {
             "type": "object",
             "properties": {
@@ -747,7 +1064,7 @@ const docTemplate = `{
                         "type": "integer"
                     }
                 },
-                "role_name": {
+                "role": {
                     "type": "string"
                 },
                 "room_id": {

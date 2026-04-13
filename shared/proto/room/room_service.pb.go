@@ -24,7 +24,7 @@ var File_room_room_service_proto protoreflect.FileDescriptor
 
 const file_room_room_service_proto_rawDesc = "" +
 	"\n" +
-	"\x17room/room_service.proto\x12\x04room\x1a\x13room/room_api.proto2\xe7\x02\n" +
+	"\x17room/room_service.proto\x12\x04room\x1a\x13room/room_api.proto2\xa3\x05\n" +
 	"\vRoomService\x12?\n" +
 	"\n" +
 	"CreateRoom\x12\x17.room.CreateRoomRequest\x1a\x18.room.CreateRoomResponse\x126\n" +
@@ -32,7 +32,13 @@ const file_room_room_service_proto_rawDesc = "" +
 	"\n" +
 	"AssignRole\x12\x17.room.AssignRoleRequest\x1a\x18.room.AssignRoleResponse\x12N\n" +
 	"\x0fGetUserRoomRole\x12\x1c.room.GetUserRoomRoleRequest\x1a\x1d.room.GetUserRoomRoleResponse\x12N\n" +
-	"\x0fCheckPermission\x12\x1c.room.CheckPermissionRequest\x1a\x1d.room.CheckPermissionResponseB\x18Z\x16shared/proto/room;roomb\x06proto3"
+	"\x0fCheckPermission\x12\x1c.room.CheckPermissionRequest\x1a\x1d.room.CheckPermissionResponse\x129\n" +
+	"\bMuteUser\x12\x15.room.MuteUserRequest\x1a\x16.room.MuteUserResponse\x12?\n" +
+	"\n" +
+	"UnmuteUser\x12\x17.room.UnmuteUserRequest\x1a\x18.room.UnmuteUserResponse\x126\n" +
+	"\aIsMuted\x12\x14.room.IsMutedRequest\x1a\x15.room.IsMutedResponse\x12B\n" +
+	"\vGetMuteList\x12\x18.room.GetMuteListRequest\x1a\x19.room.GetMuteListResponse\x12B\n" +
+	"\vGetMuteInfo\x12\x18.room.GetMuteInfoRequest\x1a\x19.room.GetMuteInfoResponseB\x18Z\x16shared/proto/room;roomb\x06proto3"
 
 var file_room_room_service_proto_goTypes = []any{
 	(*CreateRoomRequest)(nil),       // 0: room.CreateRoomRequest
@@ -40,28 +46,48 @@ var file_room_room_service_proto_goTypes = []any{
 	(*AssignRoleRequest)(nil),       // 2: room.AssignRoleRequest
 	(*GetUserRoomRoleRequest)(nil),  // 3: room.GetUserRoomRoleRequest
 	(*CheckPermissionRequest)(nil),  // 4: room.CheckPermissionRequest
-	(*CreateRoomResponse)(nil),      // 5: room.CreateRoomResponse
-	(*GetRoomResponse)(nil),         // 6: room.GetRoomResponse
-	(*AssignRoleResponse)(nil),      // 7: room.AssignRoleResponse
-	(*GetUserRoomRoleResponse)(nil), // 8: room.GetUserRoomRoleResponse
-	(*CheckPermissionResponse)(nil), // 9: room.CheckPermissionResponse
+	(*MuteUserRequest)(nil),         // 5: room.MuteUserRequest
+	(*UnmuteUserRequest)(nil),       // 6: room.UnmuteUserRequest
+	(*IsMutedRequest)(nil),          // 7: room.IsMutedRequest
+	(*GetMuteListRequest)(nil),      // 8: room.GetMuteListRequest
+	(*GetMuteInfoRequest)(nil),      // 9: room.GetMuteInfoRequest
+	(*CreateRoomResponse)(nil),      // 10: room.CreateRoomResponse
+	(*GetRoomResponse)(nil),         // 11: room.GetRoomResponse
+	(*AssignRoleResponse)(nil),      // 12: room.AssignRoleResponse
+	(*GetUserRoomRoleResponse)(nil), // 13: room.GetUserRoomRoleResponse
+	(*CheckPermissionResponse)(nil), // 14: room.CheckPermissionResponse
+	(*MuteUserResponse)(nil),        // 15: room.MuteUserResponse
+	(*UnmuteUserResponse)(nil),      // 16: room.UnmuteUserResponse
+	(*IsMutedResponse)(nil),         // 17: room.IsMutedResponse
+	(*GetMuteListResponse)(nil),     // 18: room.GetMuteListResponse
+	(*GetMuteInfoResponse)(nil),     // 19: room.GetMuteInfoResponse
 }
 var file_room_room_service_proto_depIdxs = []int32{
-	0, // 0: room.RoomService.CreateRoom:input_type -> room.CreateRoomRequest
-	1, // 1: room.RoomService.GetRoom:input_type -> room.GetRoomRequest
-	2, // 2: room.RoomService.AssignRole:input_type -> room.AssignRoleRequest
-	3, // 3: room.RoomService.GetUserRoomRole:input_type -> room.GetUserRoomRoleRequest
-	4, // 4: room.RoomService.CheckPermission:input_type -> room.CheckPermissionRequest
-	5, // 5: room.RoomService.CreateRoom:output_type -> room.CreateRoomResponse
-	6, // 6: room.RoomService.GetRoom:output_type -> room.GetRoomResponse
-	7, // 7: room.RoomService.AssignRole:output_type -> room.AssignRoleResponse
-	8, // 8: room.RoomService.GetUserRoomRole:output_type -> room.GetUserRoomRoleResponse
-	9, // 9: room.RoomService.CheckPermission:output_type -> room.CheckPermissionResponse
-	5, // [5:10] is the sub-list for method output_type
-	0, // [0:5] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0,  // 0: room.RoomService.CreateRoom:input_type -> room.CreateRoomRequest
+	1,  // 1: room.RoomService.GetRoom:input_type -> room.GetRoomRequest
+	2,  // 2: room.RoomService.AssignRole:input_type -> room.AssignRoleRequest
+	3,  // 3: room.RoomService.GetUserRoomRole:input_type -> room.GetUserRoomRoleRequest
+	4,  // 4: room.RoomService.CheckPermission:input_type -> room.CheckPermissionRequest
+	5,  // 5: room.RoomService.MuteUser:input_type -> room.MuteUserRequest
+	6,  // 6: room.RoomService.UnmuteUser:input_type -> room.UnmuteUserRequest
+	7,  // 7: room.RoomService.IsMuted:input_type -> room.IsMutedRequest
+	8,  // 8: room.RoomService.GetMuteList:input_type -> room.GetMuteListRequest
+	9,  // 9: room.RoomService.GetMuteInfo:input_type -> room.GetMuteInfoRequest
+	10, // 10: room.RoomService.CreateRoom:output_type -> room.CreateRoomResponse
+	11, // 11: room.RoomService.GetRoom:output_type -> room.GetRoomResponse
+	12, // 12: room.RoomService.AssignRole:output_type -> room.AssignRoleResponse
+	13, // 13: room.RoomService.GetUserRoomRole:output_type -> room.GetUserRoomRoleResponse
+	14, // 14: room.RoomService.CheckPermission:output_type -> room.CheckPermissionResponse
+	15, // 15: room.RoomService.MuteUser:output_type -> room.MuteUserResponse
+	16, // 16: room.RoomService.UnmuteUser:output_type -> room.UnmuteUserResponse
+	17, // 17: room.RoomService.IsMuted:output_type -> room.IsMutedResponse
+	18, // 18: room.RoomService.GetMuteList:output_type -> room.GetMuteListResponse
+	19, // 19: room.RoomService.GetMuteInfo:output_type -> room.GetMuteInfoResponse
+	10, // [10:20] is the sub-list for method output_type
+	0,  // [0:10] is the sub-list for method input_type
+	0,  // [0:0] is the sub-list for extension type_name
+	0,  // [0:0] is the sub-list for extension extendee
+	0,  // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_room_room_service_proto_init() }

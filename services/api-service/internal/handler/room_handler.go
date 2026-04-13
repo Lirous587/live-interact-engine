@@ -192,3 +192,169 @@ func (h *RoomHandler) CheckPermission(ctx *gin.Context) {
 
 	response.Success(ctx, resp)
 }
+
+// MuteUser 禁言用户 API
+// @Summary 禁言用户
+// @Description 房间管理员禁言指定用户
+// @Tags Room
+// @Accept json
+// @Produce json
+// @Param request body mapper.MuteUserReq true "禁言用户请求"
+// @Success 200 {object} map[string]interface{} "操作成功"
+// @Failure 400 {object} map[string]interface{} "参数错误"
+// @Failure 401 {object} map[string]interface{} "未授权"
+// @Router /v1/room/mute [post]
+func (h *RoomHandler) MuteUser(ctx *gin.Context) {
+	var req mapper.MuteUserReq
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	adminID, ok := ctxutil.GetUserID(ctx)
+	if !ok || adminID == "" {
+		response.Error(ctx, errors.New("unauthorized: user_id not found"))
+		return
+	}
+
+	err := h.roomMapper.MuteUser(ctx.Request.Context(), adminID, &req)
+	if err != nil {
+		response.Error(ctx, err)
+		return
+	}
+
+	response.Success(ctx, gin.H{})
+}
+
+// UnmuteUser 解除禁言 API
+// @Summary 解除禁言
+// @Description 房间管理员解除用户禁言
+// @Tags Room
+// @Accept json
+// @Produce json
+// @Param request body mapper.UnmuteUserReq true "解除禁言请求"
+// @Success 200 {object} map[string]interface{} "操作成功"
+// @Failure 400 {object} map[string]interface{} "参数错误"
+// @Failure 401 {object} map[string]interface{} "未授权"
+// @Router /v1/room/unmute [post]
+func (h *RoomHandler) UnmuteUser(ctx *gin.Context) {
+	var req mapper.UnmuteUserReq
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	err := h.roomMapper.UnmuteUser(ctx.Request.Context(), &req)
+	if err != nil {
+		response.Error(ctx, err)
+		return
+	}
+
+	response.Success(ctx, gin.H{})
+}
+
+// IsMuted 检查用户禁言状态 API
+// @Summary 检查禁言状态
+// @Description 检查用户是否在房间中被禁言
+// @Tags Room
+// @Produce json
+// @Param room_id path string true "房间ID"
+// @Param user_id path string true "用户ID"
+// @Success 200 {object} mapper.IsMutedResp "禁言状态"
+// @Failure 400 {object} map[string]interface{} "参数错误"
+// @Router /v1/room/{room_id}/user/{user_id}/mute-status [get]
+func (h *RoomHandler) IsMuted(ctx *gin.Context) {
+	roomID := ctx.Param("room_id")
+	userID := ctx.Param("user_id")
+
+	if roomID == "" || userID == "" {
+		response.InvalidParams(ctx, errors.New("room_id and user_id required"))
+		return
+	}
+
+	req := &mapper.IsMutedReq{
+		RoomID: roomID,
+		UserID: userID,
+	}
+
+	resp, err := h.roomMapper.IsMuted(ctx.Request.Context(), req)
+	if err != nil {
+		response.Error(ctx, err)
+		return
+	}
+
+	response.Success(ctx, resp)
+}
+
+// GetMuteInfo 获取禁言信息 API
+// @Summary 获取禁言信息
+// @Description 获取用户在房间的禁言详细信息
+// @Tags Room
+// @Produce json
+// @Param room_id path string true "房间ID"
+// @Param user_id path string true "用户ID"
+// @Success 200 {object} mapper.MuteResp "禁言信息"
+// @Failure 400 {object} map[string]interface{} "参数错误"
+// @Router /v1/room/{room_id}/user/{user_id}/mute-info [get]
+func (h *RoomHandler) GetMuteInfo(ctx *gin.Context) {
+	roomID := ctx.Param("room_id")
+	userID := ctx.Param("user_id")
+
+	if roomID == "" || userID == "" {
+		response.InvalidParams(ctx, errors.New("room_id and user_id required"))
+		return
+	}
+
+	req := &mapper.GetMuteInfoReq{
+		RoomID: roomID,
+		UserID: userID,
+	}
+
+	resp, err := h.roomMapper.GetMuteInfo(ctx.Request.Context(), req)
+	if err != nil {
+		response.Error(ctx, err)
+		return
+	}
+
+	response.Success(ctx, resp)
+}
+
+// GetMuteList 获取禁言列表 API
+// @Summary 获取禁言列表
+// @Description 获取房间中被禁言的用户列表
+// @Tags Room
+// @Produce json
+// @Param room_id path string true "房间ID"
+// @Param offset query int false "分页偏移量" default(0)
+// @Param limit query int false "分页大小" default(10)
+// @Success 200 {object} mapper.GetMuteListResp "禁言列表"
+// @Failure 400 {object} map[string]interface{} "参数错误"
+// @Router /v1/room/{room_id}/mute-list [get]
+func (h *RoomHandler) GetMuteList(ctx *gin.Context) {
+	roomID := ctx.Param("room_id")
+	if roomID == "" {
+		response.InvalidParams(ctx, errors.New("room_id required"))
+		return
+	}
+
+	var req mapper.GetMuteListReq
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	// 设置默认值
+	if req.Limit == 0 {
+		req.Limit = 10
+	}
+
+	req.RoomID = roomID
+
+	resp, err := h.roomMapper.GetMuteList(ctx.Request.Context(), &req)
+	if err != nil {
+		response.Error(ctx, err)
+		return
+	}
+
+	response.Success(ctx, resp)
+}

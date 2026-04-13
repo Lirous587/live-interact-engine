@@ -23,6 +23,8 @@ func (UserRoomRole) Fields() []ent.Field {
 		field.String("role_name").
 			NotEmpty().
 			MaxLen(50),
+		field.JSON("permissions", []int32{}).
+			Default([]int32{}), // 权限列表，JSON 存储以支持灵活扩展
 		// created_at: 创建时自动赋值，之后不可修改
 		field.Int64("created_at").
 			DefaultFunc(func() int64 { return time.Now().Unix() }).

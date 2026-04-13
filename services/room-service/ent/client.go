@@ -11,6 +11,7 @@ import (
 
 	"live-interact-engine/services/room-service/ent/migrate"
 
+	"live-interact-engine/services/room-service/ent/mute"
 	"live-interact-engine/services/room-service/ent/room"
 	"live-interact-engine/services/room-service/ent/userroomrole"
 
@@ -26,6 +27,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// Mute is the client for interacting with the Mute builders.
+	Mute *MuteClient
 	// Room is the client for interacting with the Room builders.
 	Room *RoomClient
 	// UserRoomRole is the client for interacting with the UserRoomRole builders.
@@ -41,6 +44,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.Mute = NewMuteClient(c.config)
 	c.Room = NewRoomClient(c.config)
 	c.UserRoomRole = NewUserRoomRoleClient(c.config)
 }
@@ -135,6 +139,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:          ctx,
 		config:       cfg,
+		Mute:         NewMuteClient(cfg),
 		Room:         NewRoomClient(cfg),
 		UserRoomRole: NewUserRoomRoleClient(cfg),
 	}, nil
@@ -156,6 +161,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:          ctx,
 		config:       cfg,
+		Mute:         NewMuteClient(cfg),
 		Room:         NewRoomClient(cfg),
 		UserRoomRole: NewUserRoomRoleClient(cfg),
 	}, nil
@@ -164,7 +170,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Room.
+//		Mute.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -186,6 +192,7 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.Mute.Use(hooks...)
 	c.Room.Use(hooks...)
 	c.UserRoomRole.Use(hooks...)
 }
@@ -193,6 +200,7 @@ func (c *Client) Use(hooks ...Hook) {
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
+	c.Mute.Intercept(interceptors...)
 	c.Room.Intercept(interceptors...)
 	c.UserRoomRole.Intercept(interceptors...)
 }
@@ -200,12 +208,147 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *MuteMutation:
+		return c.Mute.mutate(ctx, m)
 	case *RoomMutation:
 		return c.Room.mutate(ctx, m)
 	case *UserRoomRoleMutation:
 		return c.UserRoomRole.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// MuteClient is a client for the Mute schema.
+type MuteClient struct {
+	config
+}
+
+// NewMuteClient returns a client for the Mute from the given config.
+func NewMuteClient(c config) *MuteClient {
+	return &MuteClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `mute.Hooks(f(g(h())))`.
+func (c *MuteClient) Use(hooks ...Hook) {
+	c.hooks.Mute = append(c.hooks.Mute, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `mute.Intercept(f(g(h())))`.
+func (c *MuteClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Mute = append(c.inters.Mute, interceptors...)
+}
+
+// Create returns a builder for creating a Mute entity.
+func (c *MuteClient) Create() *MuteCreate {
+	mutation := newMuteMutation(c.config, OpCreate)
+	return &MuteCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Mute entities.
+func (c *MuteClient) CreateBulk(builders ...*MuteCreate) *MuteCreateBulk {
+	return &MuteCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *MuteClient) MapCreateBulk(slice any, setFunc func(*MuteCreate, int)) *MuteCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &MuteCreateBulk{err: fmt.Errorf("calling to MuteClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*MuteCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &MuteCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Mute.
+func (c *MuteClient) Update() *MuteUpdate {
+	mutation := newMuteMutation(c.config, OpUpdate)
+	return &MuteUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *MuteClient) UpdateOne(_m *Mute) *MuteUpdateOne {
+	mutation := newMuteMutation(c.config, OpUpdateOne, withMute(_m))
+	return &MuteUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *MuteClient) UpdateOneID(id uuid.UUID) *MuteUpdateOne {
+	mutation := newMuteMutation(c.config, OpUpdateOne, withMuteID(id))
+	return &MuteUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Mute.
+func (c *MuteClient) Delete() *MuteDelete {
+	mutation := newMuteMutation(c.config, OpDelete)
+	return &MuteDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *MuteClient) DeleteOne(_m *Mute) *MuteDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *MuteClient) DeleteOneID(id uuid.UUID) *MuteDeleteOne {
+	builder := c.Delete().Where(mute.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &MuteDeleteOne{builder}
+}
+
+// Query returns a query builder for Mute.
+func (c *MuteClient) Query() *MuteQuery {
+	return &MuteQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeMute},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Mute entity by its id.
+func (c *MuteClient) Get(ctx context.Context, id uuid.UUID) (*Mute, error) {
+	return c.Query().Where(mute.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *MuteClient) GetX(ctx context.Context, id uuid.UUID) *Mute {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *MuteClient) Hooks() []Hook {
+	return c.hooks.Mute
+}
+
+// Interceptors returns the client interceptors.
+func (c *MuteClient) Interceptors() []Interceptor {
+	return c.inters.Mute
+}
+
+func (c *MuteClient) mutate(ctx context.Context, m *MuteMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&MuteCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&MuteUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&MuteUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&MuteDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Mute mutation op: %q", m.Op())
 	}
 }
 
@@ -510,9 +653,9 @@ func (c *UserRoomRoleClient) mutate(ctx context.Context, m *UserRoomRoleMutation
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Room, UserRoomRole []ent.Hook
+		Mute, Room, UserRoomRole []ent.Hook
 	}
 	inters struct {
-		Room, UserRoomRole []ent.Interceptor
+		Mute, Room, UserRoomRole []ent.Interceptor
 	}
 )

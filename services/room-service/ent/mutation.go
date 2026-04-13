@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"live-interact-engine/services/room-service/ent/mute"
 	"live-interact-engine/services/room-service/ent/predicate"
 	"live-interact-engine/services/room-service/ent/room"
 	"live-interact-engine/services/room-service/ent/userroomrole"
@@ -25,9 +26,964 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
+	TypeMute         = "Mute"
 	TypeRoom         = "Room"
 	TypeUserRoomRole = "UserRoomRole"
 )
+
+// MuteMutation represents an operation that mutates the Mute nodes in the graph.
+type MuteMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *uuid.UUID
+	room_id       *uuid.UUID
+	user_id       *uuid.UUID
+	admin_id      *uuid.UUID
+	reason        *string
+	duration      *int64
+	addduration   *int64
+	muted_at      *int64
+	addmuted_at   *int64
+	expires_at    *int64
+	addexpires_at *int64
+	created_at    *int64
+	addcreated_at *int64
+	updated_at    *int64
+	addupdated_at *int64
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*Mute, error)
+	predicates    []predicate.Mute
+}
+
+var _ ent.Mutation = (*MuteMutation)(nil)
+
+// muteOption allows management of the mutation configuration using functional options.
+type muteOption func(*MuteMutation)
+
+// newMuteMutation creates new mutation for the Mute entity.
+func newMuteMutation(c config, op Op, opts ...muteOption) *MuteMutation {
+	m := &MuteMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeMute,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withMuteID sets the ID field of the mutation.
+func withMuteID(id uuid.UUID) muteOption {
+	return func(m *MuteMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Mute
+		)
+		m.oldValue = func(ctx context.Context) (*Mute, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Mute.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withMute sets the old Mute of the mutation.
+func withMute(node *Mute) muteOption {
+	return func(m *MuteMutation) {
+		m.oldValue = func(context.Context) (*Mute, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m MuteMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m MuteMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Mute entities.
+func (m *MuteMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *MuteMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *MuteMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Mute.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetRoomID sets the "room_id" field.
+func (m *MuteMutation) SetRoomID(u uuid.UUID) {
+	m.room_id = &u
+}
+
+// RoomID returns the value of the "room_id" field in the mutation.
+func (m *MuteMutation) RoomID() (r uuid.UUID, exists bool) {
+	v := m.room_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRoomID returns the old "room_id" field's value of the Mute entity.
+// If the Mute object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MuteMutation) OldRoomID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRoomID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRoomID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRoomID: %w", err)
+	}
+	return oldValue.RoomID, nil
+}
+
+// ResetRoomID resets all changes to the "room_id" field.
+func (m *MuteMutation) ResetRoomID() {
+	m.room_id = nil
+}
+
+// SetUserID sets the "user_id" field.
+func (m *MuteMutation) SetUserID(u uuid.UUID) {
+	m.user_id = &u
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *MuteMutation) UserID() (r uuid.UUID, exists bool) {
+	v := m.user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the Mute entity.
+// If the Mute object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MuteMutation) OldUserID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *MuteMutation) ResetUserID() {
+	m.user_id = nil
+}
+
+// SetAdminID sets the "admin_id" field.
+func (m *MuteMutation) SetAdminID(u uuid.UUID) {
+	m.admin_id = &u
+}
+
+// AdminID returns the value of the "admin_id" field in the mutation.
+func (m *MuteMutation) AdminID() (r uuid.UUID, exists bool) {
+	v := m.admin_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAdminID returns the old "admin_id" field's value of the Mute entity.
+// If the Mute object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MuteMutation) OldAdminID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAdminID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAdminID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAdminID: %w", err)
+	}
+	return oldValue.AdminID, nil
+}
+
+// ResetAdminID resets all changes to the "admin_id" field.
+func (m *MuteMutation) ResetAdminID() {
+	m.admin_id = nil
+}
+
+// SetReason sets the "reason" field.
+func (m *MuteMutation) SetReason(s string) {
+	m.reason = &s
+}
+
+// Reason returns the value of the "reason" field in the mutation.
+func (m *MuteMutation) Reason() (r string, exists bool) {
+	v := m.reason
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReason returns the old "reason" field's value of the Mute entity.
+// If the Mute object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MuteMutation) OldReason(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReason is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReason requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReason: %w", err)
+	}
+	return oldValue.Reason, nil
+}
+
+// ClearReason clears the value of the "reason" field.
+func (m *MuteMutation) ClearReason() {
+	m.reason = nil
+	m.clearedFields[mute.FieldReason] = struct{}{}
+}
+
+// ReasonCleared returns if the "reason" field was cleared in this mutation.
+func (m *MuteMutation) ReasonCleared() bool {
+	_, ok := m.clearedFields[mute.FieldReason]
+	return ok
+}
+
+// ResetReason resets all changes to the "reason" field.
+func (m *MuteMutation) ResetReason() {
+	m.reason = nil
+	delete(m.clearedFields, mute.FieldReason)
+}
+
+// SetDuration sets the "duration" field.
+func (m *MuteMutation) SetDuration(i int64) {
+	m.duration = &i
+	m.addduration = nil
+}
+
+// Duration returns the value of the "duration" field in the mutation.
+func (m *MuteMutation) Duration() (r int64, exists bool) {
+	v := m.duration
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDuration returns the old "duration" field's value of the Mute entity.
+// If the Mute object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MuteMutation) OldDuration(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDuration is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDuration requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDuration: %w", err)
+	}
+	return oldValue.Duration, nil
+}
+
+// AddDuration adds i to the "duration" field.
+func (m *MuteMutation) AddDuration(i int64) {
+	if m.addduration != nil {
+		*m.addduration += i
+	} else {
+		m.addduration = &i
+	}
+}
+
+// AddedDuration returns the value that was added to the "duration" field in this mutation.
+func (m *MuteMutation) AddedDuration() (r int64, exists bool) {
+	v := m.addduration
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDuration resets all changes to the "duration" field.
+func (m *MuteMutation) ResetDuration() {
+	m.duration = nil
+	m.addduration = nil
+}
+
+// SetMutedAt sets the "muted_at" field.
+func (m *MuteMutation) SetMutedAt(i int64) {
+	m.muted_at = &i
+	m.addmuted_at = nil
+}
+
+// MutedAt returns the value of the "muted_at" field in the mutation.
+func (m *MuteMutation) MutedAt() (r int64, exists bool) {
+	v := m.muted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMutedAt returns the old "muted_at" field's value of the Mute entity.
+// If the Mute object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MuteMutation) OldMutedAt(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMutedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMutedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMutedAt: %w", err)
+	}
+	return oldValue.MutedAt, nil
+}
+
+// AddMutedAt adds i to the "muted_at" field.
+func (m *MuteMutation) AddMutedAt(i int64) {
+	if m.addmuted_at != nil {
+		*m.addmuted_at += i
+	} else {
+		m.addmuted_at = &i
+	}
+}
+
+// AddedMutedAt returns the value that was added to the "muted_at" field in this mutation.
+func (m *MuteMutation) AddedMutedAt() (r int64, exists bool) {
+	v := m.addmuted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetMutedAt resets all changes to the "muted_at" field.
+func (m *MuteMutation) ResetMutedAt() {
+	m.muted_at = nil
+	m.addmuted_at = nil
+}
+
+// SetExpiresAt sets the "expires_at" field.
+func (m *MuteMutation) SetExpiresAt(i int64) {
+	m.expires_at = &i
+	m.addexpires_at = nil
+}
+
+// ExpiresAt returns the value of the "expires_at" field in the mutation.
+func (m *MuteMutation) ExpiresAt() (r int64, exists bool) {
+	v := m.expires_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExpiresAt returns the old "expires_at" field's value of the Mute entity.
+// If the Mute object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MuteMutation) OldExpiresAt(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExpiresAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExpiresAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExpiresAt: %w", err)
+	}
+	return oldValue.ExpiresAt, nil
+}
+
+// AddExpiresAt adds i to the "expires_at" field.
+func (m *MuteMutation) AddExpiresAt(i int64) {
+	if m.addexpires_at != nil {
+		*m.addexpires_at += i
+	} else {
+		m.addexpires_at = &i
+	}
+}
+
+// AddedExpiresAt returns the value that was added to the "expires_at" field in this mutation.
+func (m *MuteMutation) AddedExpiresAt() (r int64, exists bool) {
+	v := m.addexpires_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetExpiresAt resets all changes to the "expires_at" field.
+func (m *MuteMutation) ResetExpiresAt() {
+	m.expires_at = nil
+	m.addexpires_at = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *MuteMutation) SetCreatedAt(i int64) {
+	m.created_at = &i
+	m.addcreated_at = nil
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *MuteMutation) CreatedAt() (r int64, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Mute entity.
+// If the Mute object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MuteMutation) OldCreatedAt(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// AddCreatedAt adds i to the "created_at" field.
+func (m *MuteMutation) AddCreatedAt(i int64) {
+	if m.addcreated_at != nil {
+		*m.addcreated_at += i
+	} else {
+		m.addcreated_at = &i
+	}
+}
+
+// AddedCreatedAt returns the value that was added to the "created_at" field in this mutation.
+func (m *MuteMutation) AddedCreatedAt() (r int64, exists bool) {
+	v := m.addcreated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *MuteMutation) ResetCreatedAt() {
+	m.created_at = nil
+	m.addcreated_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *MuteMutation) SetUpdatedAt(i int64) {
+	m.updated_at = &i
+	m.addupdated_at = nil
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *MuteMutation) UpdatedAt() (r int64, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Mute entity.
+// If the Mute object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MuteMutation) OldUpdatedAt(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// AddUpdatedAt adds i to the "updated_at" field.
+func (m *MuteMutation) AddUpdatedAt(i int64) {
+	if m.addupdated_at != nil {
+		*m.addupdated_at += i
+	} else {
+		m.addupdated_at = &i
+	}
+}
+
+// AddedUpdatedAt returns the value that was added to the "updated_at" field in this mutation.
+func (m *MuteMutation) AddedUpdatedAt() (r int64, exists bool) {
+	v := m.addupdated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *MuteMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+	m.addupdated_at = nil
+}
+
+// Where appends a list predicates to the MuteMutation builder.
+func (m *MuteMutation) Where(ps ...predicate.Mute) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the MuteMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *MuteMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Mute, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *MuteMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *MuteMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Mute).
+func (m *MuteMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *MuteMutation) Fields() []string {
+	fields := make([]string, 0, 9)
+	if m.room_id != nil {
+		fields = append(fields, mute.FieldRoomID)
+	}
+	if m.user_id != nil {
+		fields = append(fields, mute.FieldUserID)
+	}
+	if m.admin_id != nil {
+		fields = append(fields, mute.FieldAdminID)
+	}
+	if m.reason != nil {
+		fields = append(fields, mute.FieldReason)
+	}
+	if m.duration != nil {
+		fields = append(fields, mute.FieldDuration)
+	}
+	if m.muted_at != nil {
+		fields = append(fields, mute.FieldMutedAt)
+	}
+	if m.expires_at != nil {
+		fields = append(fields, mute.FieldExpiresAt)
+	}
+	if m.created_at != nil {
+		fields = append(fields, mute.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, mute.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *MuteMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case mute.FieldRoomID:
+		return m.RoomID()
+	case mute.FieldUserID:
+		return m.UserID()
+	case mute.FieldAdminID:
+		return m.AdminID()
+	case mute.FieldReason:
+		return m.Reason()
+	case mute.FieldDuration:
+		return m.Duration()
+	case mute.FieldMutedAt:
+		return m.MutedAt()
+	case mute.FieldExpiresAt:
+		return m.ExpiresAt()
+	case mute.FieldCreatedAt:
+		return m.CreatedAt()
+	case mute.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *MuteMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case mute.FieldRoomID:
+		return m.OldRoomID(ctx)
+	case mute.FieldUserID:
+		return m.OldUserID(ctx)
+	case mute.FieldAdminID:
+		return m.OldAdminID(ctx)
+	case mute.FieldReason:
+		return m.OldReason(ctx)
+	case mute.FieldDuration:
+		return m.OldDuration(ctx)
+	case mute.FieldMutedAt:
+		return m.OldMutedAt(ctx)
+	case mute.FieldExpiresAt:
+		return m.OldExpiresAt(ctx)
+	case mute.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case mute.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown Mute field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *MuteMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case mute.FieldRoomID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRoomID(v)
+		return nil
+	case mute.FieldUserID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case mute.FieldAdminID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAdminID(v)
+		return nil
+	case mute.FieldReason:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReason(v)
+		return nil
+	case mute.FieldDuration:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDuration(v)
+		return nil
+	case mute.FieldMutedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMutedAt(v)
+		return nil
+	case mute.FieldExpiresAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExpiresAt(v)
+		return nil
+	case mute.FieldCreatedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case mute.FieldUpdatedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Mute field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *MuteMutation) AddedFields() []string {
+	var fields []string
+	if m.addduration != nil {
+		fields = append(fields, mute.FieldDuration)
+	}
+	if m.addmuted_at != nil {
+		fields = append(fields, mute.FieldMutedAt)
+	}
+	if m.addexpires_at != nil {
+		fields = append(fields, mute.FieldExpiresAt)
+	}
+	if m.addcreated_at != nil {
+		fields = append(fields, mute.FieldCreatedAt)
+	}
+	if m.addupdated_at != nil {
+		fields = append(fields, mute.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *MuteMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case mute.FieldDuration:
+		return m.AddedDuration()
+	case mute.FieldMutedAt:
+		return m.AddedMutedAt()
+	case mute.FieldExpiresAt:
+		return m.AddedExpiresAt()
+	case mute.FieldCreatedAt:
+		return m.AddedCreatedAt()
+	case mute.FieldUpdatedAt:
+		return m.AddedUpdatedAt()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *MuteMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case mute.FieldDuration:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDuration(v)
+		return nil
+	case mute.FieldMutedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddMutedAt(v)
+		return nil
+	case mute.FieldExpiresAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddExpiresAt(v)
+		return nil
+	case mute.FieldCreatedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCreatedAt(v)
+		return nil
+	case mute.FieldUpdatedAt:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Mute numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *MuteMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(mute.FieldReason) {
+		fields = append(fields, mute.FieldReason)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *MuteMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *MuteMutation) ClearField(name string) error {
+	switch name {
+	case mute.FieldReason:
+		m.ClearReason()
+		return nil
+	}
+	return fmt.Errorf("unknown Mute nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *MuteMutation) ResetField(name string) error {
+	switch name {
+	case mute.FieldRoomID:
+		m.ResetRoomID()
+		return nil
+	case mute.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case mute.FieldAdminID:
+		m.ResetAdminID()
+		return nil
+	case mute.FieldReason:
+		m.ResetReason()
+		return nil
+	case mute.FieldDuration:
+		m.ResetDuration()
+		return nil
+	case mute.FieldMutedAt:
+		m.ResetMutedAt()
+		return nil
+	case mute.FieldExpiresAt:
+		m.ResetExpiresAt()
+		return nil
+	case mute.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case mute.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown Mute field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *MuteMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *MuteMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *MuteMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *MuteMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *MuteMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *MuteMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *MuteMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown Mute unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *MuteMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown Mute edge %s", name)
+}
 
 // RoomMutation represents an operation that mutates the Room nodes in the graph.
 type RoomMutation struct {

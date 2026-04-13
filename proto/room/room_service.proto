@@ -12,4 +12,9 @@ service RoomService {
   rpc AssignRole(AssignRoleRequest) returns (AssignRoleResponse);
   rpc GetUserRoomRole(GetUserRoomRoleRequest) returns (GetUserRoomRoleResponse);
   rpc CheckPermission(CheckPermissionRequest) returns (CheckPermissionResponse);
+  rpc MuteUser(MuteUserRequest) returns (MuteUserResponse);
+  rpc UnmuteUser(UnmuteUserRequest) returns (UnmuteUserResponse);
+  rpc IsMuted(IsMutedRequest) returns (IsMutedResponse);
+  rpc GetMuteList(GetMuteListRequest) returns (GetMuteListResponse);
+  rpc GetMuteInfo(GetMuteInfoRequest) returns (GetMuteInfoResponse);
 }

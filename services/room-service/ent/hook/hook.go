@@ -8,6 +8,18 @@ import (
 	"live-interact-engine/services/room-service/ent"
 )
 
+// The MuteFunc type is an adapter to allow the use of ordinary
+// function as Mute mutator.
+type MuteFunc func(context.Context, *ent.MuteMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MuteFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.MuteMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MuteMutation", m)
+}
+
 // The RoomFunc type is an adapter to allow the use of ordinary
 // function as Room mutator.
 type RoomFunc func(context.Context, *ent.RoomMutation) (ent.Value, error)
