@@ -6,6 +6,7 @@ import (
 	"live-interact-engine/services/room-service/internal/infrastructure/grpc"
 	"live-interact-engine/services/room-service/internal/infrastructure/repository/postgres"
 	"live-interact-engine/services/room-service/internal/service"
+	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -20,15 +21,16 @@ type Deps struct {
 
 // InitDependencies 初始化所有依赖
 func InitDependencies(ctx context.Context) (*Deps, error) {
-	// 初始化 PostgreSQL 连接池
-	pool, err := postgres.NewPostgresDB(ctx)
+	// ==================== 初始化 Repositories ====================
+	// Ent Client
+	client, err := postgres.NewEntClient(ctx)
 	if err != nil {
-		return nil, err
+		log.Fatalf("初始化 Ent Client 失败: %v", err)
 	}
 
 	// 初始化 Repository
-	roomRepo := postgres.NewRoomRepository(pool)
-	userRoomRoleRepo := postgres.NewUserRoomRoleRepository(pool)
+	roomRepo := postgres.NewRoomRepository(client)
+	userRoomRoleRepo := postgres.NewUserRoomRoleRepository(client)
 
 	// 初始化 Service
 	roomService := service.NewRoomService(roomRepo, userRoomRoleRepo)

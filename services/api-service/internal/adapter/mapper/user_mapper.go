@@ -2,7 +2,9 @@ package mapper
 
 import (
 	"context"
+
 	client "live-interact-engine/services/api-service/internal/grpc_clients"
+	pb "live-interact-engine/shared/proto/user"
 )
 
 // ==================== 请求体定义 ====================
@@ -70,8 +72,15 @@ func NewUserMapper(userClient *client.UserClient) *UserMapper {
 
 // Register 用户注册
 func (m *UserMapper) Register(ctx context.Context, req *RegisterReq) (*RegisterResp, error) {
+	// 构造 pb.RegisterRequest
+	pbReq := &pb.RegisterRequest{
+		Username: req.Username,
+		Email:    req.Email,
+		Password: req.Password,
+	}
+
 	// 调用 gRPC 服务
-	pbResp, err := m.userClient.Register(ctx, req.Username, req.Email, req.Password)
+	pbResp, err := m.userClient.Register(ctx, pbReq)
 	if err != nil {
 		return nil, err
 	}
@@ -86,8 +95,17 @@ func (m *UserMapper) Register(ctx context.Context, req *RegisterReq) (*RegisterR
 
 // Login 用户登录
 func (m *UserMapper) Login(ctx context.Context, req *LoginReq) (*LoginResp, error) {
+	// 构造 pb.LoginRequest
+	pbReq := &pb.LoginRequest{
+		Email:    req.Email,
+		Password: req.Password,
+		Metadata: &pb.UserIdentityMetadata{
+			DeviceId: req.DeviceID,
+		},
+	}
+
 	// 调用 gRPC 服务
-	pbResp, err := m.userClient.Login(ctx, req.Email, req.Password, req.DeviceID)
+	pbResp, err := m.userClient.Login(ctx, pbReq)
 	if err != nil {
 		return nil, err
 	}
@@ -104,8 +122,13 @@ func (m *UserMapper) Login(ctx context.Context, req *LoginReq) (*LoginResp, erro
 
 // GetUser 获取用户信息
 func (m *UserMapper) GetUser(ctx context.Context, req *GetUserReq) (*UserResp, error) {
+	// 构造 pb.GetUserRequest
+	pbReq := &pb.GetUserRequest{
+		UserId: req.UserID,
+	}
+
 	// 调用 gRPC 服务
-	pbUser, err := m.userClient.GetUser(ctx, req.UserID)
+	pbUser, err := m.userClient.GetUser(ctx, pbReq)
 	if err != nil {
 		return nil, err
 	}

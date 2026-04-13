@@ -41,32 +41,17 @@ func NewUserClient(userServiceAddr string) (*UserClient, error) {
 }
 
 // Register 注册新用户
-func (c *UserClient) Register(ctx context.Context, username, email, password string) (*pb.RegisterResponse, error) {
-	req := &pb.RegisterRequest{
-		Username: username,
-		Email:    email,
-		Password: password,
-	}
+func (c *UserClient) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 	return c.client.Register(ctx, req)
 }
 
 // Login 用户登录
-func (c *UserClient) Login(ctx context.Context, email, password, deviceID string) (*pb.LoginResponse, error) {
-	req := &pb.LoginRequest{
-		Email:    email,
-		Password: password,
-		Metadata: &pb.UserIdentityMetadata{
-			DeviceId: deviceID,
-		},
-	}
+func (c *UserClient) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
 	return c.client.Login(ctx, req)
 }
 
 // GetUser 获取用户信息
-func (c *UserClient) GetUser(ctx context.Context, userID string) (*pb.User, error) {
-	req := &pb.GetUserRequest{
-		UserId: userID,
-	}
+func (c *UserClient) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.User, error) {
 	resp, err := c.client.GetUser(ctx, req)
 	if err != nil {
 		return nil, err

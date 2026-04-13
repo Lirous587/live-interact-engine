@@ -48,34 +48,12 @@ func NewDanmakuClient(danmakuServiceAddr string) (*DanmakuClient, error) {
 }
 
 // SendDanmaku 发送弹幕
-func (dc *DanmakuClient) SendDanmaku(
-	ctx context.Context,
-	roomID, userID, username, content string,
-	danmakuType pb.DanmakuType,
-	mentionedUserID string,
-) (*pb.SendDanmakuResponse, error) {
-	req := &pb.SendDanmakuRequest{
-		RoomId:          roomID,
-		UserId:          userID,
-		Username:        username,
-		Content:         content,
-		Type:            danmakuType,
-		MentionedUserId: mentionedUserID,
-	}
-
+func (dc *DanmakuClient) SendDanmaku(ctx context.Context, req *pb.SendDanmakuRequest) (*pb.SendDanmakuResponse, error) {
 	return dc.client.SendDanmaku(ctx, req)
 }
 
 // SubscribeDanmaku 订阅房间弹幕（返回接收 channel）
-func (dc *DanmakuClient) SubscribeDanmaku(
-	ctx context.Context,
-	roomID string,
-	userID string,
-) (<-chan *pb.Danmaku, error) {
-	req := &pb.SubscribeDanmakuRequest{
-		RoomId: roomID,
-		UserId: userID,
-	}
+func (dc *DanmakuClient) SubscribeDanmaku(ctx context.Context, req *pb.SubscribeDanmakuRequest) (<-chan *pb.Danmaku, error) {
 
 	// 创建流
 	stream, err := dc.client.SubscribeDanmaku(ctx, req)

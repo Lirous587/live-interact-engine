@@ -2,96 +2,123 @@ package postgres
 
 import (
 	"context"
-	"encoding/json"
+	"time"
+
+	"live-interact-engine/services/room-service/ent"
+	entuserroomrole "live-interact-engine/services/room-service/ent/userroomrole"
 	"live-interact-engine/services/room-service/internal/domain"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/google/uuid"
 )
 
 // UserRoomRoleRepository 实现 domain.UserRoomRoleRepository 接口
 type UserRoomRoleRepository struct {
-	pool *pgxpool.Pool
+	client *ent.Client
 }
 
 // NewUserRoomRoleRepository 创建 UserRoomRoleRepository 实例
-func NewUserRoomRoleRepository(pool *pgxpool.Pool) domain.UserRoomRoleRepository {
+func NewUserRoomRoleRepository(client *ent.Client) domain.UserRoomRoleRepository {
 	return &UserRoomRoleRepository{
-		pool: pool,
+		client: client,
 	}
+}
+
+// convertPermissionsFromInt32 将 []int32 转换为 []domain.Permission
+func convertPermissionsFromInt32(perms []int32) []domain.Permission {
+	if len(perms) == 0 {
+		return []domain.Permission{}
+	}
+	result := make([]domain.Permission, len(perms))
+	for i, p := range perms {
+		result[i] = domain.Permission(p)
+	}
+	return result
+}
+
+// convertPermissionsToInt32 将 []domain.Permission 转换为 []int32
+func convertPermissionsToInt32(perms []domain.Permission) []int32 {
+	if len(perms) == 0 {
+		return []int32{}
+	}
+	result := make([]int32, len(perms))
+	for i, p := range perms {
+		result[i] = int32(p)
+	}
+	return result
 }
 
 // GetUserRoomRole 获取用户在房间的角色信息
-func (r *UserRoomRoleRepository) GetUserRoomRole(ctx context.Context, userID, roomID string) (*domain.UserRoomRole, error) {
-	sql := `
-		SELECT user_id, room_id, role_name, permissions, created_at, updated_at
-		FROM user_room_roles
-		WHERE user_id = $1 AND room_id = $2
-	`
-
-	row := r.pool.QueryRow(ctx, sql, userID, roomID)
-
-	var urr domain.UserRoomRole
-	var permissionsJSON []byte
-
-	err := row.Scan(
-		&urr.UserID,
-		&urr.RoomID,
-		&urr.RoleName,
-		&permissionsJSON,
-		&urr.CreatedAt,
-		&urr.UpdatedAt,
-	)
+func (r *UserRoomRoleRepository) GetUserRoomRole(ctx context.Context, userID, roomID uuid.UUID) (*domain.UserRoomRole, error) {
+	entURR, err := r.client.UserRoomRole.Query().
+		Where(
+			entuserroomrole.UserIDEQ(userID),
+			entuserroomrole.RoomIDEQ(roomID),
+		).
+		First(ctx)
 
 	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
-	// 反序列化 JSONB 权限
-	var permissions []int32
-	if err := json.Unmarshal(permissionsJSON, &permissions); err != nil {
-		return nil, err
-	}
-
-	urr.Permissions = make([]domain.Permission, len(permissions))
-	for i, p := range permissions {
-		urr.Permissions[i] = domain.Permission(p)
-	}
-
-	return &urr, nil
+	return &domain.UserRoomRole{
+		UserID:      entURR.UserID,
+		RoomID:      entURR.RoomID,
+		RoleName:    entURR.RoleName,
+		Permissions: convertPermissionsFromInt32(entURR.Permissions),
+		CreatedAt:   time.Unix(entURR.CreatedAt, 0),
+		UpdatedAt:   time.Unix(entURR.UpdatedAt, 0),
+	}, nil
 }
 
-// SaveUserRoomRole 保存用户房间角色
+// SaveUserRoomRole 保存用户房间角色（插入或更新）
 func (r *UserRoomRoleRepository) SaveUserRoomRole(ctx context.Context, urr *domain.UserRoomRole) error {
-	// 序列化权限为 JSONB
-	permissionsJSON, err := json.Marshal(urr.Permissions)
+	count, err := r.client.UserRoomRole.
+		Update().
+		Where(
+			entuserroomrole.UserIDEQ(urr.UserID),
+			entuserroomrole.RoomIDEQ(urr.RoomID),
+		).
+		SetRoleName(urr.RoleName).
+		SetPermissions(convertPermissionsToInt32(urr.Permissions)).
+		SetUpdatedAt(urr.UpdatedAt.Unix()).
+		Save(ctx)
+
 	if err != nil {
 		return err
 	}
 
-	sql := `
-		INSERT INTO user_room_roles (user_id, room_id, role_name, permissions, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6)
-		ON CONFLICT (user_id, room_id) DO UPDATE SET
-			role_name = $3,
-			permissions = $4,
-			updated_at = $6
-	`
+	if count == 0 {
+		_, err := r.client.UserRoomRole.
+			Create().
+			SetUserID(urr.UserID).
+			SetRoomID(urr.RoomID).
+			SetRoleName(urr.RoleName).
+			SetPermissions(convertPermissionsToInt32(urr.Permissions)).
+			SetCreatedAt(urr.CreatedAt.Unix()).
+			SetUpdatedAt(urr.UpdatedAt.Unix()).
+			Save(ctx)
+		return err
+	}
 
-	_, err = r.pool.Exec(ctx, sql,
-		urr.UserID,
-		urr.RoomID,
-		urr.RoleName,
-		permissionsJSON,
-		urr.CreatedAt.Unix(),
-		urr.UpdatedAt.Unix(),
-	)
-
-	return err
+	return nil
 }
 
 // DeleteUserRoomRole 删除用户房间角色
-func (r *UserRoomRoleRepository) DeleteUserRoomRole(ctx context.Context, userID, roomID string) error {
-	sql := `DELETE FROM user_room_roles WHERE user_id = $1 AND room_id = $2`
-	_, err := r.pool.Exec(ctx, sql, userID, roomID)
+func (r *UserRoomRoleRepository) DeleteUserRoomRole(ctx context.Context, userID, roomID uuid.UUID) error {
+	_, err := r.client.UserRoomRole.
+		Delete().
+		Where(
+			entuserroomrole.UserIDEQ(userID),
+			entuserroomrole.RoomIDEQ(roomID),
+		).
+		Exec(ctx)
+
+	if ent.IsNotFound(err) {
+		return nil
+	}
+
 	return err
 }

@@ -10,8 +10,8 @@ import (
 // RoomToProto 将 domain.Room 转换为 proto.Room
 func RoomToProto(room *domain.Room) *pb.Room {
 	return &pb.Room{
-		RoomId:      room.RoomID,
-		OwnerId:     room.OwnerID,
+		RoomId:      room.RoomID.String(),
+		OwnerId:     room.OwnerID.String(),
 		Title:       room.Title,
 		Description: room.Description,
 		CreatedAt:   room.CreatedAt.Unix(),
@@ -28,8 +28,8 @@ func UserRoomRoleToProto(urr *domain.UserRoomRole) *pb.UserRoomRole {
 	}
 
 	return &pb.UserRoomRole{
-		UserId:      urr.UserID,
-		RoomId:      urr.RoomID,
+		UserId:      urr.UserID.String(),
+		RoomId:      urr.RoomID.String(),
 		RoleName:    urr.RoleName,
 		Permissions: permissions,
 		CreatedAt:   urr.CreatedAt.Unix(),

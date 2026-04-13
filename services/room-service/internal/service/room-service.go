@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"live-interact-engine/services/room-service/internal/domain"
 	"live-interact-engine/services/room-service/pkg/types"
 	"time"
@@ -31,18 +30,9 @@ func NewRoomService(roomRepo domain.RoomRepository, userRoomRoleRepo domain.User
 }
 
 // CreateRoom 创建房间（owner_id 自动成为 owner）
-func (s *RoomService) CreateRoom(ctx context.Context, title, description, ownerID string) (*domain.Room, error) {
-	// 验证输入
-	if title == "" || ownerID == "" {
-		return nil, types.ErrInvalidRoomInput
-	}
-
-	// 生成房间 ID
-	roomID := fmt.Sprintf("room_%s", uuid.New().String())
-
+func (s *RoomService) CreateRoom(ctx context.Context, title, description string, ownerID uuid.UUID) (*domain.Room, error) {
 	now := time.Now()
 	room := &domain.Room{
-		RoomID:      roomID,
 		OwnerID:     ownerID,
 		Title:       title,
 		Description: description,
@@ -59,7 +49,7 @@ func (s *RoomService) CreateRoom(ctx context.Context, title, description, ownerI
 	// 创建房间后，自动给 owner 分配 owner 角色和所有权限
 	ownerRole := &domain.UserRoomRole{
 		UserID:   ownerID,
-		RoomID:   roomID,
+		RoomID:   room.RoomID,
 		RoleName: RoleOwner,
 		Permissions: []domain.Permission{
 			domain.PermissionDanmakuSend,
@@ -80,7 +70,7 @@ func (s *RoomService) CreateRoom(ctx context.Context, title, description, ownerI
 }
 
 // GetRoom 获取房间信息
-func (s *RoomService) GetRoom(ctx context.Context, roomID string) (*domain.Room, error) {
+func (s *RoomService) GetRoom(ctx context.Context, roomID uuid.UUID) (*domain.Room, error) {
 	room, err := s.roomRepo.GetRoom(ctx, roomID)
 	if err != nil {
 		return nil, err
@@ -92,12 +82,7 @@ func (s *RoomService) GetRoom(ctx context.Context, roomID string) (*domain.Room,
 }
 
 // AssignRole 分配用户权限（只有 owner 能操作）
-func (s *RoomService) AssignRole(ctx context.Context, ownerID, roomID, userID, roleName string, permissions []domain.Permission) error {
-	// 验证输入
-	if ownerID == "" || roomID == "" || userID == "" || roleName == "" {
-		return types.ErrInvalidRoomInput
-	}
-
+func (s *RoomService) AssignRole(ctx context.Context, ownerID, roomID, userID uuid.UUID, roleName string, permissions []domain.Permission) error {
 	// 验证 role 名称
 	if !isValidRole(roleName) {
 		return types.ErrInvalidRole
@@ -131,7 +116,7 @@ func (s *RoomService) AssignRole(ctx context.Context, ownerID, roomID, userID, r
 }
 
 // GetUserRoomRole 获取用户在房间的权限
-func (s *RoomService) GetUserRoomRole(ctx context.Context, userID, roomID string) (*domain.UserRoomRole, error) {
+func (s *RoomService) GetUserRoomRole(ctx context.Context, userID, roomID uuid.UUID) (*domain.UserRoomRole, error) {
 	role, err := s.userRoomRoleRepo.GetUserRoomRole(ctx, userID, roomID)
 	if err != nil {
 		return nil, err
@@ -143,7 +128,7 @@ func (s *RoomService) GetUserRoomRole(ctx context.Context, userID, roomID string
 }
 
 // CheckPermission 检查用户是否有特定权限
-func (s *RoomService) CheckPermission(ctx context.Context, userID, roomID string, permission domain.Permission) (bool, error) {
+func (s *RoomService) CheckPermission(ctx context.Context, userID, roomID uuid.UUID, permission domain.Permission) (bool, error) {
 	role, err := s.userRoomRoleRepo.GetUserRoomRole(ctx, userID, roomID)
 	if err != nil {
 		return false, err

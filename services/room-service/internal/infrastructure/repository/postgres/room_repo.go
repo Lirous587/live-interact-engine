@@ -2,83 +2,92 @@ package postgres
 
 import (
 	"context"
+	"time"
+
+	"live-interact-engine/services/room-service/ent"
+	entroom "live-interact-engine/services/room-service/ent/room"
 	"live-interact-engine/services/room-service/internal/domain"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/google/uuid"
 )
 
 // RoomRepository 实现 domain.RoomRepository 接口
 type RoomRepository struct {
-	pool *pgxpool.Pool
+	client *ent.Client
 }
 
 // NewRoomRepository 创建 RoomRepository 实例
-func NewRoomRepository(pool *pgxpool.Pool) domain.RoomRepository {
+func NewRoomRepository(client *ent.Client) domain.RoomRepository {
 	return &RoomRepository{
-		pool: pool,
+		client: client,
 	}
 }
 
-// SaveRoom 保存房间信息
+// SaveRoom 保存房间信息（插入或更新）
 func (r *RoomRepository) SaveRoom(ctx context.Context, room *domain.Room) error {
-	sql := `
-		INSERT INTO rooms (room_id, owner_id, title, description, created_at, updated_at, is_active)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
-		ON CONFLICT (room_id) DO UPDATE SET
-			title = $3,
-			description = $4,
-			updated_at = $6,
-			is_active = $7
-	`
+	count, err := r.client.Room.
+		Update().
+		Where(entroom.IDEQ(room.RoomID)).
+		SetTitle(room.Title).
+		SetDescription(room.Description).
+		SetUpdatedAt(room.UpdatedAt.Unix()).
+		SetIsActive(room.IsActive).
+		Save(ctx)
 
-	_, err := r.pool.Exec(ctx, sql,
-		room.RoomID,
-		room.OwnerID,
-		room.Title,
-		room.Description,
-		room.CreatedAt.Unix(),
-		room.UpdatedAt.Unix(),
-		room.IsActive,
-	)
+	if err != nil {
+		return err
+	}
 
-	return err
+	if count == 0 {
+		_, err := r.client.Room.
+			Create().
+			SetID(room.RoomID).
+			SetOwnerID(room.OwnerID).
+			SetTitle(room.Title).
+			SetDescription(room.Description).
+			SetCreatedAt(room.CreatedAt.Unix()).
+			SetUpdatedAt(room.UpdatedAt.Unix()).
+			SetIsActive(room.IsActive).
+			Save(ctx)
+		return err
+	}
+
+	return nil
 }
 
 // GetRoom 获取房间信息
-func (r *RoomRepository) GetRoom(ctx context.Context, roomID string) (*domain.Room, error) {
-	sql := `
-		SELECT room_id, owner_id, title, description, created_at, updated_at, is_active
-		FROM rooms
-		WHERE room_id = $1
-	`
-
-	row := r.pool.QueryRow(ctx, sql, roomID)
-
-	var room domain.Room
-	err := row.Scan(
-		&room.RoomID,
-		&room.OwnerID,
-		&room.Title,
-		&room.Description,
-		&room.CreatedAt,
-		&room.UpdatedAt,
-		&room.IsActive,
-	)
+func (r *RoomRepository) GetRoom(ctx context.Context, roomID uuid.UUID) (*domain.Room, error) {
+	entRoom, err := r.client.Room.Query().
+		Where(entroom.IDEQ(roomID)).
+		First(ctx)
 
 	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
-	// Convert Unix timestamp back to time.Time
-	room.CreatedAt = room.CreatedAt
-	room.UpdatedAt = room.UpdatedAt
-
-	return &room, nil
+	return &domain.Room{
+		RoomID:      entRoom.ID,
+		OwnerID:     entRoom.OwnerID,
+		Title:       entRoom.Title,
+		Description: entRoom.Description,
+		CreatedAt:   time.Unix(entRoom.CreatedAt, 0),
+		UpdatedAt:   time.Unix(entRoom.UpdatedAt, 0),
+		IsActive:    entRoom.IsActive,
+	}, nil
 }
 
 // DeleteRoom 删除房间
-func (r *RoomRepository) DeleteRoom(ctx context.Context, roomID string) error {
-	sql := `DELETE FROM rooms WHERE room_id = $1`
-	_, err := r.pool.Exec(ctx, sql, roomID)
+func (r *RoomRepository) DeleteRoom(ctx context.Context, roomID uuid.UUID) error {
+	err := r.client.Room.
+		DeleteOneID(roomID).
+		Exec(ctx)
+
+	if ent.IsNotFound(err) {
+		return nil
+	}
+
 	return err
 }

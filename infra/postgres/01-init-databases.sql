@@ -5,3 +5,6 @@
 -- 创建用户服务数据库
 CREATE DATABASE user_service;
 
+
+-- 创建room服务数据库
+CREATE DATABASE room_service;

@@ -30,6 +30,9 @@ func RegisterRoutes(r *gin.RouterGroup) {
 
 	// 注册用户相关路由
 	registerUser(v1)
+
+	// 注册房间相关路由
+	registerRoom(v1)
 }
 
 func registerDanmaka(r *gin.RouterGroup) {
@@ -44,8 +47,11 @@ func registerDanmaka(r *gin.RouterGroup) {
 	// 加入管理列表
 	clients = append(clients, danmakuClient)
 
+	// 创建 danmaku mapper（业务适配层）
+	danmakuMapper := mapper.NewDanmakuMapper(danmakuClient)
+
 	// 创建 handler
-	danmakuHandler := handler.NewDanmakuHandler(danmakuClient)
+	danmakuHandler := handler.NewDanmakuHandler(danmakuMapper)
 
 	// 注册路由
 	dg := r.Group("/danmaku")
@@ -79,6 +85,35 @@ func registerUser(r *gin.RouterGroup) {
 		ug.POST("/register", userHandler.Register)
 		ug.POST("/login", userHandler.Login)
 		ug.GET("/:user_id", userHandler.GetUser)
+	}
+}
+
+func registerRoom(r *gin.RouterGroup) {
+	roomServiceURL := env.GetString("ROOM_SERVICE_URL", "room-service:9095")
+
+	// 创建 room 客户端
+	roomClient, err := grpc_clients.NewRoomClient(roomServiceURL)
+	if err != nil {
+		log.Fatalf("创建 room 客户端失败: %v", err)
+	}
+
+	// 加入管理列表
+	clients = append(clients, roomClient)
+
+	// 创建 room mapper（业务适配层）
+	roomMapper := mapper.NewRoomMapper(roomClient)
+
+	// 创建 handler
+	roomHandler := handler.NewRoomHandler(roomMapper)
+
+	// 注册路由
+	rg := r.Group("/room")
+	{
+		rg.POST("/create", roomHandler.CreateRoom)
+		rg.GET("/:room_id", roomHandler.GetRoom)
+		rg.POST("/assign-role", roomHandler.AssignRole)
+		rg.GET("/:room_id/user/:user_id/role", roomHandler.GetUserRoomRole)
+		rg.GET("/:room_id/user/:user_id/permission", roomHandler.CheckPermission)
 	}
 }
 

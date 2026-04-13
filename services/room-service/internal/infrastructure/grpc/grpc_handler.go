@@ -7,6 +7,7 @@ import (
 	pb "live-interact-engine/shared/proto/room"
 	"live-interact-engine/shared/svcerr"
 
+	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -28,7 +29,12 @@ func NewRoomHandler(svc domain.RoomService) *RoomHandler {
 func (h *RoomHandler) CreateRoom(ctx context.Context, req *pb.CreateRoomRequest) (*pb.CreateRoomResponse, error) {
 	span := trace.SpanFromContext(ctx)
 
-	room, err := h.roomService.CreateRoom(ctx, req.Title, req.Description, req.OwnerId)
+	ownerID, err := uuid.Parse(req.OwnerId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	room, err := h.roomService.CreateRoom(ctx, req.Title, req.Description, ownerID)
 	if err != nil {
 		return nil, svcerr.MapServiceErrorToGRPC(err, span)
 	}
@@ -42,7 +48,12 @@ func (h *RoomHandler) CreateRoom(ctx context.Context, req *pb.CreateRoomRequest)
 func (h *RoomHandler) GetRoom(ctx context.Context, req *pb.GetRoomRequest) (*pb.GetRoomResponse, error) {
 	span := trace.SpanFromContext(ctx)
 
-	room, err := h.roomService.GetRoom(ctx, req.RoomId)
+	roomID, err := uuid.Parse(req.RoomId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	room, err := h.roomService.GetRoom(ctx, roomID)
 	if err != nil {
 		return nil, svcerr.MapServiceErrorToGRPC(err, span)
 	}
@@ -56,8 +67,23 @@ func (h *RoomHandler) GetRoom(ctx context.Context, req *pb.GetRoomRequest) (*pb.
 func (h *RoomHandler) AssignRole(ctx context.Context, req *pb.AssignRoleRequest) (*pb.AssignRoleResponse, error) {
 	span := trace.SpanFromContext(ctx)
 
+	ownerID, err := uuid.Parse(req.OwnerId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	roomID, err := uuid.Parse(req.RoomId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
 	permissions := adapter.ProtoPermissionsToDomain(req.Permissions)
-	err := h.roomService.AssignRole(ctx, req.OwnerId, req.RoomId, req.UserId, req.RoleName, permissions)
+	err = h.roomService.AssignRole(ctx, ownerID, roomID, userID, req.RoleName, permissions)
 	if err != nil {
 		return nil, svcerr.MapServiceErrorToGRPC(err, span)
 	}
@@ -69,7 +95,17 @@ func (h *RoomHandler) AssignRole(ctx context.Context, req *pb.AssignRoleRequest)
 func (h *RoomHandler) GetUserRoomRole(ctx context.Context, req *pb.GetUserRoomRoleRequest) (*pb.GetUserRoomRoleResponse, error) {
 	span := trace.SpanFromContext(ctx)
 
-	role, err := h.roomService.GetUserRoomRole(ctx, req.UserId, req.RoomId)
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	roomID, err := uuid.Parse(req.RoomId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	role, err := h.roomService.GetUserRoomRole(ctx, userID, roomID)
 	if err != nil {
 		return nil, svcerr.MapServiceErrorToGRPC(err, span)
 	}
@@ -83,8 +119,18 @@ func (h *RoomHandler) GetUserRoomRole(ctx context.Context, req *pb.GetUserRoomRo
 func (h *RoomHandler) CheckPermission(ctx context.Context, req *pb.CheckPermissionRequest) (*pb.CheckPermissionResponse, error) {
 	span := trace.SpanFromContext(ctx)
 
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	roomID, err := uuid.Parse(req.RoomId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
 	permission := adapter.ProtoPermissionsToDomain([]pb.Permission{req.Permission})[0]
-	has, err := h.roomService.CheckPermission(ctx, req.UserId, req.RoomId, permission)
+	has, err := h.roomService.CheckPermission(ctx, userID, roomID, permission)
 	if err != nil {
 		return nil, svcerr.MapServiceErrorToGRPC(err, span)
 	}

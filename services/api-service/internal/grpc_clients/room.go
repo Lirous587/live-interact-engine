@@ -41,12 +41,7 @@ func NewRoomClient(roomServiceAddr string) (*RoomClient, error) {
 }
 
 // CreateRoom 创建新房间
-func (c *RoomClient) CreateRoom(ctx context.Context, title, description, ownerID string) (*pb.Room, error) {
-	req := &pb.CreateRoomRequest{
-		Title:       title,
-		Description: description,
-		OwnerId:     ownerID,
-	}
+func (c *RoomClient) CreateRoom(ctx context.Context, req *pb.CreateRoomRequest) (*pb.Room, error) {
 	resp, err := c.client.CreateRoom(ctx, req)
 	if err != nil {
 		return nil, err
@@ -55,10 +50,7 @@ func (c *RoomClient) CreateRoom(ctx context.Context, title, description, ownerID
 }
 
 // GetRoom 获取房间信息
-func (c *RoomClient) GetRoom(ctx context.Context, roomID string) (*pb.Room, error) {
-	req := &pb.GetRoomRequest{
-		RoomId: roomID,
-	}
+func (c *RoomClient) GetRoom(ctx context.Context, req *pb.GetRoomRequest) (*pb.Room, error) {
 	resp, err := c.client.GetRoom(ctx, req)
 	if err != nil {
 		return nil, err
@@ -67,24 +59,13 @@ func (c *RoomClient) GetRoom(ctx context.Context, roomID string) (*pb.Room, erro
 }
 
 // AssignRole 分配用户角色
-func (c *RoomClient) AssignRole(ctx context.Context, ownerID, roomID, userID, roleName string, permissions []pb.Permission) error {
-	req := &pb.AssignRoleRequest{
-		OwnerId:     ownerID,
-		RoomId:      roomID,
-		UserId:      userID,
-		RoleName:    roleName,
-		Permissions: permissions,
-	}
+func (c *RoomClient) AssignRole(ctx context.Context, req *pb.AssignRoleRequest) error {
 	_, err := c.client.AssignRole(ctx, req)
 	return err
 }
 
 // GetUserRoomRole 获取用户在房间中的角色
-func (c *RoomClient) GetUserRoomRole(ctx context.Context, roomID, userID string) (*pb.UserRoomRole, error) {
-	req := &pb.GetUserRoomRoleRequest{
-		RoomId: roomID,
-		UserId: userID,
-	}
+func (c *RoomClient) GetUserRoomRole(ctx context.Context, req *pb.GetUserRoomRoleRequest) (*pb.UserRoomRole, error) {
 	resp, err := c.client.GetUserRoomRole(ctx, req)
 	if err != nil {
 		return nil, err
@@ -93,12 +74,7 @@ func (c *RoomClient) GetUserRoomRole(ctx context.Context, roomID, userID string)
 }
 
 // CheckPermission 检查用户是否有指定权限
-func (c *RoomClient) CheckPermission(ctx context.Context, roomID, userID string, permission pb.Permission) (bool, error) {
-	req := &pb.CheckPermissionRequest{
-		RoomId:     roomID,
-		UserId:     userID,
-		Permission: permission,
-	}
+func (c *RoomClient) CheckPermission(ctx context.Context, req *pb.CheckPermissionRequest) (bool, error) {
 	resp, err := c.client.CheckPermission(ctx, req)
 	if err != nil {
 		return false, err

@@ -2,9 +2,8 @@ package handler
 
 import (
 	"errors"
-	client "live-interact-engine/services/api-service/internal/grpc_clients"
+	"live-interact-engine/services/api-service/internal/adapter/mapper"
 	"live-interact-engine/services/api-service/internal/utils/response"
-	pb "live-interact-engine/shared/proto/danmaku"
 	"net/http"
 	"time"
 
@@ -17,43 +16,25 @@ import (
 )
 
 type DanmakuHandler struct {
-	danmakuClient *client.DanmakuClient
+	danmakuMapper *mapper.DanmakuMapper
 }
 
-func NewDanmakuHandler(danmakuClient *client.DanmakuClient) *DanmakuHandler {
+func NewDanmakuHandler(danmakuMapper *mapper.DanmakuMapper) *DanmakuHandler {
 	return &DanmakuHandler{
-		danmakuClient: danmakuClient,
+		danmakuMapper: danmakuMapper,
 	}
 }
 
 // SendDanmaku 发送弹幕 API
 func (h *DanmakuHandler) SendDanmaku(ctx *gin.Context) {
-	type SendDanmakuReq struct {
-		RoomID          string `json:"room_id" binding:"required"`
-		UserID          string `json:"user_id" binding:"required"`
-		Username        string `json:"username" binding:"required"`
-		Content         string `json:"content" binding:"required,min=1,max=500"`
-		Type            int32  `json:"type" binding:"required,gte=0,lte=3"`
-		MentionedUserID string `json:"mentioned_user_id"`
-	}
-
-	var req SendDanmakuReq
+	var req mapper.SendDanmakuReq
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	// 调用 danmaku-service
-	// 使用 ctx.Request.Context() 来传播链路追踪信息
-	resp, err := h.danmakuClient.SendDanmaku(
-		ctx.Request.Context(),
-		req.RoomID,
-		req.UserID,
-		req.Username,
-		req.Content,
-		pb.DanmakuType(req.Type),
-		req.MentionedUserID,
-	)
+	// 使用 mapper 调用 danmaku-service
+	resp, err := h.danmakuMapper.SendDanmaku(ctx.Request.Context(), &req)
 	if err != nil {
 		response.Error(ctx, err)
 		return
@@ -64,13 +45,8 @@ func (h *DanmakuHandler) SendDanmaku(ctx *gin.Context) {
 
 // SubscribeDanmaku SSE 订阅弹幕
 func (h *DanmakuHandler) SubscribeDanmaku(ctx *gin.Context) {
-	type SubscribeDanmakuReq struct {
-		RoomID string `form:"room_id" binding:"required"`
-		UserID string `form:"user_id" binding:"required"`
-	}
-	req := new(SubscribeDanmakuReq)
-
-	if err := ctx.BindQuery(req); err != nil {
+	var req mapper.SubscribeDanmakuReq
+	if err := ctx.BindQuery(&req); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
@@ -78,8 +54,8 @@ func (h *DanmakuHandler) SubscribeDanmaku(ctx *gin.Context) {
 	reqCtx := ctx.Request.Context()
 	tracer := otel.Tracer("api-service")
 
-	// 用 reqCtx 发起订阅（包含 otelgin 的 root span）
-	danmakuChan, err := h.danmakuClient.SubscribeDanmaku(reqCtx, req.RoomID, req.UserID)
+	// 使用 mapper 发起订阅
+	danmakuChan, err := h.danmakuMapper.SubscribeDanmaku(reqCtx, &req)
 	if err != nil {
 		response.Error(ctx, err)
 		return
@@ -141,12 +117,12 @@ func (h *DanmakuHandler) SubscribeDanmaku(ctx *gin.Context) {
 				continue
 			}
 
-			zap.S().Debugf("[SubscribeDanmaku] Sending danmaku to client, id=%s", danmaku.Id)
+			zap.S().Debugf("[SubscribeDanmaku] Sending danmaku to client, id=%s", danmaku.ID)
 
 			// 为每条弹幕创建 child span
 			_, childSpan := tracer.Start(reqCtx, "send_danmaku_to_client",
 				trace.WithAttributes(
-					attribute.String("danmaku_id", danmaku.Id),
+					attribute.String("danmaku_id", danmaku.ID),
 					attribute.String("room_id", req.RoomID),
 					attribute.String("user_id", req.UserID),
 					attribute.Int("content_length", len(danmaku.Content)),

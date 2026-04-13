@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/pkg/errors"
+	"github.com/google/uuid"
 )
 
 // ==================== Permission 定义 ====================
@@ -42,8 +42,8 @@ func (p Permission) String() string {
 
 // Room 房间基础信息
 type Room struct {
-	RoomID      string
-	OwnerID     string
+	RoomID      uuid.UUID
+	OwnerID     uuid.UUID
 	Title       string
 	Description string
 	CreatedAt   time.Time
@@ -51,26 +51,12 @@ type Room struct {
 	IsActive    bool
 }
 
-// IsValid 验证房间数据有效性
-func (r *Room) IsValid() error {
-	if r.RoomID == "" {
-		return errors.New("room_id required")
-	}
-	if r.OwnerID == "" {
-		return errors.New("owner_id required")
-	}
-	if r.Title == "" {
-		return errors.New("title required")
-	}
-	return nil
-}
-
 // ==================== 房间权限定义 ====================
 
 // UserRoomRole 用户在某房间的权限信息
 type UserRoomRole struct {
-	UserID      string
-	RoomID      string
+	UserID      uuid.UUID
+	RoomID      uuid.UUID
 	RoleName    string       // owner/moderator/user
 	Permissions []Permission // 具体权限列表
 	CreatedAt   time.Time
@@ -92,19 +78,19 @@ func (u *UserRoomRole) HasPermission(perm Permission) bool {
 // RoomService 房间管理服务接口
 type RoomService interface {
 	// 创建房间（owner_id 自动成为 owner）
-	CreateRoom(ctx context.Context, title, description, ownerID string) (*Room, error)
+	CreateRoom(ctx context.Context, title, description string, ownerID uuid.UUID) (*Room, error)
 
 	// 获取房间信息
-	GetRoom(ctx context.Context, roomID string) (*Room, error)
+	GetRoom(ctx context.Context, roomID uuid.UUID) (*Room, error)
 
 	// 分配用户权限（只有 owner 能操作）
-	AssignRole(ctx context.Context, ownerID, roomID, userID, roleName string, permissions []Permission) error
+	AssignRole(ctx context.Context, ownerID, roomID, userID uuid.UUID, roleName string, permissions []Permission) error
 
 	// 获取用户在房间的权限
-	GetUserRoomRole(ctx context.Context, userID, roomID string) (*UserRoomRole, error)
+	GetUserRoomRole(ctx context.Context, userID, roomID uuid.UUID) (*UserRoomRole, error)
 
 	// 检查用户是否有特定权限
-	CheckPermission(ctx context.Context, userID, roomID string, permission Permission) (bool, error)
+	CheckPermission(ctx context.Context, userID, roomID uuid.UUID, permission Permission) (bool, error)
 }
 
 // ==================== 数据存储接口定义 ====================
@@ -115,20 +101,20 @@ type RoomRepository interface {
 	SaveRoom(ctx context.Context, room *Room) error
 
 	// 获取房间
-	GetRoom(ctx context.Context, roomID string) (*Room, error)
+	GetRoom(ctx context.Context, roomID uuid.UUID) (*Room, error)
 
 	// 删除房间
-	DeleteRoom(ctx context.Context, roomID string) error
+	DeleteRoom(ctx context.Context, roomID uuid.UUID) error
 }
 
 // UserRoomRoleRepository 用户房间角色数据访问接口
 type UserRoomRoleRepository interface {
 	// 获取用户在某房间的角色信息
-	GetUserRoomRole(ctx context.Context, userID, roomID string) (*UserRoomRole, error)
+	GetUserRoomRole(ctx context.Context, userID, roomID uuid.UUID) (*UserRoomRole, error)
 
 	// 保存用户房间角色
 	SaveUserRoomRole(ctx context.Context, urr *UserRoomRole) error
 
 	// 删除用户房间角色
-	DeleteUserRoomRole(ctx context.Context, userID, roomID string) error
+	DeleteUserRoomRole(ctx context.Context, userID, roomID uuid.UUID) error
 }
