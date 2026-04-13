@@ -19,7 +19,7 @@ type GiftRecord struct {
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
 	// IdempotencyKey holds the value of the "idempotency_key" field.
-	IdempotencyKey string `json:"idempotency_key,omitempty"`
+	IdempotencyKey uuid.UUID `json:"idempotency_key,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID uuid.UUID `json:"user_id,omitempty"`
 	// AnchorID holds the value of the "anchor_id" field.
@@ -46,11 +46,11 @@ func (*GiftRecord) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case giftrecord.FieldID, giftrecord.FieldGiftID, giftrecord.FieldAmount:
 			values[i] = new(sql.NullInt64)
-		case giftrecord.FieldIdempotencyKey, giftrecord.FieldStatus:
+		case giftrecord.FieldStatus:
 			values[i] = new(sql.NullString)
 		case giftrecord.FieldCreatedAt, giftrecord.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case giftrecord.FieldUserID, giftrecord.FieldAnchorID, giftrecord.FieldRoomID:
+		case giftrecord.FieldIdempotencyKey, giftrecord.FieldUserID, giftrecord.FieldAnchorID, giftrecord.FieldRoomID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -74,10 +74,10 @@ func (_m *GiftRecord) assignValues(columns []string, values []any) error {
 			}
 			_m.ID = int(value.Int64)
 		case giftrecord.FieldIdempotencyKey:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field idempotency_key", values[i])
-			} else if value.Valid {
-				_m.IdempotencyKey = value.String
+			} else if value != nil {
+				_m.IdempotencyKey = *value
 			}
 		case giftrecord.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -164,7 +164,7 @@ func (_m *GiftRecord) String() string {
 	builder.WriteString("GiftRecord(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("idempotency_key=")
-	builder.WriteString(_m.IdempotencyKey)
+	builder.WriteString(fmt.Sprintf("%v", _m.IdempotencyKey))
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UserID))

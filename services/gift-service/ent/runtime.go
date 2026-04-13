@@ -67,10 +67,6 @@ func init() {
 	gift.UpdateDefaultUpdatedAt = giftDescUpdatedAt.UpdateDefault.(func() time.Time)
 	giftrecordFields := schema.GiftRecord{}.Fields()
 	_ = giftrecordFields
-	// giftrecordDescIdempotencyKey is the schema descriptor for idempotency_key field.
-	giftrecordDescIdempotencyKey := giftrecordFields[0].Descriptor()
-	// giftrecord.IdempotencyKeyValidator is a validator for the "idempotency_key" field. It is called by the builders before save.
-	giftrecord.IdempotencyKeyValidator = giftrecordDescIdempotencyKey.Validators[0].(func(string) error)
 	// giftrecordDescGiftID is the schema descriptor for gift_id field.
 	giftrecordDescGiftID := giftrecordFields[4].Descriptor()
 	// giftrecord.GiftIDValidator is a validator for the "gift_id" field. It is called by the builders before save.

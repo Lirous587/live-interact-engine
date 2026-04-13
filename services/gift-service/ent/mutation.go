@@ -946,7 +946,7 @@ type GiftRecordMutation struct {
 	op              Op
 	typ             string
 	id              *int
-	idempotency_key *string
+	idempotency_key *uuid.UUID
 	user_id         *uuid.UUID
 	anchor_id       *uuid.UUID
 	room_id         *uuid.UUID
@@ -1062,12 +1062,12 @@ func (m *GiftRecordMutation) IDs(ctx context.Context) ([]int, error) {
 }
 
 // SetIdempotencyKey sets the "idempotency_key" field.
-func (m *GiftRecordMutation) SetIdempotencyKey(s string) {
-	m.idempotency_key = &s
+func (m *GiftRecordMutation) SetIdempotencyKey(u uuid.UUID) {
+	m.idempotency_key = &u
 }
 
 // IdempotencyKey returns the value of the "idempotency_key" field in the mutation.
-func (m *GiftRecordMutation) IdempotencyKey() (r string, exists bool) {
+func (m *GiftRecordMutation) IdempotencyKey() (r uuid.UUID, exists bool) {
 	v := m.idempotency_key
 	if v == nil {
 		return
@@ -1078,7 +1078,7 @@ func (m *GiftRecordMutation) IdempotencyKey() (r string, exists bool) {
 // OldIdempotencyKey returns the old "idempotency_key" field's value of the GiftRecord entity.
 // If the GiftRecord object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *GiftRecordMutation) OldIdempotencyKey(ctx context.Context) (v string, err error) {
+func (m *GiftRecordMutation) OldIdempotencyKey(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldIdempotencyKey is only allowed on UpdateOne operations")
 	}
@@ -1550,7 +1550,7 @@ func (m *GiftRecordMutation) OldField(ctx context.Context, name string) (ent.Val
 func (m *GiftRecordMutation) SetField(name string, value ent.Value) error {
 	switch name {
 	case giftrecord.FieldIdempotencyKey:
-		v, ok := value.(string)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

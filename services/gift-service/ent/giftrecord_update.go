@@ -30,13 +30,13 @@ func (_u *GiftRecordUpdate) Where(ps ...predicate.GiftRecord) *GiftRecordUpdate 
 }
 
 // SetIdempotencyKey sets the "idempotency_key" field.
-func (_u *GiftRecordUpdate) SetIdempotencyKey(v string) *GiftRecordUpdate {
+func (_u *GiftRecordUpdate) SetIdempotencyKey(v uuid.UUID) *GiftRecordUpdate {
 	_u.mutation.SetIdempotencyKey(v)
 	return _u
 }
 
 // SetNillableIdempotencyKey sets the "idempotency_key" field if the given value is not nil.
-func (_u *GiftRecordUpdate) SetNillableIdempotencyKey(v *string) *GiftRecordUpdate {
+func (_u *GiftRecordUpdate) SetNillableIdempotencyKey(v *uuid.UUID) *GiftRecordUpdate {
 	if v != nil {
 		_u.SetIdempotencyKey(*v)
 	}
@@ -190,11 +190,6 @@ func (_u *GiftRecordUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *GiftRecordUpdate) check() error {
-	if v, ok := _u.mutation.IdempotencyKey(); ok {
-		if err := giftrecord.IdempotencyKeyValidator(v); err != nil {
-			return &ValidationError{Name: "idempotency_key", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.idempotency_key": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.GiftID(); ok {
 		if err := giftrecord.GiftIDValidator(v); err != nil {
 			return &ValidationError{Name: "gift_id", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.gift_id": %w`, err)}
@@ -226,7 +221,7 @@ func (_u *GiftRecordUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 		}
 	}
 	if value, ok := _u.mutation.IdempotencyKey(); ok {
-		_spec.SetField(giftrecord.FieldIdempotencyKey, field.TypeString, value)
+		_spec.SetField(giftrecord.FieldIdempotencyKey, field.TypeUUID, value)
 	}
 	if value, ok := _u.mutation.UserID(); ok {
 		_spec.SetField(giftrecord.FieldUserID, field.TypeUUID, value)
@@ -276,13 +271,13 @@ type GiftRecordUpdateOne struct {
 }
 
 // SetIdempotencyKey sets the "idempotency_key" field.
-func (_u *GiftRecordUpdateOne) SetIdempotencyKey(v string) *GiftRecordUpdateOne {
+func (_u *GiftRecordUpdateOne) SetIdempotencyKey(v uuid.UUID) *GiftRecordUpdateOne {
 	_u.mutation.SetIdempotencyKey(v)
 	return _u
 }
 
 // SetNillableIdempotencyKey sets the "idempotency_key" field if the given value is not nil.
-func (_u *GiftRecordUpdateOne) SetNillableIdempotencyKey(v *string) *GiftRecordUpdateOne {
+func (_u *GiftRecordUpdateOne) SetNillableIdempotencyKey(v *uuid.UUID) *GiftRecordUpdateOne {
 	if v != nil {
 		_u.SetIdempotencyKey(*v)
 	}
@@ -449,11 +444,6 @@ func (_u *GiftRecordUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *GiftRecordUpdateOne) check() error {
-	if v, ok := _u.mutation.IdempotencyKey(); ok {
-		if err := giftrecord.IdempotencyKeyValidator(v); err != nil {
-			return &ValidationError{Name: "idempotency_key", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.idempotency_key": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.GiftID(); ok {
 		if err := giftrecord.GiftIDValidator(v); err != nil {
 			return &ValidationError{Name: "gift_id", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.gift_id": %w`, err)}
@@ -502,7 +492,7 @@ func (_u *GiftRecordUpdateOne) sqlSave(ctx context.Context) (_node *GiftRecord, 
 		}
 	}
 	if value, ok := _u.mutation.IdempotencyKey(); ok {
-		_spec.SetField(giftrecord.FieldIdempotencyKey, field.TypeString, value)
+		_spec.SetField(giftrecord.FieldIdempotencyKey, field.TypeUUID, value)
 	}
 	if value, ok := _u.mutation.UserID(); ok {
 		_spec.SetField(giftrecord.FieldUserID, field.TypeUUID, value)

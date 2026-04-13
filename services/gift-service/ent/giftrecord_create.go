@@ -22,7 +22,7 @@ type GiftRecordCreate struct {
 }
 
 // SetIdempotencyKey sets the "idempotency_key" field.
-func (_c *GiftRecordCreate) SetIdempotencyKey(v string) *GiftRecordCreate {
+func (_c *GiftRecordCreate) SetIdempotencyKey(v uuid.UUID) *GiftRecordCreate {
 	_c.mutation.SetIdempotencyKey(v)
 	return _c
 }
@@ -153,11 +153,6 @@ func (_c *GiftRecordCreate) check() error {
 	if _, ok := _c.mutation.IdempotencyKey(); !ok {
 		return &ValidationError{Name: "idempotency_key", err: errors.New(`ent: missing required field "GiftRecord.idempotency_key"`)}
 	}
-	if v, ok := _c.mutation.IdempotencyKey(); ok {
-		if err := giftrecord.IdempotencyKeyValidator(v); err != nil {
-			return &ValidationError{Name: "idempotency_key", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.idempotency_key": %w`, err)}
-		}
-	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "GiftRecord.user_id"`)}
 	}
@@ -224,7 +219,7 @@ func (_c *GiftRecordCreate) createSpec() (*GiftRecord, *sqlgraph.CreateSpec) {
 		_spec = sqlgraph.NewCreateSpec(giftrecord.Table, sqlgraph.NewFieldSpec(giftrecord.FieldID, field.TypeInt))
 	)
 	if value, ok := _c.mutation.IdempotencyKey(); ok {
-		_spec.SetField(giftrecord.FieldIdempotencyKey, field.TypeString, value)
+		_spec.SetField(giftrecord.FieldIdempotencyKey, field.TypeUUID, value)
 		_node.IdempotencyKey = value
 	}
 	if value, ok := _c.mutation.UserID(); ok {

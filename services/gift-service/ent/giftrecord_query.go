@@ -262,7 +262,7 @@ func (_q *GiftRecordQuery) Clone() *GiftRecordQuery {
 // Example:
 //
 //	var v []struct {
-//		IdempotencyKey string `json:"idempotency_key,omitempty"`
+//		IdempotencyKey uuid.UUID `json:"idempotency_key,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
@@ -285,7 +285,7 @@ func (_q *GiftRecordQuery) GroupBy(field string, fields ...string) *GiftRecordGr
 // Example:
 //
 //	var v []struct {
-//		IdempotencyKey string `json:"idempotency_key,omitempty"`
+//		IdempotencyKey uuid.UUID `json:"idempotency_key,omitempty"`
 //	}
 //
 //	client.GiftRecord.Query().

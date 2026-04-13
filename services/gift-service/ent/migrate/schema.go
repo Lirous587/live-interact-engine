@@ -27,11 +27,33 @@ var (
 		Name:       "gifts",
 		Columns:    GiftsColumns,
 		PrimaryKey: []*schema.Column{GiftsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "gift_cache_key",
+				Unique:  true,
+				Columns: []*schema.Column{GiftsColumns[4]},
+			},
+			{
+				Name:    "gift_status",
+				Unique:  false,
+				Columns: []*schema.Column{GiftsColumns[8]},
+			},
+			{
+				Name:    "gift_price",
+				Unique:  false,
+				Columns: []*schema.Column{GiftsColumns[5]},
+			},
+			{
+				Name:    "gift_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{GiftsColumns[9]},
+			},
+		},
 	}
 	// GiftRecordsColumns holds the columns for the "gift_records" table.
 	GiftRecordsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "idempotency_key", Type: field.TypeString, Unique: true},
+		{Name: "idempotency_key", Type: field.TypeUUID},
 		{Name: "user_id", Type: field.TypeUUID},
 		{Name: "anchor_id", Type: field.TypeUUID},
 		{Name: "room_id", Type: field.TypeUUID},
@@ -46,6 +68,43 @@ var (
 		Name:       "gift_records",
 		Columns:    GiftRecordsColumns,
 		PrimaryKey: []*schema.Column{GiftRecordsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "giftrecord_idempotency_key",
+				Unique:  true,
+				Columns: []*schema.Column{GiftRecordsColumns[1]},
+			},
+			{
+				Name:    "giftrecord_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{GiftRecordsColumns[2]},
+			},
+			{
+				Name:    "giftrecord_anchor_id",
+				Unique:  false,
+				Columns: []*schema.Column{GiftRecordsColumns[3]},
+			},
+			{
+				Name:    "giftrecord_room_id",
+				Unique:  false,
+				Columns: []*schema.Column{GiftRecordsColumns[4]},
+			},
+			{
+				Name:    "giftrecord_status",
+				Unique:  false,
+				Columns: []*schema.Column{GiftRecordsColumns[7]},
+			},
+			{
+				Name:    "giftrecord_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{GiftRecordsColumns[8]},
+			},
+			{
+				Name:    "giftrecord_status_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{GiftRecordsColumns[7], GiftRecordsColumns[8]},
+			},
+		},
 	}
 	// WalletsColumns holds the columns for the "wallets" table.
 	WalletsColumns = []*schema.Column{
@@ -61,6 +120,18 @@ var (
 		Name:       "wallets",
 		Columns:    WalletsColumns,
 		PrimaryKey: []*schema.Column{WalletsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "wallet_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{WalletsColumns[1]},
+			},
+			{
+				Name:    "wallet_updated_at",
+				Unique:  false,
+				Columns: []*schema.Column{WalletsColumns[5]},
+			},
+		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{

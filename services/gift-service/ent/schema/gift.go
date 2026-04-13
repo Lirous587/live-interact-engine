@@ -5,6 +5,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 )
 
 // Gift holds the schema definition for the Gift entity.
@@ -31,4 +32,13 @@ func (Gift) Fields() []ent.Field {
 // Edges of the Gift.
 func (Gift) Edges() []ent.Edge {
 	return nil
+}
+
+func (Gift) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("cache_key").Unique(), // cache_key 唯一（加快 Redis 预热时的查询）
+		index.Fields("status"),             // 按状态查询礼物（online/offline）
+		index.Fields("price"),              // 按价格查询礼物
+		index.Fields("created_at"),         // 按时间排序
+	}
 }
