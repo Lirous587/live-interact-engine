@@ -5,6 +5,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // GiftRecord holds the schema definition for the GiftRecord entity.
@@ -16,9 +17,9 @@ type GiftRecord struct {
 func (GiftRecord) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("idempotency_key").Unique().NotEmpty(), // 唯一索引，幂等防重
-		field.Int64("user_id").Positive(),                   // 送礼者 ID
-		field.Int64("anchor_id").Positive(),                 // 主播 ID
-		field.Int64("room_id").Positive(),
+		field.UUID("user_id", uuid.UUID{}),                  // 送礼者 ID
+		field.UUID("anchor_id", uuid.UUID{}),                // 主播 ID
+		field.UUID("room_id", uuid.UUID{}),
 		field.Int64("gift_id").Positive(),
 		field.Int64("amount").Positive(),                                               // 送礼金额
 		field.Enum("status").Values("pending", "success", "failed").Default("pending"), // 状态机

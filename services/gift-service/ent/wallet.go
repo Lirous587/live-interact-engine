@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // Wallet is the model entity for the Wallet schema.
@@ -18,7 +19,7 @@ type Wallet struct {
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
 	// UserID holds the value of the "user_id" field.
-	UserID int64 `json:"user_id,omitempty"`
+	UserID uuid.UUID `json:"user_id,omitempty"`
 	// Balance holds the value of the "balance" field.
 	Balance int64 `json:"balance,omitempty"`
 	// VersionNumber holds the value of the "version_number" field.
@@ -35,10 +36,12 @@ func (*Wallet) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case wallet.FieldID, wallet.FieldUserID, wallet.FieldBalance, wallet.FieldVersionNumber:
+		case wallet.FieldID, wallet.FieldBalance, wallet.FieldVersionNumber:
 			values[i] = new(sql.NullInt64)
 		case wallet.FieldCreatedAt, wallet.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
+		case wallet.FieldUserID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -61,10 +64,10 @@ func (_m *Wallet) assignValues(columns []string, values []any) error {
 			}
 			_m.ID = int(value.Int64)
 		case wallet.FieldUserID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
-			} else if value.Valid {
-				_m.UserID = value.Int64
+			} else if value != nil {
+				_m.UserID = *value
 			}
 		case wallet.FieldBalance:
 			if value, ok := values[i].(*sql.NullInt64); !ok {

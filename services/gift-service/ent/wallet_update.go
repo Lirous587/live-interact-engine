@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // WalletUpdate is the builder for updating Wallet entities.
@@ -29,23 +30,16 @@ func (_u *WalletUpdate) Where(ps ...predicate.Wallet) *WalletUpdate {
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *WalletUpdate) SetUserID(v int64) *WalletUpdate {
-	_u.mutation.ResetUserID()
+func (_u *WalletUpdate) SetUserID(v uuid.UUID) *WalletUpdate {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *WalletUpdate) SetNillableUserID(v *int64) *WalletUpdate {
+func (_u *WalletUpdate) SetNillableUserID(v *uuid.UUID) *WalletUpdate {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
-	return _u
-}
-
-// AddUserID adds value to the "user_id" field.
-func (_u *WalletUpdate) AddUserID(v int64) *WalletUpdate {
-	_u.mutation.AddUserID(v)
 	return _u
 }
 
@@ -138,20 +132,7 @@ func (_u *WalletUpdate) defaults() {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (_u *WalletUpdate) check() error {
-	if v, ok := _u.mutation.UserID(); ok {
-		if err := wallet.UserIDValidator(v); err != nil {
-			return &ValidationError{Name: "user_id", err: fmt.Errorf(`ent: validator failed for field "Wallet.user_id": %w`, err)}
-		}
-	}
-	return nil
-}
-
 func (_u *WalletUpdate) sqlSave(ctx context.Context) (_node int, err error) {
-	if err := _u.check(); err != nil {
-		return _node, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(wallet.Table, wallet.Columns, sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeInt))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -161,10 +142,7 @@ func (_u *WalletUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 	}
 	if value, ok := _u.mutation.UserID(); ok {
-		_spec.SetField(wallet.FieldUserID, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedUserID(); ok {
-		_spec.AddField(wallet.FieldUserID, field.TypeInt64, value)
+		_spec.SetField(wallet.FieldUserID, field.TypeUUID, value)
 	}
 	if value, ok := _u.mutation.Balance(); ok {
 		_spec.SetField(wallet.FieldBalance, field.TypeInt64, value)
@@ -202,23 +180,16 @@ type WalletUpdateOne struct {
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *WalletUpdateOne) SetUserID(v int64) *WalletUpdateOne {
-	_u.mutation.ResetUserID()
+func (_u *WalletUpdateOne) SetUserID(v uuid.UUID) *WalletUpdateOne {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *WalletUpdateOne) SetNillableUserID(v *int64) *WalletUpdateOne {
+func (_u *WalletUpdateOne) SetNillableUserID(v *uuid.UUID) *WalletUpdateOne {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
-	return _u
-}
-
-// AddUserID adds value to the "user_id" field.
-func (_u *WalletUpdateOne) AddUserID(v int64) *WalletUpdateOne {
-	_u.mutation.AddUserID(v)
 	return _u
 }
 
@@ -324,20 +295,7 @@ func (_u *WalletUpdateOne) defaults() {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (_u *WalletUpdateOne) check() error {
-	if v, ok := _u.mutation.UserID(); ok {
-		if err := wallet.UserIDValidator(v); err != nil {
-			return &ValidationError{Name: "user_id", err: fmt.Errorf(`ent: validator failed for field "Wallet.user_id": %w`, err)}
-		}
-	}
-	return nil
-}
-
 func (_u *WalletUpdateOne) sqlSave(ctx context.Context) (_node *Wallet, err error) {
-	if err := _u.check(); err != nil {
-		return _node, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(wallet.Table, wallet.Columns, sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeInt))
 	id, ok := _u.mutation.ID()
 	if !ok {
@@ -364,10 +322,7 @@ func (_u *WalletUpdateOne) sqlSave(ctx context.Context) (_node *Wallet, err erro
 		}
 	}
 	if value, ok := _u.mutation.UserID(); ok {
-		_spec.SetField(wallet.FieldUserID, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedUserID(); ok {
-		_spec.AddField(wallet.FieldUserID, field.TypeInt64, value)
+		_spec.SetField(wallet.FieldUserID, field.TypeUUID, value)
 	}
 	if value, ok := _u.mutation.Balance(); ok {
 		_spec.SetField(wallet.FieldBalance, field.TypeInt64, value)

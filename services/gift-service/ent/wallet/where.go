@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
@@ -55,7 +56,7 @@ func IDLTE(id int) predicate.Wallet {
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v int64) predicate.Wallet {
+func UserID(v uuid.UUID) predicate.Wallet {
 	return predicate.Wallet(sql.FieldEQ(FieldUserID, v))
 }
 
@@ -80,42 +81,42 @@ func UpdatedAt(v time.Time) predicate.Wallet {
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v int64) predicate.Wallet {
+func UserIDEQ(v uuid.UUID) predicate.Wallet {
 	return predicate.Wallet(sql.FieldEQ(FieldUserID, v))
 }
 
 // UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v int64) predicate.Wallet {
+func UserIDNEQ(v uuid.UUID) predicate.Wallet {
 	return predicate.Wallet(sql.FieldNEQ(FieldUserID, v))
 }
 
 // UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...int64) predicate.Wallet {
+func UserIDIn(vs ...uuid.UUID) predicate.Wallet {
 	return predicate.Wallet(sql.FieldIn(FieldUserID, vs...))
 }
 
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...int64) predicate.Wallet {
+func UserIDNotIn(vs ...uuid.UUID) predicate.Wallet {
 	return predicate.Wallet(sql.FieldNotIn(FieldUserID, vs...))
 }
 
 // UserIDGT applies the GT predicate on the "user_id" field.
-func UserIDGT(v int64) predicate.Wallet {
+func UserIDGT(v uuid.UUID) predicate.Wallet {
 	return predicate.Wallet(sql.FieldGT(FieldUserID, v))
 }
 
 // UserIDGTE applies the GTE predicate on the "user_id" field.
-func UserIDGTE(v int64) predicate.Wallet {
+func UserIDGTE(v uuid.UUID) predicate.Wallet {
 	return predicate.Wallet(sql.FieldGTE(FieldUserID, v))
 }
 
 // UserIDLT applies the LT predicate on the "user_id" field.
-func UserIDLT(v int64) predicate.Wallet {
+func UserIDLT(v uuid.UUID) predicate.Wallet {
 	return predicate.Wallet(sql.FieldLT(FieldUserID, v))
 }
 
 // UserIDLTE applies the LTE predicate on the "user_id" field.
-func UserIDLTE(v int64) predicate.Wallet {
+func UserIDLTE(v uuid.UUID) predicate.Wallet {
 	return predicate.Wallet(sql.FieldLTE(FieldUserID, v))
 }
 

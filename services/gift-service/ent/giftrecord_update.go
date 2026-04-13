@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // GiftRecordUpdate is the builder for updating GiftRecord entities.
@@ -43,65 +44,44 @@ func (_u *GiftRecordUpdate) SetNillableIdempotencyKey(v *string) *GiftRecordUpda
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *GiftRecordUpdate) SetUserID(v int64) *GiftRecordUpdate {
-	_u.mutation.ResetUserID()
+func (_u *GiftRecordUpdate) SetUserID(v uuid.UUID) *GiftRecordUpdate {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *GiftRecordUpdate) SetNillableUserID(v *int64) *GiftRecordUpdate {
+func (_u *GiftRecordUpdate) SetNillableUserID(v *uuid.UUID) *GiftRecordUpdate {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
 	return _u
 }
 
-// AddUserID adds value to the "user_id" field.
-func (_u *GiftRecordUpdate) AddUserID(v int64) *GiftRecordUpdate {
-	_u.mutation.AddUserID(v)
-	return _u
-}
-
 // SetAnchorID sets the "anchor_id" field.
-func (_u *GiftRecordUpdate) SetAnchorID(v int64) *GiftRecordUpdate {
-	_u.mutation.ResetAnchorID()
+func (_u *GiftRecordUpdate) SetAnchorID(v uuid.UUID) *GiftRecordUpdate {
 	_u.mutation.SetAnchorID(v)
 	return _u
 }
 
 // SetNillableAnchorID sets the "anchor_id" field if the given value is not nil.
-func (_u *GiftRecordUpdate) SetNillableAnchorID(v *int64) *GiftRecordUpdate {
+func (_u *GiftRecordUpdate) SetNillableAnchorID(v *uuid.UUID) *GiftRecordUpdate {
 	if v != nil {
 		_u.SetAnchorID(*v)
 	}
 	return _u
 }
 
-// AddAnchorID adds value to the "anchor_id" field.
-func (_u *GiftRecordUpdate) AddAnchorID(v int64) *GiftRecordUpdate {
-	_u.mutation.AddAnchorID(v)
-	return _u
-}
-
 // SetRoomID sets the "room_id" field.
-func (_u *GiftRecordUpdate) SetRoomID(v int64) *GiftRecordUpdate {
-	_u.mutation.ResetRoomID()
+func (_u *GiftRecordUpdate) SetRoomID(v uuid.UUID) *GiftRecordUpdate {
 	_u.mutation.SetRoomID(v)
 	return _u
 }
 
 // SetNillableRoomID sets the "room_id" field if the given value is not nil.
-func (_u *GiftRecordUpdate) SetNillableRoomID(v *int64) *GiftRecordUpdate {
+func (_u *GiftRecordUpdate) SetNillableRoomID(v *uuid.UUID) *GiftRecordUpdate {
 	if v != nil {
 		_u.SetRoomID(*v)
 	}
-	return _u
-}
-
-// AddRoomID adds value to the "room_id" field.
-func (_u *GiftRecordUpdate) AddRoomID(v int64) *GiftRecordUpdate {
-	_u.mutation.AddRoomID(v)
 	return _u
 }
 
@@ -215,21 +195,6 @@ func (_u *GiftRecordUpdate) check() error {
 			return &ValidationError{Name: "idempotency_key", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.idempotency_key": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.UserID(); ok {
-		if err := giftrecord.UserIDValidator(v); err != nil {
-			return &ValidationError{Name: "user_id", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.user_id": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.AnchorID(); ok {
-		if err := giftrecord.AnchorIDValidator(v); err != nil {
-			return &ValidationError{Name: "anchor_id", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.anchor_id": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.RoomID(); ok {
-		if err := giftrecord.RoomIDValidator(v); err != nil {
-			return &ValidationError{Name: "room_id", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.room_id": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.GiftID(); ok {
 		if err := giftrecord.GiftIDValidator(v); err != nil {
 			return &ValidationError{Name: "gift_id", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.gift_id": %w`, err)}
@@ -264,22 +229,13 @@ func (_u *GiftRecordUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 		_spec.SetField(giftrecord.FieldIdempotencyKey, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.UserID(); ok {
-		_spec.SetField(giftrecord.FieldUserID, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedUserID(); ok {
-		_spec.AddField(giftrecord.FieldUserID, field.TypeInt64, value)
+		_spec.SetField(giftrecord.FieldUserID, field.TypeUUID, value)
 	}
 	if value, ok := _u.mutation.AnchorID(); ok {
-		_spec.SetField(giftrecord.FieldAnchorID, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedAnchorID(); ok {
-		_spec.AddField(giftrecord.FieldAnchorID, field.TypeInt64, value)
+		_spec.SetField(giftrecord.FieldAnchorID, field.TypeUUID, value)
 	}
 	if value, ok := _u.mutation.RoomID(); ok {
-		_spec.SetField(giftrecord.FieldRoomID, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedRoomID(); ok {
-		_spec.AddField(giftrecord.FieldRoomID, field.TypeInt64, value)
+		_spec.SetField(giftrecord.FieldRoomID, field.TypeUUID, value)
 	}
 	if value, ok := _u.mutation.GiftID(); ok {
 		_spec.SetField(giftrecord.FieldGiftID, field.TypeInt64, value)
@@ -334,65 +290,44 @@ func (_u *GiftRecordUpdateOne) SetNillableIdempotencyKey(v *string) *GiftRecordU
 }
 
 // SetUserID sets the "user_id" field.
-func (_u *GiftRecordUpdateOne) SetUserID(v int64) *GiftRecordUpdateOne {
-	_u.mutation.ResetUserID()
+func (_u *GiftRecordUpdateOne) SetUserID(v uuid.UUID) *GiftRecordUpdateOne {
 	_u.mutation.SetUserID(v)
 	return _u
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (_u *GiftRecordUpdateOne) SetNillableUserID(v *int64) *GiftRecordUpdateOne {
+func (_u *GiftRecordUpdateOne) SetNillableUserID(v *uuid.UUID) *GiftRecordUpdateOne {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
 	return _u
 }
 
-// AddUserID adds value to the "user_id" field.
-func (_u *GiftRecordUpdateOne) AddUserID(v int64) *GiftRecordUpdateOne {
-	_u.mutation.AddUserID(v)
-	return _u
-}
-
 // SetAnchorID sets the "anchor_id" field.
-func (_u *GiftRecordUpdateOne) SetAnchorID(v int64) *GiftRecordUpdateOne {
-	_u.mutation.ResetAnchorID()
+func (_u *GiftRecordUpdateOne) SetAnchorID(v uuid.UUID) *GiftRecordUpdateOne {
 	_u.mutation.SetAnchorID(v)
 	return _u
 }
 
 // SetNillableAnchorID sets the "anchor_id" field if the given value is not nil.
-func (_u *GiftRecordUpdateOne) SetNillableAnchorID(v *int64) *GiftRecordUpdateOne {
+func (_u *GiftRecordUpdateOne) SetNillableAnchorID(v *uuid.UUID) *GiftRecordUpdateOne {
 	if v != nil {
 		_u.SetAnchorID(*v)
 	}
 	return _u
 }
 
-// AddAnchorID adds value to the "anchor_id" field.
-func (_u *GiftRecordUpdateOne) AddAnchorID(v int64) *GiftRecordUpdateOne {
-	_u.mutation.AddAnchorID(v)
-	return _u
-}
-
 // SetRoomID sets the "room_id" field.
-func (_u *GiftRecordUpdateOne) SetRoomID(v int64) *GiftRecordUpdateOne {
-	_u.mutation.ResetRoomID()
+func (_u *GiftRecordUpdateOne) SetRoomID(v uuid.UUID) *GiftRecordUpdateOne {
 	_u.mutation.SetRoomID(v)
 	return _u
 }
 
 // SetNillableRoomID sets the "room_id" field if the given value is not nil.
-func (_u *GiftRecordUpdateOne) SetNillableRoomID(v *int64) *GiftRecordUpdateOne {
+func (_u *GiftRecordUpdateOne) SetNillableRoomID(v *uuid.UUID) *GiftRecordUpdateOne {
 	if v != nil {
 		_u.SetRoomID(*v)
 	}
-	return _u
-}
-
-// AddRoomID adds value to the "room_id" field.
-func (_u *GiftRecordUpdateOne) AddRoomID(v int64) *GiftRecordUpdateOne {
-	_u.mutation.AddRoomID(v)
 	return _u
 }
 
@@ -519,21 +454,6 @@ func (_u *GiftRecordUpdateOne) check() error {
 			return &ValidationError{Name: "idempotency_key", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.idempotency_key": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.UserID(); ok {
-		if err := giftrecord.UserIDValidator(v); err != nil {
-			return &ValidationError{Name: "user_id", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.user_id": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.AnchorID(); ok {
-		if err := giftrecord.AnchorIDValidator(v); err != nil {
-			return &ValidationError{Name: "anchor_id", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.anchor_id": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.RoomID(); ok {
-		if err := giftrecord.RoomIDValidator(v); err != nil {
-			return &ValidationError{Name: "room_id", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.room_id": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.GiftID(); ok {
 		if err := giftrecord.GiftIDValidator(v); err != nil {
 			return &ValidationError{Name: "gift_id", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.gift_id": %w`, err)}
@@ -585,22 +505,13 @@ func (_u *GiftRecordUpdateOne) sqlSave(ctx context.Context) (_node *GiftRecord, 
 		_spec.SetField(giftrecord.FieldIdempotencyKey, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.UserID(); ok {
-		_spec.SetField(giftrecord.FieldUserID, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedUserID(); ok {
-		_spec.AddField(giftrecord.FieldUserID, field.TypeInt64, value)
+		_spec.SetField(giftrecord.FieldUserID, field.TypeUUID, value)
 	}
 	if value, ok := _u.mutation.AnchorID(); ok {
-		_spec.SetField(giftrecord.FieldAnchorID, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedAnchorID(); ok {
-		_spec.AddField(giftrecord.FieldAnchorID, field.TypeInt64, value)
+		_spec.SetField(giftrecord.FieldAnchorID, field.TypeUUID, value)
 	}
 	if value, ok := _u.mutation.RoomID(); ok {
-		_spec.SetField(giftrecord.FieldRoomID, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedRoomID(); ok {
-		_spec.AddField(giftrecord.FieldRoomID, field.TypeInt64, value)
+		_spec.SetField(giftrecord.FieldRoomID, field.TypeUUID, value)
 	}
 	if value, ok := _u.mutation.GiftID(); ok {
 		_spec.SetField(giftrecord.FieldGiftID, field.TypeInt64, value)

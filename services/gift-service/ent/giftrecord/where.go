@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
@@ -60,17 +61,17 @@ func IdempotencyKey(v string) predicate.GiftRecord {
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v int64) predicate.GiftRecord {
+func UserID(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldEQ(FieldUserID, v))
 }
 
 // AnchorID applies equality check predicate on the "anchor_id" field. It's identical to AnchorIDEQ.
-func AnchorID(v int64) predicate.GiftRecord {
+func AnchorID(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldEQ(FieldAnchorID, v))
 }
 
 // RoomID applies equality check predicate on the "room_id" field. It's identical to RoomIDEQ.
-func RoomID(v int64) predicate.GiftRecord {
+func RoomID(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldEQ(FieldRoomID, v))
 }
 
@@ -160,122 +161,122 @@ func IdempotencyKeyContainsFold(v string) predicate.GiftRecord {
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v int64) predicate.GiftRecord {
+func UserIDEQ(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldEQ(FieldUserID, v))
 }
 
 // UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v int64) predicate.GiftRecord {
+func UserIDNEQ(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldNEQ(FieldUserID, v))
 }
 
 // UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...int64) predicate.GiftRecord {
+func UserIDIn(vs ...uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldIn(FieldUserID, vs...))
 }
 
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...int64) predicate.GiftRecord {
+func UserIDNotIn(vs ...uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldNotIn(FieldUserID, vs...))
 }
 
 // UserIDGT applies the GT predicate on the "user_id" field.
-func UserIDGT(v int64) predicate.GiftRecord {
+func UserIDGT(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldGT(FieldUserID, v))
 }
 
 // UserIDGTE applies the GTE predicate on the "user_id" field.
-func UserIDGTE(v int64) predicate.GiftRecord {
+func UserIDGTE(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldGTE(FieldUserID, v))
 }
 
 // UserIDLT applies the LT predicate on the "user_id" field.
-func UserIDLT(v int64) predicate.GiftRecord {
+func UserIDLT(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldLT(FieldUserID, v))
 }
 
 // UserIDLTE applies the LTE predicate on the "user_id" field.
-func UserIDLTE(v int64) predicate.GiftRecord {
+func UserIDLTE(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldLTE(FieldUserID, v))
 }
 
 // AnchorIDEQ applies the EQ predicate on the "anchor_id" field.
-func AnchorIDEQ(v int64) predicate.GiftRecord {
+func AnchorIDEQ(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldEQ(FieldAnchorID, v))
 }
 
 // AnchorIDNEQ applies the NEQ predicate on the "anchor_id" field.
-func AnchorIDNEQ(v int64) predicate.GiftRecord {
+func AnchorIDNEQ(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldNEQ(FieldAnchorID, v))
 }
 
 // AnchorIDIn applies the In predicate on the "anchor_id" field.
-func AnchorIDIn(vs ...int64) predicate.GiftRecord {
+func AnchorIDIn(vs ...uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldIn(FieldAnchorID, vs...))
 }
 
 // AnchorIDNotIn applies the NotIn predicate on the "anchor_id" field.
-func AnchorIDNotIn(vs ...int64) predicate.GiftRecord {
+func AnchorIDNotIn(vs ...uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldNotIn(FieldAnchorID, vs...))
 }
 
 // AnchorIDGT applies the GT predicate on the "anchor_id" field.
-func AnchorIDGT(v int64) predicate.GiftRecord {
+func AnchorIDGT(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldGT(FieldAnchorID, v))
 }
 
 // AnchorIDGTE applies the GTE predicate on the "anchor_id" field.
-func AnchorIDGTE(v int64) predicate.GiftRecord {
+func AnchorIDGTE(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldGTE(FieldAnchorID, v))
 }
 
 // AnchorIDLT applies the LT predicate on the "anchor_id" field.
-func AnchorIDLT(v int64) predicate.GiftRecord {
+func AnchorIDLT(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldLT(FieldAnchorID, v))
 }
 
 // AnchorIDLTE applies the LTE predicate on the "anchor_id" field.
-func AnchorIDLTE(v int64) predicate.GiftRecord {
+func AnchorIDLTE(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldLTE(FieldAnchorID, v))
 }
 
 // RoomIDEQ applies the EQ predicate on the "room_id" field.
-func RoomIDEQ(v int64) predicate.GiftRecord {
+func RoomIDEQ(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldEQ(FieldRoomID, v))
 }
 
 // RoomIDNEQ applies the NEQ predicate on the "room_id" field.
-func RoomIDNEQ(v int64) predicate.GiftRecord {
+func RoomIDNEQ(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldNEQ(FieldRoomID, v))
 }
 
 // RoomIDIn applies the In predicate on the "room_id" field.
-func RoomIDIn(vs ...int64) predicate.GiftRecord {
+func RoomIDIn(vs ...uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldIn(FieldRoomID, vs...))
 }
 
 // RoomIDNotIn applies the NotIn predicate on the "room_id" field.
-func RoomIDNotIn(vs ...int64) predicate.GiftRecord {
+func RoomIDNotIn(vs ...uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldNotIn(FieldRoomID, vs...))
 }
 
 // RoomIDGT applies the GT predicate on the "room_id" field.
-func RoomIDGT(v int64) predicate.GiftRecord {
+func RoomIDGT(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldGT(FieldRoomID, v))
 }
 
 // RoomIDGTE applies the GTE predicate on the "room_id" field.
-func RoomIDGTE(v int64) predicate.GiftRecord {
+func RoomIDGTE(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldGTE(FieldRoomID, v))
 }
 
 // RoomIDLT applies the LT predicate on the "room_id" field.
-func RoomIDLT(v int64) predicate.GiftRecord {
+func RoomIDLT(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldLT(FieldRoomID, v))
 }
 
 // RoomIDLTE applies the LTE predicate on the "room_id" field.
-func RoomIDLTE(v int64) predicate.GiftRecord {
+func RoomIDLTE(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldLTE(FieldRoomID, v))
 }
 

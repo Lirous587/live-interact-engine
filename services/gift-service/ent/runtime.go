@@ -71,18 +71,6 @@ func init() {
 	giftrecordDescIdempotencyKey := giftrecordFields[0].Descriptor()
 	// giftrecord.IdempotencyKeyValidator is a validator for the "idempotency_key" field. It is called by the builders before save.
 	giftrecord.IdempotencyKeyValidator = giftrecordDescIdempotencyKey.Validators[0].(func(string) error)
-	// giftrecordDescUserID is the schema descriptor for user_id field.
-	giftrecordDescUserID := giftrecordFields[1].Descriptor()
-	// giftrecord.UserIDValidator is a validator for the "user_id" field. It is called by the builders before save.
-	giftrecord.UserIDValidator = giftrecordDescUserID.Validators[0].(func(int64) error)
-	// giftrecordDescAnchorID is the schema descriptor for anchor_id field.
-	giftrecordDescAnchorID := giftrecordFields[2].Descriptor()
-	// giftrecord.AnchorIDValidator is a validator for the "anchor_id" field. It is called by the builders before save.
-	giftrecord.AnchorIDValidator = giftrecordDescAnchorID.Validators[0].(func(int64) error)
-	// giftrecordDescRoomID is the schema descriptor for room_id field.
-	giftrecordDescRoomID := giftrecordFields[3].Descriptor()
-	// giftrecord.RoomIDValidator is a validator for the "room_id" field. It is called by the builders before save.
-	giftrecord.RoomIDValidator = giftrecordDescRoomID.Validators[0].(func(int64) error)
 	// giftrecordDescGiftID is the schema descriptor for gift_id field.
 	giftrecordDescGiftID := giftrecordFields[4].Descriptor()
 	// giftrecord.GiftIDValidator is a validator for the "gift_id" field. It is called by the builders before save.
@@ -103,10 +91,6 @@ func init() {
 	giftrecord.UpdateDefaultUpdatedAt = giftrecordDescUpdatedAt.UpdateDefault.(func() time.Time)
 	walletFields := schema.Wallet{}.Fields()
 	_ = walletFields
-	// walletDescUserID is the schema descriptor for user_id field.
-	walletDescUserID := walletFields[0].Descriptor()
-	// wallet.UserIDValidator is a validator for the "user_id" field. It is called by the builders before save.
-	wallet.UserIDValidator = walletDescUserID.Validators[0].(func(int64) error)
 	// walletDescBalance is the schema descriptor for balance field.
 	walletDescBalance := walletFields[1].Descriptor()
 	// wallet.DefaultBalance holds the default value on creation for the balance field.

@@ -15,6 +15,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 const (
@@ -946,12 +947,9 @@ type GiftRecordMutation struct {
 	typ             string
 	id              *int
 	idempotency_key *string
-	user_id         *int64
-	adduser_id      *int64
-	anchor_id       *int64
-	addanchor_id    *int64
-	room_id         *int64
-	addroom_id      *int64
+	user_id         *uuid.UUID
+	anchor_id       *uuid.UUID
+	room_id         *uuid.UUID
 	gift_id         *int64
 	addgift_id      *int64
 	amount          *int64
@@ -1100,13 +1098,12 @@ func (m *GiftRecordMutation) ResetIdempotencyKey() {
 }
 
 // SetUserID sets the "user_id" field.
-func (m *GiftRecordMutation) SetUserID(i int64) {
-	m.user_id = &i
-	m.adduser_id = nil
+func (m *GiftRecordMutation) SetUserID(u uuid.UUID) {
+	m.user_id = &u
 }
 
 // UserID returns the value of the "user_id" field in the mutation.
-func (m *GiftRecordMutation) UserID() (r int64, exists bool) {
+func (m *GiftRecordMutation) UserID() (r uuid.UUID, exists bool) {
 	v := m.user_id
 	if v == nil {
 		return
@@ -1117,7 +1114,7 @@ func (m *GiftRecordMutation) UserID() (r int64, exists bool) {
 // OldUserID returns the old "user_id" field's value of the GiftRecord entity.
 // If the GiftRecord object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *GiftRecordMutation) OldUserID(ctx context.Context) (v int64, err error) {
+func (m *GiftRecordMutation) OldUserID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
 	}
@@ -1131,38 +1128,18 @@ func (m *GiftRecordMutation) OldUserID(ctx context.Context) (v int64, err error)
 	return oldValue.UserID, nil
 }
 
-// AddUserID adds i to the "user_id" field.
-func (m *GiftRecordMutation) AddUserID(i int64) {
-	if m.adduser_id != nil {
-		*m.adduser_id += i
-	} else {
-		m.adduser_id = &i
-	}
-}
-
-// AddedUserID returns the value that was added to the "user_id" field in this mutation.
-func (m *GiftRecordMutation) AddedUserID() (r int64, exists bool) {
-	v := m.adduser_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
 // ResetUserID resets all changes to the "user_id" field.
 func (m *GiftRecordMutation) ResetUserID() {
 	m.user_id = nil
-	m.adduser_id = nil
 }
 
 // SetAnchorID sets the "anchor_id" field.
-func (m *GiftRecordMutation) SetAnchorID(i int64) {
-	m.anchor_id = &i
-	m.addanchor_id = nil
+func (m *GiftRecordMutation) SetAnchorID(u uuid.UUID) {
+	m.anchor_id = &u
 }
 
 // AnchorID returns the value of the "anchor_id" field in the mutation.
-func (m *GiftRecordMutation) AnchorID() (r int64, exists bool) {
+func (m *GiftRecordMutation) AnchorID() (r uuid.UUID, exists bool) {
 	v := m.anchor_id
 	if v == nil {
 		return
@@ -1173,7 +1150,7 @@ func (m *GiftRecordMutation) AnchorID() (r int64, exists bool) {
 // OldAnchorID returns the old "anchor_id" field's value of the GiftRecord entity.
 // If the GiftRecord object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *GiftRecordMutation) OldAnchorID(ctx context.Context) (v int64, err error) {
+func (m *GiftRecordMutation) OldAnchorID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldAnchorID is only allowed on UpdateOne operations")
 	}
@@ -1187,38 +1164,18 @@ func (m *GiftRecordMutation) OldAnchorID(ctx context.Context) (v int64, err erro
 	return oldValue.AnchorID, nil
 }
 
-// AddAnchorID adds i to the "anchor_id" field.
-func (m *GiftRecordMutation) AddAnchorID(i int64) {
-	if m.addanchor_id != nil {
-		*m.addanchor_id += i
-	} else {
-		m.addanchor_id = &i
-	}
-}
-
-// AddedAnchorID returns the value that was added to the "anchor_id" field in this mutation.
-func (m *GiftRecordMutation) AddedAnchorID() (r int64, exists bool) {
-	v := m.addanchor_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
 // ResetAnchorID resets all changes to the "anchor_id" field.
 func (m *GiftRecordMutation) ResetAnchorID() {
 	m.anchor_id = nil
-	m.addanchor_id = nil
 }
 
 // SetRoomID sets the "room_id" field.
-func (m *GiftRecordMutation) SetRoomID(i int64) {
-	m.room_id = &i
-	m.addroom_id = nil
+func (m *GiftRecordMutation) SetRoomID(u uuid.UUID) {
+	m.room_id = &u
 }
 
 // RoomID returns the value of the "room_id" field in the mutation.
-func (m *GiftRecordMutation) RoomID() (r int64, exists bool) {
+func (m *GiftRecordMutation) RoomID() (r uuid.UUID, exists bool) {
 	v := m.room_id
 	if v == nil {
 		return
@@ -1229,7 +1186,7 @@ func (m *GiftRecordMutation) RoomID() (r int64, exists bool) {
 // OldRoomID returns the old "room_id" field's value of the GiftRecord entity.
 // If the GiftRecord object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *GiftRecordMutation) OldRoomID(ctx context.Context) (v int64, err error) {
+func (m *GiftRecordMutation) OldRoomID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldRoomID is only allowed on UpdateOne operations")
 	}
@@ -1243,28 +1200,9 @@ func (m *GiftRecordMutation) OldRoomID(ctx context.Context) (v int64, err error)
 	return oldValue.RoomID, nil
 }
 
-// AddRoomID adds i to the "room_id" field.
-func (m *GiftRecordMutation) AddRoomID(i int64) {
-	if m.addroom_id != nil {
-		*m.addroom_id += i
-	} else {
-		m.addroom_id = &i
-	}
-}
-
-// AddedRoomID returns the value that was added to the "room_id" field in this mutation.
-func (m *GiftRecordMutation) AddedRoomID() (r int64, exists bool) {
-	v := m.addroom_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
 // ResetRoomID resets all changes to the "room_id" field.
 func (m *GiftRecordMutation) ResetRoomID() {
 	m.room_id = nil
-	m.addroom_id = nil
 }
 
 // SetGiftID sets the "gift_id" field.
@@ -1619,21 +1557,21 @@ func (m *GiftRecordMutation) SetField(name string, value ent.Value) error {
 		m.SetIdempotencyKey(v)
 		return nil
 	case giftrecord.FieldUserID:
-		v, ok := value.(int64)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUserID(v)
 		return nil
 	case giftrecord.FieldAnchorID:
-		v, ok := value.(int64)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetAnchorID(v)
 		return nil
 	case giftrecord.FieldRoomID:
-		v, ok := value.(int64)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1682,15 +1620,6 @@ func (m *GiftRecordMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *GiftRecordMutation) AddedFields() []string {
 	var fields []string
-	if m.adduser_id != nil {
-		fields = append(fields, giftrecord.FieldUserID)
-	}
-	if m.addanchor_id != nil {
-		fields = append(fields, giftrecord.FieldAnchorID)
-	}
-	if m.addroom_id != nil {
-		fields = append(fields, giftrecord.FieldRoomID)
-	}
 	if m.addgift_id != nil {
 		fields = append(fields, giftrecord.FieldGiftID)
 	}
@@ -1705,12 +1634,6 @@ func (m *GiftRecordMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *GiftRecordMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case giftrecord.FieldUserID:
-		return m.AddedUserID()
-	case giftrecord.FieldAnchorID:
-		return m.AddedAnchorID()
-	case giftrecord.FieldRoomID:
-		return m.AddedRoomID()
 	case giftrecord.FieldGiftID:
 		return m.AddedGiftID()
 	case giftrecord.FieldAmount:
@@ -1724,27 +1647,6 @@ func (m *GiftRecordMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *GiftRecordMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case giftrecord.FieldUserID:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddUserID(v)
-		return nil
-	case giftrecord.FieldAnchorID:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddAnchorID(v)
-		return nil
-	case giftrecord.FieldRoomID:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddRoomID(v)
-		return nil
 	case giftrecord.FieldGiftID:
 		v, ok := value.(int64)
 		if !ok {
@@ -1871,8 +1773,7 @@ type WalletMutation struct {
 	op                Op
 	typ               string
 	id                *int
-	user_id           *int64
-	adduser_id        *int64
+	user_id           *uuid.UUID
 	balance           *int64
 	addbalance        *int64
 	version_number    *int64
@@ -1984,13 +1885,12 @@ func (m *WalletMutation) IDs(ctx context.Context) ([]int, error) {
 }
 
 // SetUserID sets the "user_id" field.
-func (m *WalletMutation) SetUserID(i int64) {
-	m.user_id = &i
-	m.adduser_id = nil
+func (m *WalletMutation) SetUserID(u uuid.UUID) {
+	m.user_id = &u
 }
 
 // UserID returns the value of the "user_id" field in the mutation.
-func (m *WalletMutation) UserID() (r int64, exists bool) {
+func (m *WalletMutation) UserID() (r uuid.UUID, exists bool) {
 	v := m.user_id
 	if v == nil {
 		return
@@ -2001,7 +1901,7 @@ func (m *WalletMutation) UserID() (r int64, exists bool) {
 // OldUserID returns the old "user_id" field's value of the Wallet entity.
 // If the Wallet object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *WalletMutation) OldUserID(ctx context.Context) (v int64, err error) {
+func (m *WalletMutation) OldUserID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
 	}
@@ -2015,28 +1915,9 @@ func (m *WalletMutation) OldUserID(ctx context.Context) (v int64, err error) {
 	return oldValue.UserID, nil
 }
 
-// AddUserID adds i to the "user_id" field.
-func (m *WalletMutation) AddUserID(i int64) {
-	if m.adduser_id != nil {
-		*m.adduser_id += i
-	} else {
-		m.adduser_id = &i
-	}
-}
-
-// AddedUserID returns the value that was added to the "user_id" field in this mutation.
-func (m *WalletMutation) AddedUserID() (r int64, exists bool) {
-	v := m.adduser_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
 // ResetUserID resets all changes to the "user_id" field.
 func (m *WalletMutation) ResetUserID() {
 	m.user_id = nil
-	m.adduser_id = nil
 }
 
 // SetBalance sets the "balance" field.
@@ -2320,7 +2201,7 @@ func (m *WalletMutation) OldField(ctx context.Context, name string) (ent.Value, 
 func (m *WalletMutation) SetField(name string, value ent.Value) error {
 	switch name {
 	case wallet.FieldUserID:
-		v, ok := value.(int64)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -2362,9 +2243,6 @@ func (m *WalletMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *WalletMutation) AddedFields() []string {
 	var fields []string
-	if m.adduser_id != nil {
-		fields = append(fields, wallet.FieldUserID)
-	}
 	if m.addbalance != nil {
 		fields = append(fields, wallet.FieldBalance)
 	}
@@ -2379,8 +2257,6 @@ func (m *WalletMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *WalletMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case wallet.FieldUserID:
-		return m.AddedUserID()
 	case wallet.FieldBalance:
 		return m.AddedBalance()
 	case wallet.FieldVersionNumber:
@@ -2394,13 +2270,6 @@ func (m *WalletMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *WalletMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case wallet.FieldUserID:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddUserID(v)
-		return nil
 	case wallet.FieldBalance:
 		v, ok := value.(int64)
 		if !ok {

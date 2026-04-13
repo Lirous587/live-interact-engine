@@ -11,6 +11,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // WalletCreate is the builder for creating a Wallet entity.
@@ -21,7 +22,7 @@ type WalletCreate struct {
 }
 
 // SetUserID sets the "user_id" field.
-func (_c *WalletCreate) SetUserID(v int64) *WalletCreate {
+func (_c *WalletCreate) SetUserID(v uuid.UUID) *WalletCreate {
 	_c.mutation.SetUserID(v)
 	return _c
 }
@@ -140,11 +141,6 @@ func (_c *WalletCreate) check() error {
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Wallet.user_id"`)}
 	}
-	if v, ok := _c.mutation.UserID(); ok {
-		if err := wallet.UserIDValidator(v); err != nil {
-			return &ValidationError{Name: "user_id", err: fmt.Errorf(`ent: validator failed for field "Wallet.user_id": %w`, err)}
-		}
-	}
 	if _, ok := _c.mutation.Balance(); !ok {
 		return &ValidationError{Name: "balance", err: errors.New(`ent: missing required field "Wallet.balance"`)}
 	}
@@ -184,7 +180,7 @@ func (_c *WalletCreate) createSpec() (*Wallet, *sqlgraph.CreateSpec) {
 		_spec = sqlgraph.NewCreateSpec(wallet.Table, sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeInt))
 	)
 	if value, ok := _c.mutation.UserID(); ok {
-		_spec.SetField(wallet.FieldUserID, field.TypeInt64, value)
+		_spec.SetField(wallet.FieldUserID, field.TypeUUID, value)
 		_node.UserID = value
 	}
 	if value, ok := _c.mutation.Balance(); ok {

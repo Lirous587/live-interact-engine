@@ -11,6 +11,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // GiftRecordCreate is the builder for creating a GiftRecord entity.
@@ -27,19 +28,19 @@ func (_c *GiftRecordCreate) SetIdempotencyKey(v string) *GiftRecordCreate {
 }
 
 // SetUserID sets the "user_id" field.
-func (_c *GiftRecordCreate) SetUserID(v int64) *GiftRecordCreate {
+func (_c *GiftRecordCreate) SetUserID(v uuid.UUID) *GiftRecordCreate {
 	_c.mutation.SetUserID(v)
 	return _c
 }
 
 // SetAnchorID sets the "anchor_id" field.
-func (_c *GiftRecordCreate) SetAnchorID(v int64) *GiftRecordCreate {
+func (_c *GiftRecordCreate) SetAnchorID(v uuid.UUID) *GiftRecordCreate {
 	_c.mutation.SetAnchorID(v)
 	return _c
 }
 
 // SetRoomID sets the "room_id" field.
-func (_c *GiftRecordCreate) SetRoomID(v int64) *GiftRecordCreate {
+func (_c *GiftRecordCreate) SetRoomID(v uuid.UUID) *GiftRecordCreate {
 	_c.mutation.SetRoomID(v)
 	return _c
 }
@@ -160,26 +161,11 @@ func (_c *GiftRecordCreate) check() error {
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "GiftRecord.user_id"`)}
 	}
-	if v, ok := _c.mutation.UserID(); ok {
-		if err := giftrecord.UserIDValidator(v); err != nil {
-			return &ValidationError{Name: "user_id", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.user_id": %w`, err)}
-		}
-	}
 	if _, ok := _c.mutation.AnchorID(); !ok {
 		return &ValidationError{Name: "anchor_id", err: errors.New(`ent: missing required field "GiftRecord.anchor_id"`)}
 	}
-	if v, ok := _c.mutation.AnchorID(); ok {
-		if err := giftrecord.AnchorIDValidator(v); err != nil {
-			return &ValidationError{Name: "anchor_id", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.anchor_id": %w`, err)}
-		}
-	}
 	if _, ok := _c.mutation.RoomID(); !ok {
 		return &ValidationError{Name: "room_id", err: errors.New(`ent: missing required field "GiftRecord.room_id"`)}
-	}
-	if v, ok := _c.mutation.RoomID(); ok {
-		if err := giftrecord.RoomIDValidator(v); err != nil {
-			return &ValidationError{Name: "room_id", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.room_id": %w`, err)}
-		}
 	}
 	if _, ok := _c.mutation.GiftID(); !ok {
 		return &ValidationError{Name: "gift_id", err: errors.New(`ent: missing required field "GiftRecord.gift_id"`)}
@@ -242,15 +228,15 @@ func (_c *GiftRecordCreate) createSpec() (*GiftRecord, *sqlgraph.CreateSpec) {
 		_node.IdempotencyKey = value
 	}
 	if value, ok := _c.mutation.UserID(); ok {
-		_spec.SetField(giftrecord.FieldUserID, field.TypeInt64, value)
+		_spec.SetField(giftrecord.FieldUserID, field.TypeUUID, value)
 		_node.UserID = value
 	}
 	if value, ok := _c.mutation.AnchorID(); ok {
-		_spec.SetField(giftrecord.FieldAnchorID, field.TypeInt64, value)
+		_spec.SetField(giftrecord.FieldAnchorID, field.TypeUUID, value)
 		_node.AnchorID = value
 	}
 	if value, ok := _c.mutation.RoomID(); ok {
-		_spec.SetField(giftrecord.FieldRoomID, field.TypeInt64, value)
+		_spec.SetField(giftrecord.FieldRoomID, field.TypeUUID, value)
 		_node.RoomID = value
 	}
 	if value, ok := _c.mutation.GiftID(); ok {

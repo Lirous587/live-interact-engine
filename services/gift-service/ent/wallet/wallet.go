@@ -48,8 +48,6 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// UserIDValidator is a validator for the "user_id" field. It is called by the builders before save.
-	UserIDValidator func(int64) error
 	// DefaultBalance holds the default value on creation for the "balance" field.
 	DefaultBalance int64
 	// DefaultVersionNumber holds the default value on creation for the "version_number" field.

@@ -32,9 +32,9 @@ var (
 	GiftRecordsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "idempotency_key", Type: field.TypeString, Unique: true},
-		{Name: "user_id", Type: field.TypeInt64},
-		{Name: "anchor_id", Type: field.TypeInt64},
-		{Name: "room_id", Type: field.TypeInt64},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "anchor_id", Type: field.TypeUUID},
+		{Name: "room_id", Type: field.TypeUUID},
 		{Name: "gift_id", Type: field.TypeInt64},
 		{Name: "amount", Type: field.TypeInt64},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "success", "failed"}, Default: "pending"},
@@ -50,7 +50,7 @@ var (
 	// WalletsColumns holds the columns for the "wallets" table.
 	WalletsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "user_id", Type: field.TypeInt64, Unique: true},
+		{Name: "user_id", Type: field.TypeUUID},
 		{Name: "balance", Type: field.TypeInt64, Default: 0},
 		{Name: "version_number", Type: field.TypeInt64, Default: 0},
 		{Name: "created_at", Type: field.TypeTime},

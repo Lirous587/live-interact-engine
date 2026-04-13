@@ -63,12 +63,6 @@ func ValidColumn(column string) bool {
 var (
 	// IdempotencyKeyValidator is a validator for the "idempotency_key" field. It is called by the builders before save.
 	IdempotencyKeyValidator func(string) error
-	// UserIDValidator is a validator for the "user_id" field. It is called by the builders before save.
-	UserIDValidator func(int64) error
-	// AnchorIDValidator is a validator for the "anchor_id" field. It is called by the builders before save.
-	AnchorIDValidator func(int64) error
-	// RoomIDValidator is a validator for the "room_id" field. It is called by the builders before save.
-	RoomIDValidator func(int64) error
 	// GiftIDValidator is a validator for the "gift_id" field. It is called by the builders before save.
 	GiftIDValidator func(int64) error
 	// AmountValidator is a validator for the "amount" field. It is called by the builders before save.

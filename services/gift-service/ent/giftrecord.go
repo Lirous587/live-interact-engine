@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // GiftRecord is the model entity for the GiftRecord schema.
@@ -20,11 +21,11 @@ type GiftRecord struct {
 	// IdempotencyKey holds the value of the "idempotency_key" field.
 	IdempotencyKey string `json:"idempotency_key,omitempty"`
 	// UserID holds the value of the "user_id" field.
-	UserID int64 `json:"user_id,omitempty"`
+	UserID uuid.UUID `json:"user_id,omitempty"`
 	// AnchorID holds the value of the "anchor_id" field.
-	AnchorID int64 `json:"anchor_id,omitempty"`
+	AnchorID uuid.UUID `json:"anchor_id,omitempty"`
 	// RoomID holds the value of the "room_id" field.
-	RoomID int64 `json:"room_id,omitempty"`
+	RoomID uuid.UUID `json:"room_id,omitempty"`
 	// GiftID holds the value of the "gift_id" field.
 	GiftID int64 `json:"gift_id,omitempty"`
 	// Amount holds the value of the "amount" field.
@@ -43,12 +44,14 @@ func (*GiftRecord) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case giftrecord.FieldID, giftrecord.FieldUserID, giftrecord.FieldAnchorID, giftrecord.FieldRoomID, giftrecord.FieldGiftID, giftrecord.FieldAmount:
+		case giftrecord.FieldID, giftrecord.FieldGiftID, giftrecord.FieldAmount:
 			values[i] = new(sql.NullInt64)
 		case giftrecord.FieldIdempotencyKey, giftrecord.FieldStatus:
 			values[i] = new(sql.NullString)
 		case giftrecord.FieldCreatedAt, giftrecord.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
+		case giftrecord.FieldUserID, giftrecord.FieldAnchorID, giftrecord.FieldRoomID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -77,22 +80,22 @@ func (_m *GiftRecord) assignValues(columns []string, values []any) error {
 				_m.IdempotencyKey = value.String
 			}
 		case giftrecord.FieldUserID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
-			} else if value.Valid {
-				_m.UserID = value.Int64
+			} else if value != nil {
+				_m.UserID = *value
 			}
 		case giftrecord.FieldAnchorID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field anchor_id", values[i])
-			} else if value.Valid {
-				_m.AnchorID = value.Int64
+			} else if value != nil {
+				_m.AnchorID = *value
 			}
 		case giftrecord.FieldRoomID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field room_id", values[i])
-			} else if value.Valid {
-				_m.RoomID = value.Int64
+			} else if value != nil {
+				_m.RoomID = *value
 			}
 		case giftrecord.FieldGiftID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
