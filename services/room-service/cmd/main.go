@@ -4,6 +4,7 @@ import (
 	"context"
 	"live-interact-engine/services/room-service/internal/app"
 	"live-interact-engine/shared/env"
+	_ "live-interact-engine/shared/logger"
 	pb "live-interact-engine/shared/proto/room"
 	"live-interact-engine/shared/telemetry"
 	"log"

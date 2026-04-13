@@ -53,7 +53,7 @@ services:
       - GRPC_ADDR=:9093
 
       # 日志配置
-      - LOG_LEVEL=dev
+      - LOG_LEVEL=debug
       - LOG_FILENAME=logs/danmaku-service.log
       - LOG_MAX_SIZE=100
       - LOG_MAX_AGE=7

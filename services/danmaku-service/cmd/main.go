@@ -6,6 +6,7 @@ import (
 	"live-interact-engine/services/danmaku-service/internal/infrastructure/subscription"
 	"live-interact-engine/services/danmaku-service/internal/service"
 	"live-interact-engine/shared/env"
+	_ "live-interact-engine/shared/logger"
 	pb "live-interact-engine/shared/proto/danmaku"
 	"live-interact-engine/shared/telemetry"
 	"log"
