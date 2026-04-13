@@ -10,8 +10,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/joho/godotenv"
-
 	_ "live-interact-engine/shared/logger"
 )
 
@@ -35,16 +33,6 @@ func init() {
 	mode := os.Getenv("SERVER_MODE")
 	if mode == "" {
 		mode = "dev"
-	}
-
-	envFile := ".env." + mode
-
-	// godotenv.Load(envFile) // 忽略错误，因为环境变量可能由容器设置
-	if err := godotenv.Load(envFile); err != nil {
-		if mode == "dev" {
-			log.Panicf("加载 %s 失败, err: %v", envFile, err)
-		}
-		log.Printf("加载 %s 失败,  err: %v", envFile, err)
 	}
 }
 
