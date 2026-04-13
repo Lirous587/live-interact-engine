@@ -20,9 +20,9 @@ func (UserRoomRole) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("user_id", uuid.UUID{}), // 用户 ID（来自 user-service）
 		field.UUID("room_id", uuid.UUID{}), // 房间 ID
-		field.String("role_name").NotEmpty().MaxLen(50),
-		field.JSON("permissions", []int32{}).
-			Default([]int32{}),
+		field.String("role_name").
+			NotEmpty().
+			MaxLen(50),
 		// created_at: 创建时自动赋值，之后不可修改
 		field.Int64("created_at").
 			DefaultFunc(func() int64 { return time.Now().Unix() }).

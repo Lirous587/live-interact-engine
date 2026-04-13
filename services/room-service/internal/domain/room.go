@@ -13,22 +13,18 @@ import (
 type Permission int32
 
 const (
-	PermissionUnspecified Permission = iota
-	PermissionDanmakuSend
+	PermissionDanmakuSend Permission = iota
 	PermissionDanmakuPin
-	PermissionDanmakuDelete
 	PermissionUserManage
 	PermissionRoleManage
 )
 
 // 权限名称映射
 var PermissionNames = map[Permission]string{
-	PermissionUnspecified:   "UNSPECIFIED",
-	PermissionDanmakuSend:   "DANMAKU_SEND",
-	PermissionDanmakuPin:    "DANMAKU_PIN",
-	PermissionDanmakuDelete: "DANMAKU_DELETE",
-	PermissionUserManage:    "USER_MANAGE",
-	PermissionRoleManage:    "ROLE_MANAGE",
+	PermissionDanmakuSend: "DANMAKU_SEND",
+	PermissionDanmakuPin:  "DANMAKU_PIN",
+	PermissionUserManage:  "USER_MANAGE",
+	PermissionRoleManage:  "ROLE_MANAGE",
 }
 
 func (p Permission) String() string {
@@ -36,6 +32,47 @@ func (p Permission) String() string {
 		return name
 	}
 	return "UNKNOWN Permission"
+}
+
+// ==================== 角色类型定义 ====================
+
+const (
+	RoleOwner         = "owner"
+	RoleAdministrator = "administrator"
+	RoleVIP           = "vip"
+)
+
+func GetPermissionsByRole(roleName string) []Permission {
+	switch roleName {
+	case RoleOwner:
+		return []Permission{
+			PermissionDanmakuSend,
+			PermissionDanmakuPin,
+			PermissionUserManage,
+			PermissionRoleManage,
+		}
+	case RoleAdministrator:
+		return []Permission{
+			PermissionDanmakuSend,
+			PermissionUserManage,
+		}
+	case RoleVIP:
+		return []Permission{
+			PermissionDanmakuSend,
+			PermissionDanmakuPin,
+		}
+	default:
+		return []Permission{}
+	}
+}
+
+func IsValidRole(roleName string) bool {
+	switch roleName {
+	case RoleOwner, RoleAdministrator, RoleVIP:
+		return true
+	default:
+		return false
+	}
 }
 
 // ==================== 房间定义 ====================
@@ -57,8 +94,8 @@ type Room struct {
 type UserRoomRole struct {
 	UserID      uuid.UUID
 	RoomID      uuid.UUID
-	RoleName    string       // owner/moderator/user
-	Permissions []Permission // 具体权限列表
+	Role        string
+	Permissions []Permission
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
@@ -83,8 +120,8 @@ type RoomService interface {
 	// 获取房间信息
 	GetRoom(ctx context.Context, roomID uuid.UUID) (*Room, error)
 
-	// 分配用户权限（只有 owner 能操作）
-	AssignRole(ctx context.Context, ownerID, roomID, userID uuid.UUID, roleName string, permissions []Permission) error
+	// 分配用户权限（只有 owner 能操作，权限由角色自动推导）
+	AssignRole(ctx context.Context, ownerID, roomID, userID uuid.UUID, roleName string) error
 
 	// 获取用户在房间的权限
 	GetUserRoomRole(ctx context.Context, userID, roomID uuid.UUID) (*UserRoomRole, error)

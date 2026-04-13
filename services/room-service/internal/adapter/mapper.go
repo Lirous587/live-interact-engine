@@ -27,10 +27,22 @@ func UserRoomRoleToProto(urr *domain.UserRoomRole) *pb.UserRoomRole {
 		permissions[i] = pb.Permission(p)
 	}
 
+	var roleType pb.RoleType
+	switch urr.Role {
+	case domain.RoleOwner:
+		roleType = pb.RoleType_ROLE_OWNER
+	case domain.RoleAdministrator:
+		roleType = pb.RoleType_ROLE_ADMINISTRATOR
+	case domain.RoleVIP:
+		roleType = pb.RoleType_ROLE_VIP
+	default:
+		roleType = pb.RoleType_ROLE_OWNER
+	}
+
 	return &pb.UserRoomRole{
 		UserId:      urr.UserID.String(),
 		RoomId:      urr.RoomID.String(),
-		RoleName:    urr.RoleName,
+		Role:        roleType,
 		Permissions: permissions,
 		CreatedAt:   urr.CreatedAt.Unix(),
 		UpdatedAt:   urr.UpdatedAt.Unix(),

@@ -2,6 +2,8 @@ package mapper
 
 import (
 	"context"
+	"errors"
+
 	client "live-interact-engine/services/api-service/internal/grpc_clients"
 	pb "live-interact-engine/shared/proto/room"
 )
@@ -22,10 +24,9 @@ type GetRoomReq struct {
 
 // AssignRoleReq 分配角色请求体
 type AssignRoleReq struct {
-	RoomID      string  `json:"room_id" binding:"required"`
-	UserID      string  `json:"user_id" binding:"required"`
-	RoleName    string  `json:"role_name" binding:"required,min=1,max=50"`
-	Permissions []int32 `json:"permissions" binding:"required"`
+	RoomID string `json:"room_id" binding:"required"`
+	UserID string `json:"user_id" binding:"required"`
+	Role   string `json:"role" binding:"required,oneof=owner administrator vip"`
 }
 
 // GetUserRoomRoleReq 获取用户房间角色请求体
@@ -58,7 +59,7 @@ type RoomResp struct {
 type UserRoomRoleResp struct {
 	UserID      string  `json:"user_id"`
 	RoomID      string  `json:"room_id"`
-	RoleName    string  `json:"role_name"`
+	Role        string  `json:"role"`
 	Permissions []int32 `json:"permissions"`
 	CreatedAt   int64   `json:"created_at"`
 	UpdatedAt   int64   `json:"updated_at"`
@@ -139,19 +140,23 @@ func (m *RoomMapper) GetRoom(ctx context.Context, req *GetRoomReq) (*RoomResp, e
 
 // AssignRole 分配用户角色
 func (m *RoomMapper) AssignRole(ctx context.Context, ownerID string, req *AssignRoleReq) error {
-	// 将 []int32 转换为 []pb.Permission
-	permissions := make([]pb.Permission, len(req.Permissions))
-	for i, p := range req.Permissions {
-		permissions[i] = pb.Permission(p)
+	var roleType pb.RoleType
+	switch req.Role {
+	case "owner":
+		roleType = pb.RoleType_ROLE_OWNER
+	case "administrator":
+		roleType = pb.RoleType_ROLE_ADMINISTRATOR
+	case "vip":
+		roleType = pb.RoleType_ROLE_VIP
+	default:
+		return errors.New("invalid role")
 	}
 
-	// 构造 pb.AssignRoleRequest
 	pbReq := &pb.AssignRoleRequest{
-		OwnerId:     ownerID,
-		RoomId:      req.RoomID,
-		UserId:      req.UserID,
-		RoleName:    req.RoleName,
-		Permissions: permissions,
+		OwnerId: ownerID,
+		RoomId:  req.RoomID,
+		UserId:  req.UserID,
+		Role:    roleType,
 	}
 
 	// 调用 gRPC 服务
@@ -178,11 +183,24 @@ func (m *RoomMapper) GetUserRoomRole(ctx context.Context, req *GetUserRoomRoleRe
 		permissions[i] = int32(p)
 	}
 
+	// 将 RoleType 枚举转换为 role 字符串
+	var role string
+	switch pbURR.Role {
+	case pb.RoleType_ROLE_OWNER:
+		role = "owner"
+	case pb.RoleType_ROLE_ADMINISTRATOR:
+		role = "administrator"
+	case pb.RoleType_ROLE_VIP:
+		role = "vip"
+	default:
+		role = ""
+	}
+
 	// 转换为响应体
 	return &UserRoomRoleResp{
 		UserID:      pbURR.UserId,
 		RoomID:      pbURR.RoomId,
-		RoleName:    pbURR.RoleName,
+		Role:        role,
 		Permissions: permissions,
 		CreatedAt:   pbURR.CreatedAt,
 		UpdatedAt:   pbURR.UpdatedAt,

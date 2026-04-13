@@ -218,8 +218,7 @@ type AssignRoleRequest struct {
 	OwnerId       string                 `protobuf:"bytes,1,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
 	RoomId        string                 `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
 	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	RoleName      string                 `protobuf:"bytes,4,opt,name=role_name,json=roleName,proto3" json:"role_name,omitempty"`
-	Permissions   []Permission           `protobuf:"varint,5,rep,packed,name=permissions,proto3,enum=room.Permission" json:"permissions,omitempty"`
+	Role          RoleType               `protobuf:"varint,4,opt,name=role,proto3,enum=room.RoleType" json:"role,omitempty"` // 要分配的角色（OWNER/ADMINISTRATOR/MEMBER）
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -275,18 +274,11 @@ func (x *AssignRoleRequest) GetUserId() string {
 	return ""
 }
 
-func (x *AssignRoleRequest) GetRoleName() string {
+func (x *AssignRoleRequest) GetRole() RoleType {
 	if x != nil {
-		return x.RoleName
+		return x.Role
 	}
-	return ""
-}
-
-func (x *AssignRoleRequest) GetPermissions() []Permission {
-	if x != nil {
-		return x.Permissions
-	}
-	return nil
+	return RoleType_ROLE_UNSPECIFIED
 }
 
 type AssignRoleResponse struct {
@@ -541,13 +533,12 @@ const file_room_room_api_proto_rawDesc = "" +
 	"\aroom_id\x18\x01 \x01(\tR\x06roomId\"1\n" +
 	"\x0fGetRoomResponse\x12\x1e\n" +
 	"\x04room\x18\x01 \x01(\v2\n" +
-	".room.RoomR\x04room\"\xb1\x01\n" +
+	".room.RoomR\x04room\"\x84\x01\n" +
 	"\x11AssignRoleRequest\x12\x19\n" +
 	"\bowner_id\x18\x01 \x01(\tR\aownerId\x12\x17\n" +
 	"\aroom_id\x18\x02 \x01(\tR\x06roomId\x12\x17\n" +
-	"\auser_id\x18\x03 \x01(\tR\x06userId\x12\x1b\n" +
-	"\trole_name\x18\x04 \x01(\tR\broleName\x122\n" +
-	"\vpermissions\x18\x05 \x03(\x0e2\x10.room.PermissionR\vpermissions\"\x14\n" +
+	"\auser_id\x18\x03 \x01(\tR\x06userId\x12\"\n" +
+	"\x04role\x18\x04 \x01(\x0e2\x0e.room.RoleTypeR\x04role\"\x14\n" +
 	"\x12AssignRoleResponse\"J\n" +
 	"\x16GetUserRoomRoleRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x17\n" +
@@ -588,15 +579,16 @@ var file_room_room_api_proto_goTypes = []any{
 	(*CheckPermissionRequest)(nil),  // 8: room.CheckPermissionRequest
 	(*CheckPermissionResponse)(nil), // 9: room.CheckPermissionResponse
 	(*Room)(nil),                    // 10: room.Room
-	(Permission)(0),                 // 11: room.Permission
+	(RoleType)(0),                   // 11: room.RoleType
 	(*UserRoomRole)(nil),            // 12: room.UserRoomRole
+	(Permission)(0),                 // 13: room.Permission
 }
 var file_room_room_api_proto_depIdxs = []int32{
 	10, // 0: room.CreateRoomResponse.room:type_name -> room.Room
 	10, // 1: room.GetRoomResponse.room:type_name -> room.Room
-	11, // 2: room.AssignRoleRequest.permissions:type_name -> room.Permission
+	11, // 2: room.AssignRoleRequest.role:type_name -> room.RoleType
 	12, // 3: room.GetUserRoomRoleResponse.user_room_role:type_name -> room.UserRoomRole
-	11, // 4: room.CheckPermissionRequest.permission:type_name -> room.Permission
+	13, // 4: room.CheckPermissionRequest.permission:type_name -> room.Permission
 	5,  // [5:5] is the sub-list for method output_type
 	5,  // [5:5] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name

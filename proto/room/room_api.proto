@@ -27,11 +27,10 @@ message GetRoomResponse {
 }
 
 message AssignRoleRequest {
-  string              owner_id    = 1;
-  string              room_id     = 2;
-  string              user_id     = 3;
-  string              role_name   = 4;
-  repeated Permission permissions = 5;
+  string   owner_id = 1;
+  string   room_id  = 2;
+  string   user_id  = 3;
+  RoleType role     = 4; // 要分配的角色（OWNER/ADMINISTRATOR/MEMBER）
 }
 
 message AssignRoleResponse {}

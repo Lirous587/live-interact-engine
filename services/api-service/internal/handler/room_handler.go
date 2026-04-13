@@ -2,6 +2,7 @@ package handler
 
 import (
 	"live-interact-engine/services/api-service/internal/adapter/mapper"
+	"live-interact-engine/services/api-service/internal/utils/ctxutil"
 	"live-interact-engine/services/api-service/internal/utils/response"
 
 	"github.com/gin-gonic/gin"
@@ -36,9 +37,8 @@ func (h *RoomHandler) CreateRoom(ctx *gin.Context) {
 		return
 	}
 
-	// 从认证信息或请求头获取 owner_id（需要认证中间件）
-	ownerID := ctx.GetString("user_id")
-	if ownerID == "" {
+	ownerID, ok := ctxutil.GetUserID(ctx)
+	if !ok || ownerID == "" {
 		response.Error(ctx, errors.New("unauthorized: user_id not found"))
 		return
 	}
@@ -101,9 +101,9 @@ func (h *RoomHandler) AssignRole(ctx *gin.Context) {
 		return
 	}
 
-	// 从认证信息获取 owner_id（只有房主可以分配角色）
-	ownerID := ctx.GetString("user_id")
-	if ownerID == "" {
+	// 同样改掉这里
+	ownerID, ok := ctxutil.GetUserID(ctx)
+	if !ok || ownerID == "" {
 		response.Error(ctx, errors.New("unauthorized: user_id not found"))
 		return
 	}

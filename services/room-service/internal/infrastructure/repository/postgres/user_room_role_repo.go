@@ -66,7 +66,7 @@ func (r *UserRoomRoleRepository) GetUserRoomRole(ctx context.Context, userID, ro
 	return &domain.UserRoomRole{
 		UserID:      entURR.UserID,
 		RoomID:      entURR.RoomID,
-		RoleName:    entURR.RoleName,
+		Role:        entURR.RoleName,
 		Permissions: convertPermissionsFromInt32(entURR.Permissions),
 		CreatedAt:   time.Unix(entURR.CreatedAt, 0),
 		UpdatedAt:   time.Unix(entURR.UpdatedAt, 0),
@@ -81,7 +81,7 @@ func (r *UserRoomRoleRepository) SaveUserRoomRole(ctx context.Context, urr *doma
 			entuserroomrole.UserIDEQ(urr.UserID),
 			entuserroomrole.RoomIDEQ(urr.RoomID),
 		).
-		SetRoleName(urr.RoleName).
+		SetRoleName(urr.Role).
 		SetPermissions(convertPermissionsToInt32(urr.Permissions)).
 		SetUpdatedAt(urr.UpdatedAt.Unix()).
 		Save(ctx)
@@ -95,7 +95,7 @@ func (r *UserRoomRoleRepository) SaveUserRoomRole(ctx context.Context, urr *doma
 			Create().
 			SetUserID(urr.UserID).
 			SetRoomID(urr.RoomID).
-			SetRoleName(urr.RoleName).
+			SetRoleName(urr.Role).
 			SetPermissions(convertPermissionsToInt32(urr.Permissions)).
 			SetCreatedAt(urr.CreatedAt.Unix()).
 			SetUpdatedAt(urr.UpdatedAt.Unix()).

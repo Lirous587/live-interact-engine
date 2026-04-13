@@ -2,6 +2,8 @@ package grpc
 
 import (
 	"context"
+	"errors"
+
 	"live-interact-engine/services/room-service/internal/adapter"
 	"live-interact-engine/services/room-service/internal/domain"
 	pb "live-interact-engine/shared/proto/room"
@@ -82,8 +84,20 @@ func (h *RoomHandler) AssignRole(ctx context.Context, req *pb.AssignRoleRequest)
 		return nil, svcerr.MapServiceErrorToGRPC(err, span)
 	}
 
-	permissions := adapter.ProtoPermissionsToDomain(req.Permissions)
-	err = h.roomService.AssignRole(ctx, ownerID, roomID, userID, req.RoleName, permissions)
+	// 将 RoleType 枚举转换为 role 字符串
+	var roleName string
+	switch req.Role {
+	case pb.RoleType_ROLE_OWNER:
+		roleName = "owner"
+	case pb.RoleType_ROLE_ADMINISTRATOR:
+		roleName = "administrator"
+	case pb.RoleType_ROLE_VIP:
+		roleName = "vip"
+	default:
+		return nil, svcerr.MapServiceErrorToGRPC(errors.New("invalid role type"), span)
+	}
+
+	err = h.roomService.AssignRole(ctx, ownerID, roomID, userID, roleName)
 	if err != nil {
 		return nil, svcerr.MapServiceErrorToGRPC(err, span)
 	}

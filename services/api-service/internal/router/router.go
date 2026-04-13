@@ -125,9 +125,8 @@ func registerRoom(r *gin.RouterGroup) {
 	{
 		rg.POST("/create", authMiddleware.Validate(), roomHandler.CreateRoom)
 		rg.GET("/:room_id", roomHandler.GetRoom)
-		rg.POST("/assign-role", roomHandler.AssignRole)
+		rg.POST("/assign-role", authMiddleware.Validate(), roomHandler.AssignRole)
 		rg.GET("/:room_id/user/:user_id/role", roomHandler.GetUserRoomRole)
-		rg.GET("/:room_id/user/:user_id/permission", roomHandler.CheckPermission)
 	}
 }
 

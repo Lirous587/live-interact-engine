@@ -4,6 +4,14 @@ package room;
 
 option go_package = "shared/proto/room;room";
 
+// ==================== Role Enum ====================
+
+enum RoleType {
+  ROLE_OWNER         = 0; // 房间所有者：拥有全部权限
+  ROLE_ADMINISTRATOR = 1; // 管理员：可删除弹幕、禁言用户
+  ROLE_VIP           = 2; // 付费用户：可发送置顶弹幕
+}
+
 // ==================== Permission Enum ====================
 
 enum Permission {
@@ -30,8 +38,8 @@ message Room {
 message UserRoomRole {
   string              user_id     = 1;
   string              room_id     = 2;
-  string              role_name   = 3;
-  repeated Permission permissions = 4;
+  RoleType            role        = 3; // 角色类型（对应权限由后端推导）
+  repeated Permission permissions = 4; // 权限列表（由后端根据角色自动生成）
   int64               created_at  = 5;
   int64               updated_at  = 6;
 }

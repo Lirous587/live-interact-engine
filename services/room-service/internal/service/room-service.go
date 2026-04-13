@@ -9,11 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const (
-	RoleOwner     = "owner"
-	RoleModerator = "moderator"
-	RoleUser      = "user"
-)
+// 角色常量已移至 domain.room.go
 
 // RoomService 实现 domain.RoomService 接口
 type RoomService struct {
@@ -46,20 +42,14 @@ func (s *RoomService) CreateRoom(ctx context.Context, title, description string,
 		return nil, err
 	}
 
-	// 创建房间后，自动给 owner 分配 owner 角色和所有权限
+	// 创建房间后自动给 owner 分配角色
 	ownerRole := &domain.UserRoomRole{
-		UserID:   ownerID,
-		RoomID:   room.RoomID,
-		RoleName: RoleOwner,
-		Permissions: []domain.Permission{
-			domain.PermissionDanmakuSend,
-			domain.PermissionDanmakuPin,
-			domain.PermissionDanmakuDelete,
-			domain.PermissionUserManage,
-			domain.PermissionRoleManage,
-		},
-		CreatedAt: now,
-		UpdatedAt: now,
+		UserID:      ownerID,
+		RoomID:      room.RoomID,
+		Role:        domain.RoleOwner,
+		Permissions: domain.GetPermissionsByRole(domain.RoleOwner),
+		CreatedAt:   now,
+		UpdatedAt:   now,
 	}
 
 	if err := s.userRoomRoleRepo.SaveUserRoomRole(ctx, ownerRole); err != nil {
@@ -82,9 +72,9 @@ func (s *RoomService) GetRoom(ctx context.Context, roomID uuid.UUID) (*domain.Ro
 }
 
 // AssignRole 分配用户权限（只有 owner 能操作）
-func (s *RoomService) AssignRole(ctx context.Context, ownerID, roomID, userID uuid.UUID, roleName string, permissions []domain.Permission) error {
+func (s *RoomService) AssignRole(ctx context.Context, ownerID, roomID, userID uuid.UUID, roleName string) error {
 	// 验证 role 名称
-	if !isValidRole(roleName) {
+	if !domain.IsValidRole(roleName) {
 		return types.ErrInvalidRole
 	}
 
@@ -101,12 +91,15 @@ func (s *RoomService) AssignRole(ctx context.Context, ownerID, roomID, userID uu
 		return types.ErrNotRoomOwner
 	}
 
+	// 根据角色自动推导权限
+	permissions := domain.GetPermissionsByRole(roleName)
+
 	// 保存用户房间角色
 	now := time.Now()
 	userRoomRole := &domain.UserRoomRole{
 		UserID:      userID,
 		RoomID:      roomID,
-		RoleName:    roleName,
+		Role:        roleName,
 		Permissions: permissions,
 		CreatedAt:   now,
 		UpdatedAt:   now,
@@ -138,9 +131,4 @@ func (s *RoomService) CheckPermission(ctx context.Context, userID, roomID uuid.U
 	}
 
 	return role.HasPermission(permission), nil
-}
-
-// isValidRole 检查角色名称是否有效
-func isValidRole(roleName string) bool {
-	return roleName == RoleOwner || roleName == RoleModerator || roleName == RoleUser
 }

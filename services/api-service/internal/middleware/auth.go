@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"live-interact-engine/services/api-service/internal/utils/ctxutil"
 	pb "live-interact-engine/shared/proto/user"
 	"live-interact-engine/shared/telemetry"
 
@@ -105,6 +106,6 @@ func (auth *authMiddleware) Validate() func(c *gin.Context) {
 
 func setPayloadToGinCtx(c *gin.Context, payload *pb.TokenPayload) {
 	if payload != nil && payload.UserIdentity != nil {
-		c.Set("user_id", payload.UserIdentity.UserId)
+		ctxutil.SetUserID(c, payload.UserIdentity.UserId)
 	}
 }
