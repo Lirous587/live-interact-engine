@@ -15,6 +15,21 @@ import (
 	_ "live-interact-engine/shared/logger"
 )
 
+// @title Live Interact Engine - API Service
+// @version 1.0
+// @description 直播互动引擎 - API 网关服务
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /api
+
 func init() {
 	// 根据环境加载对应的 .env 文件
 	mode := os.Getenv("SERVER_MODE")

@@ -13,6 +13,10 @@ generate-proto:
 build-services:
 		powershell -ExecutionPolicy Bypass -File build.ps1
 
+.PHONY: generate-api-docs
+generate-api-docs:
+		swag init -g .\services\api-service\cmd\main.go -o api/openapi
+
 # 完整部署：编译 + 构建镜像 + 启动容器
 .PHONY: up
 up: build-services

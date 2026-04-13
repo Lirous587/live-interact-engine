@@ -19,6 +19,16 @@ func NewRoomHandler(roomMapper *mapper.RoomMapper) *RoomHandler {
 }
 
 // CreateRoom 创建房间 API
+// @Summary 创建房间
+// @Description 用户创建一个新房间
+// @Tags Room
+// @Accept json
+// @Produce json
+// @Param request body mapper.CreateRoomReq true "创建房间请求"
+// @Success 200 {object} mapper.RoomResp "房间信息"
+// @Failure 400 {object} map[string]interface{} "参数错误"
+// @Failure 401 {object} map[string]interface{} "未授权"
+// @Router /v1/room/create [post]
 func (h *RoomHandler) CreateRoom(ctx *gin.Context) {
 	var req mapper.CreateRoomReq
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -45,6 +55,15 @@ func (h *RoomHandler) CreateRoom(ctx *gin.Context) {
 }
 
 // GetRoom 获取房间信息 API
+// @Summary 获取房间信息
+// @Description 根据房间ID获取房间详细信息
+// @Tags Room
+// @Produce json
+// @Param room_id path string true "房间ID"
+// @Success 200 {object} mapper.RoomResp "房间信息"
+// @Failure 400 {object} map[string]interface{} "参数错误"
+// @Failure 404 {object} map[string]interface{} "房间不存在"
+// @Router /v1/room/{room_id} [get]
 func (h *RoomHandler) GetRoom(ctx *gin.Context) {
 	roomID := ctx.Param("room_id")
 	if roomID == "" {
@@ -65,6 +84,16 @@ func (h *RoomHandler) GetRoom(ctx *gin.Context) {
 }
 
 // AssignRole 分配用户角色 API
+// @Summary 分配用户角色
+// @Description 房间所有者为用户分配角色和权限
+// @Tags Room
+// @Accept json
+// @Produce json
+// @Param request body mapper.AssignRoleReq true "分配角色请求"
+// @Success 200 {object} map[string]interface{} "操作成功"
+// @Failure 400 {object} map[string]interface{} "参数错误"
+// @Failure 401 {object} map[string]interface{} "未授权"
+// @Router /v1/room/assign-role [post]
 func (h *RoomHandler) AssignRole(ctx *gin.Context) {
 	var req mapper.AssignRoleReq
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -90,6 +119,16 @@ func (h *RoomHandler) AssignRole(ctx *gin.Context) {
 }
 
 // GetUserRoomRole 获取用户在房间的角色 API
+// @Summary 获取用户角色
+// @Description 获取用户在指定房间的角色和权限信息
+// @Tags Room
+// @Produce json
+// @Param room_id path string true "房间ID"
+// @Param user_id path string true "用户ID"
+// @Success 200 {object} mapper.UserRoomRoleResp "用户角色信息"
+// @Failure 400 {object} map[string]interface{} "参数错误"
+// @Failure 404 {object} map[string]interface{} "角色不存在"
+// @Router /v1/room/{room_id}/user/{user_id}/role [get]
 func (h *RoomHandler) GetUserRoomRole(ctx *gin.Context) {
 	roomID := ctx.Param("room_id")
 	userID := ctx.Param("user_id")
@@ -115,6 +154,16 @@ func (h *RoomHandler) GetUserRoomRole(ctx *gin.Context) {
 }
 
 // CheckPermission 检查用户权限 API
+// @Summary 检查用户权限
+// @Description 检查用户是否拥有指定权限
+// @Tags Room
+// @Produce json
+// @Param room_id path string true "房间ID"
+// @Param user_id path string true "用户ID"
+// @Param permission query int true "权限值"
+// @Success 200 {object} mapper.CheckPermissionResp "权限检查结果"
+// @Failure 400 {object} map[string]interface{} "参数错误"
+// @Router /v1/room/{room_id}/user/{user_id}/permission [get]
 func (h *RoomHandler) CheckPermission(ctx *gin.Context) {
 	roomID := ctx.Param("room_id")
 	userID := ctx.Param("user_id")

@@ -8,6 +8,10 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
+	_ "live-interact-engine/api/openapi"
 )
 
 // Client 通用客户端接口
@@ -22,6 +26,9 @@ var (
 
 // RegisterRoutes 注册所有路由
 func RegisterRoutes(r *gin.RouterGroup) {
+	// 注册 Swagger 文档路由
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	// 创建 v1 路由组
 	v1 := r.Group("/v1")
 

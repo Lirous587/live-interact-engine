@@ -1,0 +1,514 @@
+basePath: /api
+definitions:
+  mapper.AssignRoleReq:
+    properties:
+      permissions:
+        items:
+          type: integer
+        type: array
+      role_name:
+        maxLength: 50
+        minLength: 1
+        type: string
+      room_id:
+        type: string
+      user_id:
+        type: string
+    required:
+    - permissions
+    - role_name
+    - room_id
+    - user_id
+    type: object
+  mapper.CheckPermissionResp:
+    properties:
+      has_permission:
+        type: boolean
+    type: object
+  mapper.CreateRoomReq:
+    properties:
+      description:
+        maxLength: 1000
+        type: string
+      title:
+        maxLength: 30
+        minLength: 1
+        type: string
+    required:
+    - title
+    type: object
+  mapper.DanmakuResp:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: integer
+      id:
+        type: string
+      mentioned_user_id:
+        type: string
+      room_id:
+        type: string
+      type:
+        type: integer
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  mapper.LoginReq:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 100
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  mapper.LoginResp:
+    properties:
+      access_token:
+        type: string
+      email:
+        type: string
+      refresh_token:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  mapper.RegisterReq:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 100
+        minLength: 6
+        type: string
+      username:
+        maxLength: 30
+        minLength: 1
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  mapper.RegisterResp:
+    properties:
+      email:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  mapper.RoomResp:
+    properties:
+      created_at:
+        type: integer
+      description:
+        type: string
+      is_active:
+        type: boolean
+      owner_id:
+        type: string
+      room_id:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: integer
+    type: object
+  mapper.SendDanmakuReq:
+    properties:
+      content:
+        maxLength: 500
+        minLength: 1
+        type: string
+      mentioned_user_id:
+        type: string
+      room_id:
+        type: string
+      type:
+        maximum: 3
+        minimum: 0
+        type: integer
+      user_id:
+        type: string
+      username:
+        type: string
+    required:
+    - content
+    - room_id
+    - type
+    - user_id
+    - username
+    type: object
+  mapper.UserResp:
+    properties:
+      email:
+        type: string
+      is_active:
+        type: boolean
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  mapper.UserRoomRoleResp:
+    properties:
+      created_at:
+        type: integer
+      permissions:
+        items:
+          type: integer
+        type: array
+      role_name:
+        type: string
+      room_id:
+        type: string
+      updated_at:
+        type: integer
+      user_id:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: 直播互动引擎 - API 网关服务
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Live Interact Engine - API Service
+  version: "1.0"
+paths:
+  /v1/danmaku/send:
+    post:
+      consumes:
+      - application/json
+      description: 在房间内发送弹幕消息
+      parameters:
+      - description: 发送弹幕请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mapper.SendDanmakuReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 弹幕信息
+          schema:
+            $ref: '#/definitions/mapper.DanmakuResp'
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 发送弹幕
+      tags:
+      - Danmaku
+  /v1/danmaku/subscribe:
+    get:
+      description: 通过 SSE 实时订阅房间内的弹幕消息
+      parameters:
+      - description: 房间ID
+        in: query
+        name: room_id
+        required: true
+        type: string
+      - description: 用户ID
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - text/event-stream
+      responses:
+        "200":
+          description: 实时弹幕流
+          schema:
+            $ref: '#/definitions/mapper.DanmakuResp'
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 订阅房间弹幕
+      tags:
+      - Danmaku
+  /v1/room/{room_id}:
+    get:
+      description: 根据房间ID获取房间详细信息
+      parameters:
+      - description: 房间ID
+        in: path
+        name: room_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 房间信息
+          schema:
+            $ref: '#/definitions/mapper.RoomResp'
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: 房间不存在
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取房间信息
+      tags:
+      - Room
+  /v1/room/{room_id}/user/{user_id}/permission:
+    get:
+      description: 检查用户是否拥有指定权限
+      parameters:
+      - description: 房间ID
+        in: path
+        name: room_id
+        required: true
+        type: string
+      - description: 用户ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: 权限值
+        in: query
+        name: permission
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 权限检查结果
+          schema:
+            $ref: '#/definitions/mapper.CheckPermissionResp'
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 检查用户权限
+      tags:
+      - Room
+  /v1/room/{room_id}/user/{user_id}/role:
+    get:
+      description: 获取用户在指定房间的角色和权限信息
+      parameters:
+      - description: 房间ID
+        in: path
+        name: room_id
+        required: true
+        type: string
+      - description: 用户ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 用户角色信息
+          schema:
+            $ref: '#/definitions/mapper.UserRoomRoleResp'
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: 角色不存在
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取用户角色
+      tags:
+      - Room
+  /v1/room/assign-role:
+    post:
+      consumes:
+      - application/json
+      description: 房间所有者为用户分配角色和权限
+      parameters:
+      - description: 分配角色请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mapper.AssignRoleReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未授权
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 分配用户角色
+      tags:
+      - Room
+  /v1/room/create:
+    post:
+      consumes:
+      - application/json
+      description: 用户创建一个新房间
+      parameters:
+      - description: 创建房间请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mapper.CreateRoomReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 房间信息
+          schema:
+            $ref: '#/definitions/mapper.RoomResp'
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未授权
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 创建房间
+      tags:
+      - Room
+  /v1/user/{user_id}:
+    get:
+      description: 根据用户ID获取用户详细信息
+      parameters:
+      - description: 用户ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 用户信息
+          schema:
+            $ref: '#/definitions/mapper.UserResp'
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: 用户不存在
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取用户信息
+      tags:
+      - User
+  /v1/user/login:
+    post:
+      consumes:
+      - application/json
+      description: 用户使用邮箱和密码登录，返回 Token
+      parameters:
+      - description: 登录请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mapper.LoginReq'
+      - description: 设备ID
+        in: header
+        name: X-Device-ID
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 登录成功
+          schema:
+            $ref: '#/definitions/mapper.LoginResp'
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 认证失败
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 用户登录
+      tags:
+      - User
+  /v1/user/register:
+    post:
+      consumes:
+      - application/json
+      description: 创建新用户账户
+      parameters:
+      - description: 注册请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mapper.RegisterReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 注册成功
+          schema:
+            $ref: '#/definitions/mapper.RegisterResp'
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 用户注册
+      tags:
+      - User
+swagger: "2.0"
