@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package gift;
+
+option go_package = "shared/proto/gift;gift";
+
+import "gift/gift_api.proto";
+
+service WalletService {
+  // 查询钱包余额
+  rpc GetWalletBalance(GetWalletBalanceRequest) returns (GetWalletBalanceResponse);
+
+  // 充值（未来扩展）
+  // rpc Recharge(RechargeRequest) returns (RechargeResponse);
+
+  // 提现（未来扩展）
+  // rpc Withdraw(WithdrawRequest) returns (WithdrawResponse);
+}

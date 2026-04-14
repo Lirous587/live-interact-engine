@@ -19,12 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GiftService_SendGift_FullMethodName              = "/gift.GiftService/SendGift"
-	GiftService_GetWalletBalance_FullMethodName      = "/gift.GiftService/GetWalletBalance"
-	GiftService_ListGifts_FullMethodName             = "/gift.GiftService/ListGifts"
-	GiftService_GetLeaderboard_FullMethodName        = "/gift.GiftService/GetLeaderboard"
-	GiftService_GetGiftRecord_FullMethodName         = "/gift.GiftService/GetGiftRecord"
-	GiftService_ListGiftRecordsByRoom_FullMethodName = "/gift.GiftService/ListGiftRecordsByRoom"
+	GiftService_SendGift_FullMethodName  = "/gift.GiftService/SendGift"
+	GiftService_ListGifts_FullMethodName = "/gift.GiftService/ListGifts"
 )
 
 // GiftServiceClient is the client API for GiftService service.
@@ -33,16 +29,8 @@ const (
 type GiftServiceClient interface {
 	// 发送礼物（核心流程）- 返回幂等性防重
 	SendGift(ctx context.Context, in *SendGiftRequest, opts ...grpc.CallOption) (*SendGiftResponse, error)
-	// 查询钱包余额
-	GetWalletBalance(ctx context.Context, in *GetWalletBalanceRequest, opts ...grpc.CallOption) (*GetWalletBalanceResponse, error)
 	// 获取全量礼物列表
 	ListGifts(ctx context.Context, in *ListGiftsRequest, opts ...grpc.CallOption) (*ListGiftsResponse, error)
-	// 获取排行榜（按送礼金额排序）
-	GetLeaderboard(ctx context.Context, in *GetLeaderboardRequest, opts ...grpc.CallOption) (*GetLeaderboardResponse, error)
-	// 根据幂等性 key 查询礼物记录
-	GetGiftRecord(ctx context.Context, in *GetGiftRecordRequest, opts ...grpc.CallOption) (*GetGiftRecordResponse, error)
-	// 查询房间内的礼物流水（支持分页）
-	ListGiftRecordsByRoom(ctx context.Context, in *ListGiftRecordsByRoomRequest, opts ...grpc.CallOption) (*ListGiftRecordsByRoomResponse, error)
 }
 
 type giftServiceClient struct {
@@ -63,50 +51,10 @@ func (c *giftServiceClient) SendGift(ctx context.Context, in *SendGiftRequest, o
 	return out, nil
 }
 
-func (c *giftServiceClient) GetWalletBalance(ctx context.Context, in *GetWalletBalanceRequest, opts ...grpc.CallOption) (*GetWalletBalanceResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetWalletBalanceResponse)
-	err := c.cc.Invoke(ctx, GiftService_GetWalletBalance_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *giftServiceClient) ListGifts(ctx context.Context, in *ListGiftsRequest, opts ...grpc.CallOption) (*ListGiftsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListGiftsResponse)
 	err := c.cc.Invoke(ctx, GiftService_ListGifts_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *giftServiceClient) GetLeaderboard(ctx context.Context, in *GetLeaderboardRequest, opts ...grpc.CallOption) (*GetLeaderboardResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetLeaderboardResponse)
-	err := c.cc.Invoke(ctx, GiftService_GetLeaderboard_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *giftServiceClient) GetGiftRecord(ctx context.Context, in *GetGiftRecordRequest, opts ...grpc.CallOption) (*GetGiftRecordResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetGiftRecordResponse)
-	err := c.cc.Invoke(ctx, GiftService_GetGiftRecord_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *giftServiceClient) ListGiftRecordsByRoom(ctx context.Context, in *ListGiftRecordsByRoomRequest, opts ...grpc.CallOption) (*ListGiftRecordsByRoomResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListGiftRecordsByRoomResponse)
-	err := c.cc.Invoke(ctx, GiftService_ListGiftRecordsByRoom_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -119,16 +67,8 @@ func (c *giftServiceClient) ListGiftRecordsByRoom(ctx context.Context, in *ListG
 type GiftServiceServer interface {
 	// 发送礼物（核心流程）- 返回幂等性防重
 	SendGift(context.Context, *SendGiftRequest) (*SendGiftResponse, error)
-	// 查询钱包余额
-	GetWalletBalance(context.Context, *GetWalletBalanceRequest) (*GetWalletBalanceResponse, error)
 	// 获取全量礼物列表
 	ListGifts(context.Context, *ListGiftsRequest) (*ListGiftsResponse, error)
-	// 获取排行榜（按送礼金额排序）
-	GetLeaderboard(context.Context, *GetLeaderboardRequest) (*GetLeaderboardResponse, error)
-	// 根据幂等性 key 查询礼物记录
-	GetGiftRecord(context.Context, *GetGiftRecordRequest) (*GetGiftRecordResponse, error)
-	// 查询房间内的礼物流水（支持分页）
-	ListGiftRecordsByRoom(context.Context, *ListGiftRecordsByRoomRequest) (*ListGiftRecordsByRoomResponse, error)
 	mustEmbedUnimplementedGiftServiceServer()
 }
 
@@ -142,20 +82,8 @@ type UnimplementedGiftServiceServer struct{}
 func (UnimplementedGiftServiceServer) SendGift(context.Context, *SendGiftRequest) (*SendGiftResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SendGift not implemented")
 }
-func (UnimplementedGiftServiceServer) GetWalletBalance(context.Context, *GetWalletBalanceRequest) (*GetWalletBalanceResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetWalletBalance not implemented")
-}
 func (UnimplementedGiftServiceServer) ListGifts(context.Context, *ListGiftsRequest) (*ListGiftsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListGifts not implemented")
-}
-func (UnimplementedGiftServiceServer) GetLeaderboard(context.Context, *GetLeaderboardRequest) (*GetLeaderboardResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetLeaderboard not implemented")
-}
-func (UnimplementedGiftServiceServer) GetGiftRecord(context.Context, *GetGiftRecordRequest) (*GetGiftRecordResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetGiftRecord not implemented")
-}
-func (UnimplementedGiftServiceServer) ListGiftRecordsByRoom(context.Context, *ListGiftRecordsByRoomRequest) (*ListGiftRecordsByRoomResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListGiftRecordsByRoom not implemented")
 }
 func (UnimplementedGiftServiceServer) mustEmbedUnimplementedGiftServiceServer() {}
 func (UnimplementedGiftServiceServer) testEmbeddedByValue()                     {}
@@ -196,24 +124,6 @@ func _GiftService_SendGift_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _GiftService_GetWalletBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetWalletBalanceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GiftServiceServer).GetWalletBalance(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: GiftService_GetWalletBalance_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GiftServiceServer).GetWalletBalance(ctx, req.(*GetWalletBalanceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _GiftService_ListGifts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListGiftsRequest)
 	if err := dec(in); err != nil {
@@ -232,60 +142,6 @@ func _GiftService_ListGifts_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _GiftService_GetLeaderboard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetLeaderboardRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GiftServiceServer).GetLeaderboard(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: GiftService_GetLeaderboard_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GiftServiceServer).GetLeaderboard(ctx, req.(*GetLeaderboardRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _GiftService_GetGiftRecord_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetGiftRecordRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GiftServiceServer).GetGiftRecord(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: GiftService_GetGiftRecord_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GiftServiceServer).GetGiftRecord(ctx, req.(*GetGiftRecordRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _GiftService_ListGiftRecordsByRoom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListGiftRecordsByRoomRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GiftServiceServer).ListGiftRecordsByRoom(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: GiftService_ListGiftRecordsByRoom_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GiftServiceServer).ListGiftRecordsByRoom(ctx, req.(*ListGiftRecordsByRoomRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // GiftService_ServiceDesc is the grpc.ServiceDesc for GiftService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -298,24 +154,156 @@ var GiftService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _GiftService_SendGift_Handler,
 		},
 		{
-			MethodName: "GetWalletBalance",
-			Handler:    _GiftService_GetWalletBalance_Handler,
-		},
-		{
 			MethodName: "ListGifts",
 			Handler:    _GiftService_ListGifts_Handler,
 		},
-		{
-			MethodName: "GetLeaderboard",
-			Handler:    _GiftService_GetLeaderboard_Handler,
-		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "gift/gift_service.proto",
+}
+
+const (
+	GiftRecordService_GetGiftRecord_FullMethodName         = "/gift.GiftRecordService/GetGiftRecord"
+	GiftRecordService_ListGiftRecordsByRoom_FullMethodName = "/gift.GiftRecordService/ListGiftRecordsByRoom"
+)
+
+// GiftRecordServiceClient is the client API for GiftRecordService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// ==================== Internal Service（内部调用）====================
+type GiftRecordServiceClient interface {
+	// 根据幂等性 key 查询礼物记录
+	GetGiftRecord(ctx context.Context, in *GetGiftRecordRequest, opts ...grpc.CallOption) (*GetGiftRecordResponse, error)
+	// 查询房间内的礼物流水（支持分页）
+	ListGiftRecordsByRoom(ctx context.Context, in *ListGiftRecordsByRoomRequest, opts ...grpc.CallOption) (*ListGiftRecordsByRoomResponse, error)
+}
+
+type giftRecordServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewGiftRecordServiceClient(cc grpc.ClientConnInterface) GiftRecordServiceClient {
+	return &giftRecordServiceClient{cc}
+}
+
+func (c *giftRecordServiceClient) GetGiftRecord(ctx context.Context, in *GetGiftRecordRequest, opts ...grpc.CallOption) (*GetGiftRecordResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetGiftRecordResponse)
+	err := c.cc.Invoke(ctx, GiftRecordService_GetGiftRecord_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *giftRecordServiceClient) ListGiftRecordsByRoom(ctx context.Context, in *ListGiftRecordsByRoomRequest, opts ...grpc.CallOption) (*ListGiftRecordsByRoomResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListGiftRecordsByRoomResponse)
+	err := c.cc.Invoke(ctx, GiftRecordService_ListGiftRecordsByRoom_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// GiftRecordServiceServer is the server API for GiftRecordService service.
+// All implementations must embed UnimplementedGiftRecordServiceServer
+// for forward compatibility.
+//
+// ==================== Internal Service（内部调用）====================
+type GiftRecordServiceServer interface {
+	// 根据幂等性 key 查询礼物记录
+	GetGiftRecord(context.Context, *GetGiftRecordRequest) (*GetGiftRecordResponse, error)
+	// 查询房间内的礼物流水（支持分页）
+	ListGiftRecordsByRoom(context.Context, *ListGiftRecordsByRoomRequest) (*ListGiftRecordsByRoomResponse, error)
+	mustEmbedUnimplementedGiftRecordServiceServer()
+}
+
+// UnimplementedGiftRecordServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedGiftRecordServiceServer struct{}
+
+func (UnimplementedGiftRecordServiceServer) GetGiftRecord(context.Context, *GetGiftRecordRequest) (*GetGiftRecordResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetGiftRecord not implemented")
+}
+func (UnimplementedGiftRecordServiceServer) ListGiftRecordsByRoom(context.Context, *ListGiftRecordsByRoomRequest) (*ListGiftRecordsByRoomResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListGiftRecordsByRoom not implemented")
+}
+func (UnimplementedGiftRecordServiceServer) mustEmbedUnimplementedGiftRecordServiceServer() {}
+func (UnimplementedGiftRecordServiceServer) testEmbeddedByValue()                           {}
+
+// UnsafeGiftRecordServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to GiftRecordServiceServer will
+// result in compilation errors.
+type UnsafeGiftRecordServiceServer interface {
+	mustEmbedUnimplementedGiftRecordServiceServer()
+}
+
+func RegisterGiftRecordServiceServer(s grpc.ServiceRegistrar, srv GiftRecordServiceServer) {
+	// If the following call panics, it indicates UnimplementedGiftRecordServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&GiftRecordService_ServiceDesc, srv)
+}
+
+func _GiftRecordService_GetGiftRecord_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetGiftRecordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GiftRecordServiceServer).GetGiftRecord(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GiftRecordService_GetGiftRecord_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GiftRecordServiceServer).GetGiftRecord(ctx, req.(*GetGiftRecordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GiftRecordService_ListGiftRecordsByRoom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListGiftRecordsByRoomRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GiftRecordServiceServer).ListGiftRecordsByRoom(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GiftRecordService_ListGiftRecordsByRoom_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GiftRecordServiceServer).ListGiftRecordsByRoom(ctx, req.(*ListGiftRecordsByRoomRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// GiftRecordService_ServiceDesc is the grpc.ServiceDesc for GiftRecordService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var GiftRecordService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "gift.GiftRecordService",
+	HandlerType: (*GiftRecordServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetGiftRecord",
-			Handler:    _GiftService_GetGiftRecord_Handler,
+			Handler:    _GiftRecordService_GetGiftRecord_Handler,
 		},
 		{
 			MethodName: "ListGiftRecordsByRoom",
-			Handler:    _GiftService_ListGiftRecordsByRoom_Handler,
+			Handler:    _GiftRecordService_ListGiftRecordsByRoom_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

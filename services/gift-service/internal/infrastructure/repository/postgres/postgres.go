@@ -3,8 +3,8 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"live-interact-engine/services/user-service/ent"
-	"live-interact-engine/services/user-service/ent/migrate"
+	"live-interact-engine/services/gift-service/ent"
+	"live-interact-engine/services/gift-service/ent/migrate"
 	"live-interact-engine/shared/env"
 	"time"
 

@@ -1,4 +1,4 @@
-package cache
+package redis
 
 import (
 	"context"
@@ -9,16 +9,14 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// giftCache Redis 礼物缓存实现
 type giftCache struct {
-	redis  *redis.Client
+	client *redis.Client
 	prefix string // 例如 "gift:"
 }
 
-// NewGiftCache 创建礼物缓存，返回实现 domain.GiftCache 接口的实例
-func NewGiftCache(redis *redis.Client) domain.GiftCache {
+func NewGiftCache(client *redis.Client) domain.GiftCache {
 	return &giftCache{
-		redis:  redis,
+		client: client,
 		prefix: "gift:",
 	}
 }
@@ -26,7 +24,7 @@ func NewGiftCache(redis *redis.Client) domain.GiftCache {
 // GetGift 从缓存获取礼物
 func (c *giftCache) GetGift(ctx context.Context, cacheKey string) (*domain.Gift, error) {
 	key := c.prefix + cacheKey
-	data, err := c.redis.Get(ctx, key).Result()
+	data, err := c.client.Get(ctx, key).Result()
 	if err != nil {
 		if err == redis.Nil {
 			return nil, nil // 缓存不存在，返回 nil 而不是错误
@@ -49,12 +47,12 @@ func (c *giftCache) SetGift(ctx context.Context, cacheKey string, gift *domain.G
 		return err
 	}
 	// 礼物配置基本不变，设置为永不过期
-	return c.redis.Set(ctx, key, data, 0).Err()
+	return c.client.Set(ctx, key, data, 0).Err()
 }
 
 // LoadAllGifts 加载所有礼物到缓存（批量）
 func (c *giftCache) LoadAllGifts(ctx context.Context, gifts []*domain.Gift) error {
-	pipe := c.redis.Pipeline()
+	pipe := c.client.Pipeline()
 	for _, gift := range gifts {
 		key := c.prefix + gift.CacheKey
 		data, err := json.Marshal(gift)
@@ -69,9 +67,9 @@ func (c *giftCache) LoadAllGifts(ctx context.Context, gifts []*domain.Gift) erro
 
 // ClearGiftCache 清空所有礼物缓存（谨慎使用）
 func (c *giftCache) ClearGiftCache(ctx context.Context) error {
-	iter := c.redis.Scan(ctx, 0, c.prefix+"*", 0).Iterator()
+	iter := c.client.Scan(ctx, 0, c.prefix+"*", 0).Iterator()
 	for iter.Next(ctx) {
-		if err := c.redis.Del(ctx, iter.Val()).Err(); err != nil {
+		if err := c.client.Del(ctx, iter.Val()).Err(); err != nil {
 			return err
 		}
 	}
@@ -81,5 +79,5 @@ func (c *giftCache) ClearGiftCache(ctx context.Context) error {
 // DeleteGift 删除单个礼物缓存
 func (c *giftCache) DeleteGift(ctx context.Context, cacheKey string) error {
 	key := c.prefix + cacheKey
-	return c.redis.Del(ctx, key).Err()
+	return c.client.Del(ctx, key).Err()
 }

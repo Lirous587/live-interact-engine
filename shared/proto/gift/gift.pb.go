@@ -127,14 +127,13 @@ func (GiftRecordStatus) EnumDescriptor() ([]byte, []int) {
 
 type Gift struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // UUID
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	IconUrl       string                 `protobuf:"bytes,4,opt,name=icon_url,json=iconUrl,proto3" json:"icon_url,omitempty"`
 	CacheKey      string                 `protobuf:"bytes,5,opt,name=cache_key,json=cacheKey,proto3" json:"cache_key,omitempty"`
 	Price         int64                  `protobuf:"varint,6,opt,name=price,proto3" json:"price,omitempty"`
 	VipOnly       bool                   `protobuf:"varint,7,opt,name=vip_only,json=vipOnly,proto3" json:"vip_only,omitempty"`
-	SpecialEffect bool                   `protobuf:"varint,8,opt,name=special_effect,json=specialEffect,proto3" json:"special_effect,omitempty"`
 	Status        GiftStatus             `protobuf:"varint,9,opt,name=status,proto3,enum=gift.GiftStatus" json:"status,omitempty"`
 	CreatedAt     int64                  `protobuf:"varint,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     int64                  `protobuf:"varint,11,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
@@ -172,11 +171,11 @@ func (*Gift) Descriptor() ([]byte, []int) {
 	return file_gift_gift_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Gift) GetId() int64 {
+func (x *Gift) GetId() string {
 	if x != nil {
 		return x.Id
 	}
-	return 0
+	return ""
 }
 
 func (x *Gift) GetName() string {
@@ -217,13 +216,6 @@ func (x *Gift) GetPrice() int64 {
 func (x *Gift) GetVipOnly() bool {
 	if x != nil {
 		return x.VipOnly
-	}
-	return false
-}
-
-func (x *Gift) GetSpecialEffect() bool {
-	if x != nil {
-		return x.SpecialEffect
 	}
 	return false
 }
@@ -331,7 +323,7 @@ type GiftRecord struct {
 	UserId         string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                         // UUID
 	AnchorId       string                 `protobuf:"bytes,3,opt,name=anchor_id,json=anchorId,proto3" json:"anchor_id,omitempty"`                   // UUID
 	RoomId         string                 `protobuf:"bytes,4,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`                         // UUID
-	GiftId         int64                  `protobuf:"varint,5,opt,name=gift_id,json=giftId,proto3" json:"gift_id,omitempty"`
+	GiftId         string                 `protobuf:"bytes,5,opt,name=gift_id,json=giftId,proto3" json:"gift_id,omitempty"`                         // UUID
 	Amount         int64                  `protobuf:"varint,6,opt,name=amount,proto3" json:"amount,omitempty"`
 	Status         GiftRecordStatus       `protobuf:"varint,7,opt,name=status,proto3,enum=gift.GiftRecordStatus" json:"status,omitempty"`
 	CreatedAt      int64                  `protobuf:"varint,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
@@ -398,11 +390,11 @@ func (x *GiftRecord) GetRoomId() string {
 	return ""
 }
 
-func (x *GiftRecord) GetGiftId() int64 {
+func (x *GiftRecord) GetGiftId() string {
 	if x != nil {
 		return x.GiftId
 	}
-	return 0
+	return ""
 }
 
 func (x *GiftRecord) GetAmount() int64 {
@@ -497,16 +489,15 @@ var File_gift_gift_proto protoreflect.FileDescriptor
 
 const file_gift_gift_proto_rawDesc = "" +
 	"\n" +
-	"\x0fgift/gift.proto\x12\x04gift\"\xc4\x02\n" +
+	"\x0fgift/gift.proto\x12\x04gift\"\x9d\x02\n" +
 	"\x04Gift\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x19\n" +
 	"\bicon_url\x18\x04 \x01(\tR\aiconUrl\x12\x1b\n" +
 	"\tcache_key\x18\x05 \x01(\tR\bcacheKey\x12\x14\n" +
 	"\x05price\x18\x06 \x01(\x03R\x05price\x12\x19\n" +
-	"\bvip_only\x18\a \x01(\bR\avipOnly\x12%\n" +
-	"\x0especial_effect\x18\b \x01(\bR\rspecialEffect\x12(\n" +
+	"\bvip_only\x18\a \x01(\bR\avipOnly\x12(\n" +
 	"\x06status\x18\t \x01(\x0e2\x10.gift.GiftStatusR\x06status\x12\x1d\n" +
 	"\n" +
 	"created_at\x18\n" +
@@ -527,7 +518,7 @@ const file_gift_gift_proto_rawDesc = "" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1b\n" +
 	"\tanchor_id\x18\x03 \x01(\tR\banchorId\x12\x17\n" +
 	"\aroom_id\x18\x04 \x01(\tR\x06roomId\x12\x17\n" +
-	"\agift_id\x18\x05 \x01(\x03R\x06giftId\x12\x16\n" +
+	"\agift_id\x18\x05 \x01(\tR\x06giftId\x12\x16\n" +
 	"\x06amount\x18\x06 \x01(\x03R\x06amount\x12.\n" +
 	"\x06status\x18\a \x01(\x0e2\x16.gift.GiftRecordStatusR\x06status\x12\x1d\n" +
 	"\n" +

@@ -9,12 +9,12 @@ import "gift/gift_api.proto";
 service GiftService {
   // 发送礼物（核心流程）- 返回幂等性防重
   rpc SendGift(SendGiftRequest) returns (SendGiftResponse);
-  // 查询钱包余额
-  rpc GetWalletBalance(GetWalletBalanceRequest) returns (GetWalletBalanceResponse);
   // 获取全量礼物列表
   rpc ListGifts(ListGiftsRequest) returns (ListGiftsResponse);
-  // 获取排行榜（按送礼金额排序）
-  rpc GetLeaderboard(GetLeaderboardRequest) returns (GetLeaderboardResponse);
+}
+
+// ==================== Internal Service（内部调用）====================
+service GiftRecordService {
   // 根据幂等性 key 查询礼物记录
   rpc GetGiftRecord(GetGiftRecordRequest) returns (GetGiftRecordResponse);
   // 查询房间内的礼物流水（支持分页）

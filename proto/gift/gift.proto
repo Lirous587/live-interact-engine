@@ -23,17 +23,16 @@ enum GiftRecordStatus {
 // ==================== Core Messages ====================
 
 message Gift {
-  int64      id             = 1;
-  string     name           = 2;
-  string     description    = 3;
-  string     icon_url       = 4;
-  string     cache_key      = 5;
-  int64      price          = 6;
-  bool       vip_only       = 7;
-  bool       special_effect = 8;
-  GiftStatus status         = 9;
-  int64      created_at     = 10;
-  int64      updated_at     = 11;
+  string     id          = 1; // UUID
+  string     name        = 2;
+  string     description = 3;
+  string     icon_url    = 4;
+  string     cache_key   = 5;
+  int64      price       = 6;
+  bool       vip_only    = 7;
+  GiftStatus status      = 9;
+  int64      created_at  = 10;
+  int64      updated_at  = 11;
 }
 
 message Wallet {
@@ -49,7 +48,7 @@ message GiftRecord {
   string           user_id         = 2; // UUID
   string           anchor_id       = 3; // UUID
   string           room_id         = 4; // UUID
-  int64            gift_id         = 5;
+  string           gift_id         = 5; // UUID
   int64            amount          = 6;
   GiftRecordStatus status          = 7;
   int64            created_at      = 8;

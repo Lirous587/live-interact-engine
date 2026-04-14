@@ -1,4 +1,4 @@
-package cache
+package redis
 
 import (
 	"context"
@@ -12,14 +12,14 @@ import (
 
 // walletCache Redis 钱包缓存实现
 type walletCache struct {
-	redis              *redis.Client
+	client             *redis.Client
 	prefix             string // 例如 "wallet:"
 	luaDeductScript    string
 	luaIncrementScript string
 }
 
 // NewWalletCache 创建钱包缓存，返回实现 domain.WalletCache 接口的实例
-func NewWalletCache(redis *redis.Client) domain.WalletCache {
+func NewWalletCache(client *redis.Client) domain.WalletCache {
 	// Lua 脚本的设计思想：
 	// 1. 检查幂等性（防止重复扣款）
 	// 2. 检查余额
@@ -75,7 +75,7 @@ func NewWalletCache(redis *redis.Client) domain.WalletCache {
 	`
 
 	return &walletCache{
-		redis:              redis,
+		client:             client,
 		prefix:             "wallet:",
 		luaDeductScript:    luaDeductScript,
 		luaIncrementScript: luaIncrementScript,
@@ -85,7 +85,7 @@ func NewWalletCache(redis *redis.Client) domain.WalletCache {
 // GetBalance 获取用户余额
 func (c *walletCache) GetBalance(ctx context.Context, userID uuid.UUID) (int64, error) {
 	key := c.prefix + userID.String()
-	balance, err := c.redis.Get(ctx, key).Int64()
+	balance, err := c.client.Get(ctx, key).Int64()
 	if err != nil {
 		if err == redis.Nil {
 			return 0, nil // 用户未初始化，返回 0
@@ -98,7 +98,7 @@ func (c *walletCache) GetBalance(ctx context.Context, userID uuid.UUID) (int64, 
 // SetBalance 设置用户余额
 func (c *walletCache) SetBalance(ctx context.Context, userID uuid.UUID, balance int64) error {
 	key := c.prefix + userID.String()
-	return c.redis.Set(ctx, key, balance, 0).Err()
+	return c.client.Set(ctx, key, balance, 0).Err()
 }
 
 // DeductByLua 使用 Lua 脚本原子扣款
@@ -107,7 +107,7 @@ func (c *walletCache) DeductByLua(ctx context.Context, userID uuid.UUID, amount 
 	idempotencyKeyStr := "idempotency:" + idempotencyKey.String()
 
 	// 执行 Lua 脚本
-	result, err := c.redis.Eval(ctx, c.luaDeductScript, []string{key, idempotencyKeyStr}, amount).Result()
+	result, err := c.client.Eval(ctx, c.luaDeductScript, []string{key, idempotencyKeyStr}, amount).Result()
 	if err != nil {
 		return 0, err
 	}
@@ -134,7 +134,7 @@ func (c *walletCache) IncrementByLua(ctx context.Context, userID uuid.UUID, amou
 	key := c.prefix + userID.String()
 	idempotencyKeyStr := "idempotency:" + idempotencyKey.String()
 
-	result, err := c.redis.Eval(ctx, c.luaIncrementScript, []string{key, idempotencyKeyStr}, amount).Result()
+	result, err := c.client.Eval(ctx, c.luaIncrementScript, []string{key, idempotencyKeyStr}, amount).Result()
 	if err != nil {
 		return 0, err
 	}
@@ -156,5 +156,5 @@ func (c *walletCache) IncrementByLua(ctx context.Context, userID uuid.UUID, amou
 // DeleteBalance 删除余额缓存（测试用）
 func (c *walletCache) DeleteBalance(ctx context.Context, userID uuid.UUID) error {
 	key := c.prefix + userID.String()
-	return c.redis.Del(ctx, key).Err()
+	return c.client.Del(ctx, key).Err()
 }

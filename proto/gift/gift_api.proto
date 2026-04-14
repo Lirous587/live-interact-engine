@@ -13,14 +13,12 @@ message SendGiftRequest {
   string user_id         = 2; // UUID
   string anchor_id       = 3; // UUID
   string room_id         = 4; // UUID
-  int64  gift_id         = 5;
+  string gift_id         = 5; // UUID
   int64  amount          = 6;
 }
 
 message SendGiftResponse {
-  bool       success     = 1;
-  string     message     = 2;
-  GiftRecord gift_record = 3; // 返回创建的记录
+  GiftRecord gift_record = 1;
 }
 
 // ==================== GetWalletBalance Messages ====================

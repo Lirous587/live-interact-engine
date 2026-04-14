@@ -24,47 +24,38 @@ var File_gift_gift_service_proto protoreflect.FileDescriptor
 
 const file_gift_gift_service_proto_rawDesc = "" +
 	"\n" +
-	"\x17gift/gift_service.proto\x12\x04gift\x1a\x13gift/gift_api.proto2\xd2\x03\n" +
+	"\x17gift/gift_service.proto\x12\x04gift\x1a\x13gift/gift_api.proto2\x86\x01\n" +
 	"\vGiftService\x129\n" +
-	"\bSendGift\x12\x15.gift.SendGiftRequest\x1a\x16.gift.SendGiftResponse\x12Q\n" +
-	"\x10GetWalletBalance\x12\x1d.gift.GetWalletBalanceRequest\x1a\x1e.gift.GetWalletBalanceResponse\x12<\n" +
-	"\tListGifts\x12\x16.gift.ListGiftsRequest\x1a\x17.gift.ListGiftsResponse\x12K\n" +
-	"\x0eGetLeaderboard\x12\x1b.gift.GetLeaderboardRequest\x1a\x1c.gift.GetLeaderboardResponse\x12H\n" +
+	"\bSendGift\x12\x15.gift.SendGiftRequest\x1a\x16.gift.SendGiftResponse\x12<\n" +
+	"\tListGifts\x12\x16.gift.ListGiftsRequest\x1a\x17.gift.ListGiftsResponse2\xbf\x01\n" +
+	"\x11GiftRecordService\x12H\n" +
 	"\rGetGiftRecord\x12\x1a.gift.GetGiftRecordRequest\x1a\x1b.gift.GetGiftRecordResponse\x12`\n" +
 	"\x15ListGiftRecordsByRoom\x12\".gift.ListGiftRecordsByRoomRequest\x1a#.gift.ListGiftRecordsByRoomResponseB\x18Z\x16shared/proto/gift;giftb\x06proto3"
 
 var file_gift_gift_service_proto_goTypes = []any{
 	(*SendGiftRequest)(nil),               // 0: gift.SendGiftRequest
-	(*GetWalletBalanceRequest)(nil),       // 1: gift.GetWalletBalanceRequest
-	(*ListGiftsRequest)(nil),              // 2: gift.ListGiftsRequest
-	(*GetLeaderboardRequest)(nil),         // 3: gift.GetLeaderboardRequest
-	(*GetGiftRecordRequest)(nil),          // 4: gift.GetGiftRecordRequest
-	(*ListGiftRecordsByRoomRequest)(nil),  // 5: gift.ListGiftRecordsByRoomRequest
-	(*SendGiftResponse)(nil),              // 6: gift.SendGiftResponse
-	(*GetWalletBalanceResponse)(nil),      // 7: gift.GetWalletBalanceResponse
-	(*ListGiftsResponse)(nil),             // 8: gift.ListGiftsResponse
-	(*GetLeaderboardResponse)(nil),        // 9: gift.GetLeaderboardResponse
-	(*GetGiftRecordResponse)(nil),         // 10: gift.GetGiftRecordResponse
-	(*ListGiftRecordsByRoomResponse)(nil), // 11: gift.ListGiftRecordsByRoomResponse
+	(*ListGiftsRequest)(nil),              // 1: gift.ListGiftsRequest
+	(*GetGiftRecordRequest)(nil),          // 2: gift.GetGiftRecordRequest
+	(*ListGiftRecordsByRoomRequest)(nil),  // 3: gift.ListGiftRecordsByRoomRequest
+	(*SendGiftResponse)(nil),              // 4: gift.SendGiftResponse
+	(*ListGiftsResponse)(nil),             // 5: gift.ListGiftsResponse
+	(*GetGiftRecordResponse)(nil),         // 6: gift.GetGiftRecordResponse
+	(*ListGiftRecordsByRoomResponse)(nil), // 7: gift.ListGiftRecordsByRoomResponse
 }
 var file_gift_gift_service_proto_depIdxs = []int32{
-	0,  // 0: gift.GiftService.SendGift:input_type -> gift.SendGiftRequest
-	1,  // 1: gift.GiftService.GetWalletBalance:input_type -> gift.GetWalletBalanceRequest
-	2,  // 2: gift.GiftService.ListGifts:input_type -> gift.ListGiftsRequest
-	3,  // 3: gift.GiftService.GetLeaderboard:input_type -> gift.GetLeaderboardRequest
-	4,  // 4: gift.GiftService.GetGiftRecord:input_type -> gift.GetGiftRecordRequest
-	5,  // 5: gift.GiftService.ListGiftRecordsByRoom:input_type -> gift.ListGiftRecordsByRoomRequest
-	6,  // 6: gift.GiftService.SendGift:output_type -> gift.SendGiftResponse
-	7,  // 7: gift.GiftService.GetWalletBalance:output_type -> gift.GetWalletBalanceResponse
-	8,  // 8: gift.GiftService.ListGifts:output_type -> gift.ListGiftsResponse
-	9,  // 9: gift.GiftService.GetLeaderboard:output_type -> gift.GetLeaderboardResponse
-	10, // 10: gift.GiftService.GetGiftRecord:output_type -> gift.GetGiftRecordResponse
-	11, // 11: gift.GiftService.ListGiftRecordsByRoom:output_type -> gift.ListGiftRecordsByRoomResponse
-	6,  // [6:12] is the sub-list for method output_type
-	0,  // [0:6] is the sub-list for method input_type
-	0,  // [0:0] is the sub-list for extension type_name
-	0,  // [0:0] is the sub-list for extension extendee
-	0,  // [0:0] is the sub-list for field type_name
+	0, // 0: gift.GiftService.SendGift:input_type -> gift.SendGiftRequest
+	1, // 1: gift.GiftService.ListGifts:input_type -> gift.ListGiftsRequest
+	2, // 2: gift.GiftRecordService.GetGiftRecord:input_type -> gift.GetGiftRecordRequest
+	3, // 3: gift.GiftRecordService.ListGiftRecordsByRoom:input_type -> gift.ListGiftRecordsByRoomRequest
+	4, // 4: gift.GiftService.SendGift:output_type -> gift.SendGiftResponse
+	5, // 5: gift.GiftService.ListGifts:output_type -> gift.ListGiftsResponse
+	6, // 6: gift.GiftRecordService.GetGiftRecord:output_type -> gift.GetGiftRecordResponse
+	7, // 7: gift.GiftRecordService.ListGiftRecordsByRoom:output_type -> gift.ListGiftRecordsByRoomResponse
+	4, // [4:8] is the sub-list for method output_type
+	0, // [0:4] is the sub-list for method input_type
+	0, // [0:0] is the sub-list for extension type_name
+	0, // [0:0] is the sub-list for extension extendee
+	0, // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_gift_gift_service_proto_init() }
@@ -81,7 +72,7 @@ func file_gift_gift_service_proto_init() {
 			NumEnums:      0,
 			NumMessages:   0,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   2,
 		},
 		GoTypes:           file_gift_gift_service_proto_goTypes,
 		DependencyIndexes: file_gift_gift_service_proto_depIdxs,

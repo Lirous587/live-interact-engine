@@ -27,7 +27,7 @@ type SendGiftRequest struct {
 	UserId         string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                         // UUID
 	AnchorId       string                 `protobuf:"bytes,3,opt,name=anchor_id,json=anchorId,proto3" json:"anchor_id,omitempty"`                   // UUID
 	RoomId         string                 `protobuf:"bytes,4,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`                         // UUID
-	GiftId         int64                  `protobuf:"varint,5,opt,name=gift_id,json=giftId,proto3" json:"gift_id,omitempty"`
+	GiftId         string                 `protobuf:"bytes,5,opt,name=gift_id,json=giftId,proto3" json:"gift_id,omitempty"`                         // UUID
 	Amount         int64                  `protobuf:"varint,6,opt,name=amount,proto3" json:"amount,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -91,11 +91,11 @@ func (x *SendGiftRequest) GetRoomId() string {
 	return ""
 }
 
-func (x *SendGiftRequest) GetGiftId() int64 {
+func (x *SendGiftRequest) GetGiftId() string {
 	if x != nil {
 		return x.GiftId
 	}
-	return 0
+	return ""
 }
 
 func (x *SendGiftRequest) GetAmount() int64 {
@@ -107,9 +107,7 @@ func (x *SendGiftRequest) GetAmount() int64 {
 
 type SendGiftResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
-	GiftRecord    *GiftRecord            `protobuf:"bytes,3,opt,name=gift_record,json=giftRecord,proto3" json:"gift_record,omitempty"` // 返回创建的记录
+	GiftRecord    *GiftRecord            `protobuf:"bytes,1,opt,name=gift_record,json=giftRecord,proto3" json:"gift_record,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -142,20 +140,6 @@ func (x *SendGiftResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use SendGiftResponse.ProtoReflect.Descriptor instead.
 func (*SendGiftResponse) Descriptor() ([]byte, []int) {
 	return file_gift_gift_api_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *SendGiftResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
-}
-
-func (x *SendGiftResponse) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
 }
 
 func (x *SendGiftResponse) GetGiftRecord() *GiftRecord {
@@ -647,12 +631,10 @@ const file_gift_gift_api_proto_rawDesc = "" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1b\n" +
 	"\tanchor_id\x18\x03 \x01(\tR\banchorId\x12\x17\n" +
 	"\aroom_id\x18\x04 \x01(\tR\x06roomId\x12\x17\n" +
-	"\agift_id\x18\x05 \x01(\x03R\x06giftId\x12\x16\n" +
-	"\x06amount\x18\x06 \x01(\x03R\x06amount\"y\n" +
-	"\x10SendGiftResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\x121\n" +
-	"\vgift_record\x18\x03 \x01(\v2\x10.gift.GiftRecordR\n" +
+	"\agift_id\x18\x05 \x01(\tR\x06giftId\x12\x16\n" +
+	"\x06amount\x18\x06 \x01(\x03R\x06amount\"E\n" +
+	"\x10SendGiftResponse\x121\n" +
+	"\vgift_record\x18\x01 \x01(\v2\x10.gift.GiftRecordR\n" +
 	"giftRecord\"2\n" +
 	"\x17GetWalletBalanceRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\"@\n" +
