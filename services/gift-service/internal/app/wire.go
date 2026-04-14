@@ -3,10 +3,12 @@ package app
 import (
 	"context"
 	"live-interact-engine/services/gift-service/internal/domain"
+	"live-interact-engine/services/gift-service/internal/infrastructure/events"
 	"live-interact-engine/services/gift-service/internal/infrastructure/grpc"
 	"live-interact-engine/services/gift-service/internal/infrastructure/repository/postgres"
 	"live-interact-engine/services/gift-service/internal/infrastructure/repository/redis"
 	"live-interact-engine/services/gift-service/internal/service"
+	"live-interact-engine/shared/env"
 	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -22,6 +24,7 @@ type Deps struct {
 	GiftService        *service.GiftService
 	WalletService      *service.WalletService
 	GiftRecordService  domain.GiftRecordService
+	Publisher          *events.Publisher
 	GiftHandler        *grpc.GiftHandler
 	GiftRecordHandler  *grpc.GiftRecordHandler
 	WalletHandler      *grpc.WalletHandler
@@ -54,8 +57,17 @@ func InitDependencies(ctx context.Context) (*Deps, error) {
 	walletService := service.NewWalletService(walletRepo, walletCache)
 	giftRecordService := service.NewGiftRecordService(giftRecordRepo, giftRepo, walletService)
 
+	// ==================== 初始化 RabbitMQ Publisher ====================
+
+	rabbitmqURL := env.GetString("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/")
+	publisher, err := events.NewPublisher(rabbitmqURL)
+	if err != nil {
+		log.Printf("警告: RabbitMQ Publisher 初始化失败: %v（将以非关键模式继续）", err)
+		// 不中断启动，Publisher 为 nil 时处理
+	}
+
 	// ==================== 初始化 gRPC Handlers ====================
-	giftHandler := grpc.NewGiftHandler(giftService, giftRecordService)
+	giftHandler := grpc.NewGiftHandler(giftService, giftRecordService, publisher)
 	giftRecordHandler := grpc.NewGiftRecordHandler(giftRecordService)
 	walletHandler := grpc.NewWalletHandler(walletService)
 	leaderboardHandler := grpc.NewLeaderboardHandler()
@@ -69,6 +81,7 @@ func InitDependencies(ctx context.Context) (*Deps, error) {
 		GiftService:        giftService,
 		WalletService:      walletService,
 		GiftRecordService:  giftRecordService,
+		Publisher:          publisher,
 		GiftHandler:        giftHandler,
 		GiftRecordHandler:  giftRecordHandler,
 		WalletHandler:      walletHandler,

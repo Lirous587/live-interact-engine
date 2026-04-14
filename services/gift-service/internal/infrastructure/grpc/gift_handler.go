@@ -5,12 +5,14 @@ import (
 
 	"live-interact-engine/services/gift-service/internal/adapter"
 	"live-interact-engine/services/gift-service/internal/domain"
+	"live-interact-engine/services/gift-service/internal/infrastructure/events"
 	"live-interact-engine/services/gift-service/internal/service"
 	pb "live-interact-engine/shared/proto/gift"
 	"live-interact-engine/shared/svcerr"
 
 	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/zap"
 )
 
 // ==================== GiftService Handler ====================
@@ -19,16 +21,20 @@ type GiftHandler struct {
 	pb.UnimplementedGiftServiceServer
 	giftService       *service.GiftService
 	giftRecordService domain.GiftRecordService
+	publisher         *events.Publisher
+	logger            *zap.Logger
 }
 
 // NewGiftHandler 创建 GiftHandler 实例
 func NewGiftHandler(
 	giftService *service.GiftService,
 	giftRecordService domain.GiftRecordService,
+	publisher *events.Publisher,
 ) *GiftHandler {
 	return &GiftHandler{
 		giftService:       giftService,
 		giftRecordService: giftRecordService,
+		publisher:         publisher,
 	}
 }
 
@@ -84,6 +90,21 @@ func (h *GiftHandler) SendGift(ctx context.Context, req *pb.SendGiftRequest) (*p
 	if err != nil {
 		return nil, svcerr.MapServiceErrorToGRPC(err, span)
 	}
+
+	// 异步发布 RabbitMQ 事件（不阻塞主流程）
+	go func() {
+		event := &events.GiftSendSuccessEvent{
+			IdempotencyKey: giftRecord.IdempotencyKey.String(),
+			UserID:         giftRecord.UserID.String(),
+			AnchorID:       giftRecord.AnchorID.String(),
+			RoomID:         giftRecord.RoomID.String(),
+			GiftID:         giftRecord.GiftID.String(),
+			Amount:         giftRecord.Amount,
+		}
+		if err := h.publisher.PublishGiftSendSuccess(context.Background(), event); err != nil {
+			h.logger.Error("failed to publish gift event", zap.Error(err))
+		}
+	}()
 
 	return &pb.SendGiftResponse{
 		GiftRecord: adapter.GiftRecordToDomainPB(giftRecord),

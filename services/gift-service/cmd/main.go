@@ -71,6 +71,13 @@ func main() {
 	<-sigChan
 	log.Println("Shutting down gift service...")
 
+	// 关闭 Publisher
+	if deps.Publisher != nil {
+		if err := deps.Publisher.Close(); err != nil {
+			log.Printf("Failed to close Publisher: %v", err)
+		}
+	}
+
 	grpcServer.GracefulStop()
 	log.Println("Gift service stopped")
 }
