@@ -11,11 +11,11 @@ var (
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
-		{Name: "username", Type: field.TypeString},
+		{Name: "username", Type: field.TypeString, Size: 30},
 		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "password_hash", Type: field.TypeString},
-		{Name: "created_at", Type: field.TypeInt64, Default: 0},
-		{Name: "updated_at", Type: field.TypeInt64, Default: 0},
+		{Name: "created_at", Type: field.TypeInt64},
+		{Name: "updated_at", Type: field.TypeInt64},
 		{Name: "is_active", Type: field.TypeBool, Default: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
@@ -33,6 +33,21 @@ var (
 				Name:    "user_created_at",
 				Unique:  false,
 				Columns: []*schema.Column{UsersColumns[4]},
+			},
+			{
+				Name:    "user_username",
+				Unique:  false,
+				Columns: []*schema.Column{UsersColumns[1]},
+			},
+			{
+				Name:    "user_is_active",
+				Unique:  false,
+				Columns: []*schema.Column{UsersColumns[6]},
+			},
+			{
+				Name:    "user_is_active_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{UsersColumns[6], UsersColumns[4]},
 			},
 		},
 	}

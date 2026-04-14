@@ -18,6 +18,12 @@ build-services:
 generate-api-docs:
 		swag init -g .\services\api-service\cmd\main.go -o api/openapi
 
+.PHONY: gen-ent
+gen-ent:
+		cd services/user-service && go generate ./ent
+		cd services/room-service && go generate ./ent
+		cd services/gift-service && go generate ./ent
+
 # 完整部署：编译 + 构建镜像 + 启动容器
 .PHONY: up
 up: build-services
