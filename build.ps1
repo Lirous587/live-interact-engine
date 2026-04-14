@@ -18,6 +18,7 @@ $services = @(
     @{ "name" = "danmaku-service"; "path" = "./services/danmaku-service/cmd/main.go"; "output" = "build/danmaku-service" }
     @{ "name" = "user-service"; "path" = "./services/user-service/cmd/main.go"; "output" = "build/user-service" }
     @{ "name" = "room-service"; "path" = "./services/room-service/cmd/main.go"; "output" = "build/room-service" }
+    @{ "name" = "gift-service"; "path" = "./services/gift-service/cmd/main.go"; "output" = "build/gift-service" }
 )
 
 # 逐个构建服务

@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package gift;
+
+option go_package = "shared/proto/gift;gift";
+
+import "gift/gift.proto";
+
+// ==================== SendGift Messages ====================
+
+message SendGiftRequest {
+  string idempotency_key = 1; // UUID，用于防重和幂等性
+  string user_id         = 2; // UUID
+  string anchor_id       = 3; // UUID
+  string room_id         = 4; // UUID
+  int64  gift_id         = 5;
+  int64  amount          = 6;
+}
+
+message SendGiftResponse {
+  bool       success     = 1;
+  string     message     = 2;
+  GiftRecord gift_record = 3; // 返回创建的记录
+}
+
+// ==================== GetWalletBalance Messages ====================
+
+message GetWalletBalanceRequest {
+  string user_id = 1; // UUID
+}
+
+message GetWalletBalanceResponse {
+  Wallet wallet = 1;
+}
+
+// ==================== ListGifts Messages ====================
+
+message ListGiftsRequest {
+  // 全量返回，不需要分页参数
+}
+
+message ListGiftsResponse {
+  repeated Gift gifts = 1;
+}
+
+// ==================== GetLeaderboard Messages ====================
+
+message GetLeaderboardRequest {
+  string room_id = 1; // UUID
+  int32  top_n   = 2; // 返回 Top N，默认 100
+}
+
+message GetLeaderboardResponse {
+  repeated LeaderboardEntry entries = 1;
+  string                    room_id = 2; // UUID
+}
+
+// ==================== GetGiftRecord Messages ====================
+
+message GetGiftRecordRequest {
+  string idempotency_key = 1; // UUID
+}
+
+message GetGiftRecordResponse {
+  GiftRecord gift_record = 1;
+}
+
+// ==================== ListGiftRecordsByRoom Messages ====================
+
+message ListGiftRecordsByRoomRequest {
+  string room_id = 1; // UUID
+  int32  offset  = 2;
+  int32  limit   = 3;
+}
+
+message ListGiftRecordsByRoomResponse {
+  repeated GiftRecord gift_records = 1;
+  int32               total        = 2;
+}

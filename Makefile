@@ -2,7 +2,8 @@ PROTO_DIR := proto
 PROTO_SRC := \
 		$(wildcard proto/danmaku/*.proto) \
 		$(wildcard proto/user/*.proto) \
-		$(wildcard proto/room/*.proto)
+		$(wildcard proto/room/*.proto) \
+		$(wildcard proto/gift/*.proto) 
 GO_OUT := .
 
 .PHONY: generate-proto

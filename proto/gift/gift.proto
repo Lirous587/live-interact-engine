@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package gift;
+
+option go_package = "shared/proto/gift;gift";
+
+// ==================== Enums ====================
+
+enum GiftStatus {
+  GIFT_STATUS_UNSPECIFIED  = 0; // 未指定
+  GIFT_STATUS_ONLINE       = 1; // 上线
+  GIFT_STATUS_OFFLINE      = 2; // 下线
+  GIFT_STATUS_LIMITED_TIME = 3; // 限时
+}
+
+enum GiftRecordStatus {
+  GIFT_RECORD_STATUS_UNSPECIFIED = 0; // 未指定
+  GIFT_RECORD_STATUS_PENDING     = 1; // 处理中
+  GIFT_RECORD_STATUS_SUCCESS     = 2; // 成功
+  GIFT_RECORD_STATUS_FAILED      = 3; // 失败
+}
+
+// ==================== Core Messages ====================
+
+message Gift {
+  int64      id             = 1;
+  string     name           = 2;
+  string     description    = 3;
+  string     icon_url       = 4;
+  string     cache_key      = 5;
+  int64      price          = 6;
+  bool       vip_only       = 7;
+  bool       special_effect = 8;
+  GiftStatus status         = 9;
+  int64      created_at     = 10;
+  int64      updated_at     = 11;
+}
+
+message Wallet {
+  string user_id        = 1; // UUID
+  int64  balance        = 2;
+  int64  version_number = 3; // 乐观锁版本号
+  int64  created_at     = 4;
+  int64  updated_at     = 5;
+}
+
+message GiftRecord {
+  string           idempotency_key = 1; // UUID，作为幂等性防重的主键
+  string           user_id         = 2; // UUID
+  string           anchor_id       = 3; // UUID
+  string           room_id         = 4; // UUID
+  int64            gift_id         = 5;
+  int64            amount          = 6;
+  GiftRecordStatus status          = 7;
+  int64            created_at      = 8;
+  int64            updated_at      = 9;
+}
+
+message LeaderboardEntry {
+  string user_id = 1; // UUID
+  int64  score   = 2; // 累计送礼金额
+  int32  rank    = 3;
+}
