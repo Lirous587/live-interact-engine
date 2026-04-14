@@ -15,7 +15,7 @@ type MuteRepository struct {
 	client *ent.Client
 }
 
-func NewMuteRepository(client *ent.Client) *MuteRepository {
+func NewMuteRepository(client *ent.Client) domain.MuteRepository {
 	return &MuteRepository{client: client}
 }
 
