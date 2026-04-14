@@ -11,6 +11,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // GiftCreate is the builder for creating a Gift entity.
@@ -80,20 +81,6 @@ func (_c *GiftCreate) SetNillableVipOnly(v *bool) *GiftCreate {
 	return _c
 }
 
-// SetSpecialEffect sets the "special_effect" field.
-func (_c *GiftCreate) SetSpecialEffect(v string) *GiftCreate {
-	_c.mutation.SetSpecialEffect(v)
-	return _c
-}
-
-// SetNillableSpecialEffect sets the "special_effect" field if the given value is not nil.
-func (_c *GiftCreate) SetNillableSpecialEffect(v *string) *GiftCreate {
-	if v != nil {
-		_c.SetSpecialEffect(*v)
-	}
-	return _c
-}
-
 // SetStatus sets the "status" field.
 func (_c *GiftCreate) SetStatus(v gift.Status) *GiftCreate {
 	_c.mutation.SetStatus(v)
@@ -132,6 +119,20 @@ func (_c *GiftCreate) SetUpdatedAt(v time.Time) *GiftCreate {
 func (_c *GiftCreate) SetNillableUpdatedAt(v *time.Time) *GiftCreate {
 	if v != nil {
 		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *GiftCreate) SetID(v uuid.UUID) *GiftCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *GiftCreate) SetNillableID(v *uuid.UUID) *GiftCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
 	return _c
 }
@@ -187,6 +188,10 @@ func (_c *GiftCreate) defaults() {
 		v := gift.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := gift.DefaultID()
+		_c.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -223,11 +228,6 @@ func (_c *GiftCreate) check() error {
 	if _, ok := _c.mutation.VipOnly(); !ok {
 		return &ValidationError{Name: "vip_only", err: errors.New(`ent: missing required field "Gift.vip_only"`)}
 	}
-	if v, ok := _c.mutation.SpecialEffect(); ok {
-		if err := gift.SpecialEffectValidator(v); err != nil {
-			return &ValidationError{Name: "special_effect", err: fmt.Errorf(`ent: validator failed for field "Gift.special_effect": %w`, err)}
-		}
-	}
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Gift.status"`)}
 	}
@@ -256,8 +256,13 @@ func (_c *GiftCreate) sqlSave(ctx context.Context) (*Gift, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -266,8 +271,12 @@ func (_c *GiftCreate) sqlSave(ctx context.Context) (*Gift, error) {
 func (_c *GiftCreate) createSpec() (*Gift, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Gift{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(gift.Table, sqlgraph.NewFieldSpec(gift.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(gift.Table, sqlgraph.NewFieldSpec(gift.FieldID, field.TypeUUID))
 	)
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(gift.FieldName, field.TypeString, value)
 		_node.Name = value
@@ -291,10 +300,6 @@ func (_c *GiftCreate) createSpec() (*Gift, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.VipOnly(); ok {
 		_spec.SetField(gift.FieldVipOnly, field.TypeBool, value)
 		_node.VipOnly = value
-	}
-	if value, ok := _c.mutation.SpecialEffect(); ok {
-		_spec.SetField(gift.FieldSpecialEffect, field.TypeString, value)
-		_node.SpecialEffect = value
 	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(gift.FieldStatus, field.TypeEnum, value)
@@ -356,10 +361,6 @@ func (_c *GiftCreateBulk) Save(ctx context.Context) ([]*Gift, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

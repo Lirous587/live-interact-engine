@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+	"github.com/google/uuid"
 )
 
 // Gift holds the schema definition for the Gift entity.
@@ -16,13 +17,13 @@ type Gift struct {
 // Fields of the Gift.
 func (Gift) Fields() []ent.Field {
 	return []ent.Field{
+		field.UUID("id", uuid.UUID{}).Default(uuid.New).StorageKey("id"),
 		field.String("name").NotEmpty().MinLen(1).MaxLen(50),
 		field.String("description").Optional().MaxLen(200),
 		field.String("icon_url").Optional().MaxLen(500),
-		field.String("cache_key").Immutable(), // cache_key
-		field.Int64("price").Positive(),       // 礼物价格（平台币），必须 > 0
-		field.Bool("vip_only").Default(false), // 仅会员可以赠送
-		field.String("special_effect").Optional().MaxLen(50),
+		field.String("cache_key").Immutable(),                                              // cache_key
+		field.Int64("price").Positive(),                                                    // 礼物价格（平台币），必须 > 0
+		field.Bool("vip_only").Default(false),                                              // 仅会员可以赠送
 		field.Enum("status").Values("online", "offline", "limited_time").Default("online"), // 状态管理
 		field.Time("created_at").Default(time.Now).Immutable(),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),

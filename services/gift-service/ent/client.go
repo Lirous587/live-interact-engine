@@ -18,6 +18,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // Client is the client that holds all ent builders.
@@ -278,7 +279,7 @@ func (c *GiftClient) UpdateOne(_m *Gift) *GiftUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *GiftClient) UpdateOneID(id int) *GiftUpdateOne {
+func (c *GiftClient) UpdateOneID(id uuid.UUID) *GiftUpdateOne {
 	mutation := newGiftMutation(c.config, OpUpdateOne, withGiftID(id))
 	return &GiftUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -295,7 +296,7 @@ func (c *GiftClient) DeleteOne(_m *Gift) *GiftDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *GiftClient) DeleteOneID(id int) *GiftDeleteOne {
+func (c *GiftClient) DeleteOneID(id uuid.UUID) *GiftDeleteOne {
 	builder := c.Delete().Where(gift.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -312,12 +313,12 @@ func (c *GiftClient) Query() *GiftQuery {
 }
 
 // Get returns a Gift entity by its id.
-func (c *GiftClient) Get(ctx context.Context, id int) (*Gift, error) {
+func (c *GiftClient) Get(ctx context.Context, id uuid.UUID) (*Gift, error) {
 	return c.Query().Where(gift.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *GiftClient) GetX(ctx context.Context, id int) *Gift {
+func (c *GiftClient) GetX(ctx context.Context, id uuid.UUID) *Gift {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)

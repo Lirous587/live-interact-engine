@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 const (
@@ -26,8 +27,6 @@ const (
 	FieldPrice = "price"
 	// FieldVipOnly holds the string denoting the vip_only field in the database.
 	FieldVipOnly = "vip_only"
-	// FieldSpecialEffect holds the string denoting the special_effect field in the database.
-	FieldSpecialEffect = "special_effect"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -47,7 +46,6 @@ var Columns = []string{
 	FieldCacheKey,
 	FieldPrice,
 	FieldVipOnly,
-	FieldSpecialEffect,
 	FieldStatus,
 	FieldCreatedAt,
 	FieldUpdatedAt,
@@ -74,14 +72,14 @@ var (
 	PriceValidator func(int64) error
 	// DefaultVipOnly holds the default value on creation for the "vip_only" field.
 	DefaultVipOnly bool
-	// SpecialEffectValidator is a validator for the "special_effect" field. It is called by the builders before save.
-	SpecialEffectValidator func(string) error
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // Status defines the type for the "status" enum field.
@@ -147,11 +145,6 @@ func ByPrice(opts ...sql.OrderTermOption) OrderOption {
 // ByVipOnly orders the results by the vip_only field.
 func ByVipOnly(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldVipOnly, opts...).ToFunc()
-}
-
-// BySpecialEffect orders the results by the special_effect field.
-func BySpecialEffect(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldSpecialEffect, opts...).ToFunc()
 }
 
 // ByStatus orders the results by the status field.

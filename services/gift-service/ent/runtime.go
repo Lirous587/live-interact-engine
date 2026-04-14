@@ -8,6 +8,8 @@ import (
 	"live-interact-engine/services/gift-service/ent/schema"
 	"live-interact-engine/services/gift-service/ent/wallet"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -17,7 +19,7 @@ func init() {
 	giftFields := schema.Gift{}.Fields()
 	_ = giftFields
 	// giftDescName is the schema descriptor for name field.
-	giftDescName := giftFields[0].Descriptor()
+	giftDescName := giftFields[1].Descriptor()
 	// gift.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	gift.NameValidator = func() func(string) error {
 		validators := giftDescName.Validators
@@ -36,25 +38,21 @@ func init() {
 		}
 	}()
 	// giftDescDescription is the schema descriptor for description field.
-	giftDescDescription := giftFields[1].Descriptor()
+	giftDescDescription := giftFields[2].Descriptor()
 	// gift.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	gift.DescriptionValidator = giftDescDescription.Validators[0].(func(string) error)
 	// giftDescIconURL is the schema descriptor for icon_url field.
-	giftDescIconURL := giftFields[2].Descriptor()
+	giftDescIconURL := giftFields[3].Descriptor()
 	// gift.IconURLValidator is a validator for the "icon_url" field. It is called by the builders before save.
 	gift.IconURLValidator = giftDescIconURL.Validators[0].(func(string) error)
 	// giftDescPrice is the schema descriptor for price field.
-	giftDescPrice := giftFields[4].Descriptor()
+	giftDescPrice := giftFields[5].Descriptor()
 	// gift.PriceValidator is a validator for the "price" field. It is called by the builders before save.
 	gift.PriceValidator = giftDescPrice.Validators[0].(func(int64) error)
 	// giftDescVipOnly is the schema descriptor for vip_only field.
-	giftDescVipOnly := giftFields[5].Descriptor()
+	giftDescVipOnly := giftFields[6].Descriptor()
 	// gift.DefaultVipOnly holds the default value on creation for the vip_only field.
 	gift.DefaultVipOnly = giftDescVipOnly.Default.(bool)
-	// giftDescSpecialEffect is the schema descriptor for special_effect field.
-	giftDescSpecialEffect := giftFields[6].Descriptor()
-	// gift.SpecialEffectValidator is a validator for the "special_effect" field. It is called by the builders before save.
-	gift.SpecialEffectValidator = giftDescSpecialEffect.Validators[0].(func(string) error)
 	// giftDescCreatedAt is the schema descriptor for created_at field.
 	giftDescCreatedAt := giftFields[8].Descriptor()
 	// gift.DefaultCreatedAt holds the default value on creation for the created_at field.
@@ -65,6 +63,10 @@ func init() {
 	gift.DefaultUpdatedAt = giftDescUpdatedAt.Default.(func() time.Time)
 	// gift.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	gift.UpdateDefaultUpdatedAt = giftDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// giftDescID is the schema descriptor for id field.
+	giftDescID := giftFields[0].Descriptor()
+	// gift.DefaultID holds the default value on creation for the id field.
+	gift.DefaultID = giftDescID.Default.(func() uuid.UUID)
 	giftrecordFields := schema.GiftRecord{}.Fields()
 	_ = giftrecordFields
 	// giftrecordDescGiftID is the schema descriptor for gift_id field.

@@ -10,13 +10,14 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // Gift is the model entity for the Gift schema.
 type Gift struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Description holds the value of the "description" field.
@@ -29,8 +30,6 @@ type Gift struct {
 	Price int64 `json:"price,omitempty"`
 	// VipOnly holds the value of the "vip_only" field.
 	VipOnly bool `json:"vip_only,omitempty"`
-	// SpecialEffect holds the value of the "special_effect" field.
-	SpecialEffect string `json:"special_effect,omitempty"`
 	// Status holds the value of the "status" field.
 	Status gift.Status `json:"status,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -47,12 +46,14 @@ func (*Gift) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case gift.FieldVipOnly:
 			values[i] = new(sql.NullBool)
-		case gift.FieldID, gift.FieldPrice:
+		case gift.FieldPrice:
 			values[i] = new(sql.NullInt64)
-		case gift.FieldName, gift.FieldDescription, gift.FieldIconURL, gift.FieldCacheKey, gift.FieldSpecialEffect, gift.FieldStatus:
+		case gift.FieldName, gift.FieldDescription, gift.FieldIconURL, gift.FieldCacheKey, gift.FieldStatus:
 			values[i] = new(sql.NullString)
 		case gift.FieldCreatedAt, gift.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
+		case gift.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -69,11 +70,11 @@ func (_m *Gift) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case gift.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case gift.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
@@ -109,12 +110,6 @@ func (_m *Gift) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field vip_only", values[i])
 			} else if value.Valid {
 				_m.VipOnly = value.Bool
-			}
-		case gift.FieldSpecialEffect:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field special_effect", values[i])
-			} else if value.Valid {
-				_m.SpecialEffect = value.String
 			}
 		case gift.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -187,9 +182,6 @@ func (_m *Gift) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("vip_only=")
 	builder.WriteString(fmt.Sprintf("%v", _m.VipOnly))
-	builder.WriteString(", ")
-	builder.WriteString("special_effect=")
-	builder.WriteString(_m.SpecialEffect)
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Status))

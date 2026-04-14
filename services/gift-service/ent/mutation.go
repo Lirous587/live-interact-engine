@@ -35,24 +35,23 @@ const (
 // GiftMutation represents an operation that mutates the Gift nodes in the graph.
 type GiftMutation struct {
 	config
-	op             Op
-	typ            string
-	id             *int
-	name           *string
-	description    *string
-	icon_url       *string
-	cache_key      *string
-	price          *int64
-	addprice       *int64
-	vip_only       *bool
-	special_effect *string
-	status         *gift.Status
-	created_at     *time.Time
-	updated_at     *time.Time
-	clearedFields  map[string]struct{}
-	done           bool
-	oldValue       func(context.Context) (*Gift, error)
-	predicates     []predicate.Gift
+	op            Op
+	typ           string
+	id            *uuid.UUID
+	name          *string
+	description   *string
+	icon_url      *string
+	cache_key     *string
+	price         *int64
+	addprice      *int64
+	vip_only      *bool
+	status        *gift.Status
+	created_at    *time.Time
+	updated_at    *time.Time
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*Gift, error)
+	predicates    []predicate.Gift
 }
 
 var _ ent.Mutation = (*GiftMutation)(nil)
@@ -75,7 +74,7 @@ func newGiftMutation(c config, op Op, opts ...giftOption) *GiftMutation {
 }
 
 // withGiftID sets the ID field of the mutation.
-func withGiftID(id int) giftOption {
+func withGiftID(id uuid.UUID) giftOption {
 	return func(m *GiftMutation) {
 		var (
 			err   error
@@ -125,9 +124,15 @@ func (m GiftMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Gift entities.
+func (m *GiftMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *GiftMutation) ID() (id int, exists bool) {
+func (m *GiftMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -138,12 +143,12 @@ func (m *GiftMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *GiftMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *GiftMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -415,55 +420,6 @@ func (m *GiftMutation) ResetVipOnly() {
 	m.vip_only = nil
 }
 
-// SetSpecialEffect sets the "special_effect" field.
-func (m *GiftMutation) SetSpecialEffect(s string) {
-	m.special_effect = &s
-}
-
-// SpecialEffect returns the value of the "special_effect" field in the mutation.
-func (m *GiftMutation) SpecialEffect() (r string, exists bool) {
-	v := m.special_effect
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSpecialEffect returns the old "special_effect" field's value of the Gift entity.
-// If the Gift object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *GiftMutation) OldSpecialEffect(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSpecialEffect is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSpecialEffect requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSpecialEffect: %w", err)
-	}
-	return oldValue.SpecialEffect, nil
-}
-
-// ClearSpecialEffect clears the value of the "special_effect" field.
-func (m *GiftMutation) ClearSpecialEffect() {
-	m.special_effect = nil
-	m.clearedFields[gift.FieldSpecialEffect] = struct{}{}
-}
-
-// SpecialEffectCleared returns if the "special_effect" field was cleared in this mutation.
-func (m *GiftMutation) SpecialEffectCleared() bool {
-	_, ok := m.clearedFields[gift.FieldSpecialEffect]
-	return ok
-}
-
-// ResetSpecialEffect resets all changes to the "special_effect" field.
-func (m *GiftMutation) ResetSpecialEffect() {
-	m.special_effect = nil
-	delete(m.clearedFields, gift.FieldSpecialEffect)
-}
-
 // SetStatus sets the "status" field.
 func (m *GiftMutation) SetStatus(gi gift.Status) {
 	m.status = &gi
@@ -606,7 +562,7 @@ func (m *GiftMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *GiftMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 9)
 	if m.name != nil {
 		fields = append(fields, gift.FieldName)
 	}
@@ -624,9 +580,6 @@ func (m *GiftMutation) Fields() []string {
 	}
 	if m.vip_only != nil {
 		fields = append(fields, gift.FieldVipOnly)
-	}
-	if m.special_effect != nil {
-		fields = append(fields, gift.FieldSpecialEffect)
 	}
 	if m.status != nil {
 		fields = append(fields, gift.FieldStatus)
@@ -657,8 +610,6 @@ func (m *GiftMutation) Field(name string) (ent.Value, bool) {
 		return m.Price()
 	case gift.FieldVipOnly:
 		return m.VipOnly()
-	case gift.FieldSpecialEffect:
-		return m.SpecialEffect()
 	case gift.FieldStatus:
 		return m.Status()
 	case gift.FieldCreatedAt:
@@ -686,8 +637,6 @@ func (m *GiftMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldPrice(ctx)
 	case gift.FieldVipOnly:
 		return m.OldVipOnly(ctx)
-	case gift.FieldSpecialEffect:
-		return m.OldSpecialEffect(ctx)
 	case gift.FieldStatus:
 		return m.OldStatus(ctx)
 	case gift.FieldCreatedAt:
@@ -744,13 +693,6 @@ func (m *GiftMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetVipOnly(v)
-		return nil
-	case gift.FieldSpecialEffect:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSpecialEffect(v)
 		return nil
 	case gift.FieldStatus:
 		v, ok := value.(gift.Status)
@@ -824,9 +766,6 @@ func (m *GiftMutation) ClearedFields() []string {
 	if m.FieldCleared(gift.FieldIconURL) {
 		fields = append(fields, gift.FieldIconURL)
 	}
-	if m.FieldCleared(gift.FieldSpecialEffect) {
-		fields = append(fields, gift.FieldSpecialEffect)
-	}
 	return fields
 }
 
@@ -846,9 +785,6 @@ func (m *GiftMutation) ClearField(name string) error {
 		return nil
 	case gift.FieldIconURL:
 		m.ClearIconURL()
-		return nil
-	case gift.FieldSpecialEffect:
-		m.ClearSpecialEffect()
 		return nil
 	}
 	return fmt.Errorf("unknown Gift nullable field %s", name)
@@ -875,9 +811,6 @@ func (m *GiftMutation) ResetField(name string) error {
 		return nil
 	case gift.FieldVipOnly:
 		m.ResetVipOnly()
-		return nil
-	case gift.FieldSpecialEffect:
-		m.ResetSpecialEffect()
 		return nil
 	case gift.FieldStatus:
 		m.ResetStatus()

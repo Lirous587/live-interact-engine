@@ -34,9 +34,15 @@ func (GiftRecord) Edges() []ent.Edge {
 	return nil
 }
 
-func (Wallet) Indexes() []ent.Index {
+// Indexes of the GiftRecord.
+func (GiftRecord) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("user_id").Unique(), // 用户 ID 唯一（一用户一钱包）
-		index.Fields("updated_at"),       // 按更新时间查询（余额变动审计）
+		index.Fields("idempotency_key").Unique(), // 防重的唯一索引
+		index.Fields("user_id"),                  // 查某用户的送礼记录
+		index.Fields("anchor_id"),                // 查主播的收礼记录
+		index.Fields("room_id"),                  // 查某房间的送礼记录
+		index.Fields("status"),                   // 查待处理流水（pending）
+		index.Fields("created_at"),               // 时间范围查询
+		index.Fields("status", "created_at"),     // 复合索引：按状态+时间查询（常见查询模式）
 	}
 }

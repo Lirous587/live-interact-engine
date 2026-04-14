@@ -117,26 +117,6 @@ func (_u *GiftUpdate) SetNillableVipOnly(v *bool) *GiftUpdate {
 	return _u
 }
 
-// SetSpecialEffect sets the "special_effect" field.
-func (_u *GiftUpdate) SetSpecialEffect(v string) *GiftUpdate {
-	_u.mutation.SetSpecialEffect(v)
-	return _u
-}
-
-// SetNillableSpecialEffect sets the "special_effect" field if the given value is not nil.
-func (_u *GiftUpdate) SetNillableSpecialEffect(v *string) *GiftUpdate {
-	if v != nil {
-		_u.SetSpecialEffect(*v)
-	}
-	return _u
-}
-
-// ClearSpecialEffect clears the value of the "special_effect" field.
-func (_u *GiftUpdate) ClearSpecialEffect() *GiftUpdate {
-	_u.mutation.ClearSpecialEffect()
-	return _u
-}
-
 // SetStatus sets the "status" field.
 func (_u *GiftUpdate) SetStatus(v gift.Status) *GiftUpdate {
 	_u.mutation.SetStatus(v)
@@ -220,11 +200,6 @@ func (_u *GiftUpdate) check() error {
 			return &ValidationError{Name: "price", err: fmt.Errorf(`ent: validator failed for field "Gift.price": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.SpecialEffect(); ok {
-		if err := gift.SpecialEffectValidator(v); err != nil {
-			return &ValidationError{Name: "special_effect", err: fmt.Errorf(`ent: validator failed for field "Gift.special_effect": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.Status(); ok {
 		if err := gift.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Gift.status": %w`, err)}
@@ -237,7 +212,7 @@ func (_u *GiftUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(gift.Table, gift.Columns, sqlgraph.NewFieldSpec(gift.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(gift.Table, gift.Columns, sqlgraph.NewFieldSpec(gift.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -268,12 +243,6 @@ func (_u *GiftUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.VipOnly(); ok {
 		_spec.SetField(gift.FieldVipOnly, field.TypeBool, value)
-	}
-	if value, ok := _u.mutation.SpecialEffect(); ok {
-		_spec.SetField(gift.FieldSpecialEffect, field.TypeString, value)
-	}
-	if _u.mutation.SpecialEffectCleared() {
-		_spec.ClearField(gift.FieldSpecialEffect, field.TypeString)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(gift.FieldStatus, field.TypeEnum, value)
@@ -390,26 +359,6 @@ func (_u *GiftUpdateOne) SetNillableVipOnly(v *bool) *GiftUpdateOne {
 	return _u
 }
 
-// SetSpecialEffect sets the "special_effect" field.
-func (_u *GiftUpdateOne) SetSpecialEffect(v string) *GiftUpdateOne {
-	_u.mutation.SetSpecialEffect(v)
-	return _u
-}
-
-// SetNillableSpecialEffect sets the "special_effect" field if the given value is not nil.
-func (_u *GiftUpdateOne) SetNillableSpecialEffect(v *string) *GiftUpdateOne {
-	if v != nil {
-		_u.SetSpecialEffect(*v)
-	}
-	return _u
-}
-
-// ClearSpecialEffect clears the value of the "special_effect" field.
-func (_u *GiftUpdateOne) ClearSpecialEffect() *GiftUpdateOne {
-	_u.mutation.ClearSpecialEffect()
-	return _u
-}
-
 // SetStatus sets the "status" field.
 func (_u *GiftUpdateOne) SetStatus(v gift.Status) *GiftUpdateOne {
 	_u.mutation.SetStatus(v)
@@ -506,11 +455,6 @@ func (_u *GiftUpdateOne) check() error {
 			return &ValidationError{Name: "price", err: fmt.Errorf(`ent: validator failed for field "Gift.price": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.SpecialEffect(); ok {
-		if err := gift.SpecialEffectValidator(v); err != nil {
-			return &ValidationError{Name: "special_effect", err: fmt.Errorf(`ent: validator failed for field "Gift.special_effect": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.Status(); ok {
 		if err := gift.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Gift.status": %w`, err)}
@@ -523,7 +467,7 @@ func (_u *GiftUpdateOne) sqlSave(ctx context.Context) (_node *Gift, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(gift.Table, gift.Columns, sqlgraph.NewFieldSpec(gift.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(gift.Table, gift.Columns, sqlgraph.NewFieldSpec(gift.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Gift.id" for update`)}
@@ -571,12 +515,6 @@ func (_u *GiftUpdateOne) sqlSave(ctx context.Context) (_node *Gift, err error) {
 	}
 	if value, ok := _u.mutation.VipOnly(); ok {
 		_spec.SetField(gift.FieldVipOnly, field.TypeBool, value)
-	}
-	if value, ok := _u.mutation.SpecialEffect(); ok {
-		_spec.SetField(gift.FieldSpecialEffect, field.TypeString, value)
-	}
-	if _u.mutation.SpecialEffectCleared() {
-		_spec.ClearField(gift.FieldSpecialEffect, field.TypeString)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(gift.FieldStatus, field.TypeEnum, value)

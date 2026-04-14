@@ -7,50 +7,51 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Gift {
+func ID(id uuid.UUID) predicate.Gift {
 	return predicate.Gift(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Gift {
+func IDEQ(id uuid.UUID) predicate.Gift {
 	return predicate.Gift(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Gift {
+func IDNEQ(id uuid.UUID) predicate.Gift {
 	return predicate.Gift(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Gift {
+func IDIn(ids ...uuid.UUID) predicate.Gift {
 	return predicate.Gift(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Gift {
+func IDNotIn(ids ...uuid.UUID) predicate.Gift {
 	return predicate.Gift(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Gift {
+func IDGT(id uuid.UUID) predicate.Gift {
 	return predicate.Gift(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Gift {
+func IDGTE(id uuid.UUID) predicate.Gift {
 	return predicate.Gift(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Gift {
+func IDLT(id uuid.UUID) predicate.Gift {
 	return predicate.Gift(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Gift {
+func IDLTE(id uuid.UUID) predicate.Gift {
 	return predicate.Gift(sql.FieldLTE(FieldID, id))
 }
 
@@ -82,11 +83,6 @@ func Price(v int64) predicate.Gift {
 // VipOnly applies equality check predicate on the "vip_only" field. It's identical to VipOnlyEQ.
 func VipOnly(v bool) predicate.Gift {
 	return predicate.Gift(sql.FieldEQ(FieldVipOnly, v))
-}
-
-// SpecialEffect applies equality check predicate on the "special_effect" field. It's identical to SpecialEffectEQ.
-func SpecialEffect(v string) predicate.Gift {
-	return predicate.Gift(sql.FieldEQ(FieldSpecialEffect, v))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
@@ -427,81 +423,6 @@ func VipOnlyEQ(v bool) predicate.Gift {
 // VipOnlyNEQ applies the NEQ predicate on the "vip_only" field.
 func VipOnlyNEQ(v bool) predicate.Gift {
 	return predicate.Gift(sql.FieldNEQ(FieldVipOnly, v))
-}
-
-// SpecialEffectEQ applies the EQ predicate on the "special_effect" field.
-func SpecialEffectEQ(v string) predicate.Gift {
-	return predicate.Gift(sql.FieldEQ(FieldSpecialEffect, v))
-}
-
-// SpecialEffectNEQ applies the NEQ predicate on the "special_effect" field.
-func SpecialEffectNEQ(v string) predicate.Gift {
-	return predicate.Gift(sql.FieldNEQ(FieldSpecialEffect, v))
-}
-
-// SpecialEffectIn applies the In predicate on the "special_effect" field.
-func SpecialEffectIn(vs ...string) predicate.Gift {
-	return predicate.Gift(sql.FieldIn(FieldSpecialEffect, vs...))
-}
-
-// SpecialEffectNotIn applies the NotIn predicate on the "special_effect" field.
-func SpecialEffectNotIn(vs ...string) predicate.Gift {
-	return predicate.Gift(sql.FieldNotIn(FieldSpecialEffect, vs...))
-}
-
-// SpecialEffectGT applies the GT predicate on the "special_effect" field.
-func SpecialEffectGT(v string) predicate.Gift {
-	return predicate.Gift(sql.FieldGT(FieldSpecialEffect, v))
-}
-
-// SpecialEffectGTE applies the GTE predicate on the "special_effect" field.
-func SpecialEffectGTE(v string) predicate.Gift {
-	return predicate.Gift(sql.FieldGTE(FieldSpecialEffect, v))
-}
-
-// SpecialEffectLT applies the LT predicate on the "special_effect" field.
-func SpecialEffectLT(v string) predicate.Gift {
-	return predicate.Gift(sql.FieldLT(FieldSpecialEffect, v))
-}
-
-// SpecialEffectLTE applies the LTE predicate on the "special_effect" field.
-func SpecialEffectLTE(v string) predicate.Gift {
-	return predicate.Gift(sql.FieldLTE(FieldSpecialEffect, v))
-}
-
-// SpecialEffectContains applies the Contains predicate on the "special_effect" field.
-func SpecialEffectContains(v string) predicate.Gift {
-	return predicate.Gift(sql.FieldContains(FieldSpecialEffect, v))
-}
-
-// SpecialEffectHasPrefix applies the HasPrefix predicate on the "special_effect" field.
-func SpecialEffectHasPrefix(v string) predicate.Gift {
-	return predicate.Gift(sql.FieldHasPrefix(FieldSpecialEffect, v))
-}
-
-// SpecialEffectHasSuffix applies the HasSuffix predicate on the "special_effect" field.
-func SpecialEffectHasSuffix(v string) predicate.Gift {
-	return predicate.Gift(sql.FieldHasSuffix(FieldSpecialEffect, v))
-}
-
-// SpecialEffectIsNil applies the IsNil predicate on the "special_effect" field.
-func SpecialEffectIsNil() predicate.Gift {
-	return predicate.Gift(sql.FieldIsNull(FieldSpecialEffect))
-}
-
-// SpecialEffectNotNil applies the NotNil predicate on the "special_effect" field.
-func SpecialEffectNotNil() predicate.Gift {
-	return predicate.Gift(sql.FieldNotNull(FieldSpecialEffect))
-}
-
-// SpecialEffectEqualFold applies the EqualFold predicate on the "special_effect" field.
-func SpecialEffectEqualFold(v string) predicate.Gift {
-	return predicate.Gift(sql.FieldEqualFold(FieldSpecialEffect, v))
-}
-
-// SpecialEffectContainsFold applies the ContainsFold predicate on the "special_effect" field.
-func SpecialEffectContainsFold(v string) predicate.Gift {
-	return predicate.Gift(sql.FieldContainsFold(FieldSpecialEffect, v))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.
