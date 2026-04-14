@@ -27,7 +27,7 @@ type GiftRecord struct {
 	// RoomID holds the value of the "room_id" field.
 	RoomID uuid.UUID `json:"room_id,omitempty"`
 	// GiftID holds the value of the "gift_id" field.
-	GiftID int64 `json:"gift_id,omitempty"`
+	GiftID uuid.UUID `json:"gift_id,omitempty"`
 	// Amount holds the value of the "amount" field.
 	Amount int64 `json:"amount,omitempty"`
 	// Status holds the value of the "status" field.
@@ -44,13 +44,13 @@ func (*GiftRecord) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case giftrecord.FieldID, giftrecord.FieldGiftID, giftrecord.FieldAmount:
+		case giftrecord.FieldID, giftrecord.FieldAmount:
 			values[i] = new(sql.NullInt64)
 		case giftrecord.FieldStatus:
 			values[i] = new(sql.NullString)
 		case giftrecord.FieldCreatedAt, giftrecord.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case giftrecord.FieldIdempotencyKey, giftrecord.FieldUserID, giftrecord.FieldAnchorID, giftrecord.FieldRoomID:
+		case giftrecord.FieldIdempotencyKey, giftrecord.FieldUserID, giftrecord.FieldAnchorID, giftrecord.FieldRoomID, giftrecord.FieldGiftID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -98,10 +98,10 @@ func (_m *GiftRecord) assignValues(columns []string, values []any) error {
 				_m.RoomID = *value
 			}
 		case giftrecord.FieldGiftID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field gift_id", values[i])
-			} else if value.Valid {
-				_m.GiftID = value.Int64
+			} else if value != nil {
+				_m.GiftID = *value
 			}
 		case giftrecord.FieldAmount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {

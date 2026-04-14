@@ -69,10 +69,6 @@ func init() {
 	gift.DefaultID = giftDescID.Default.(func() uuid.UUID)
 	giftrecordFields := schema.GiftRecord{}.Fields()
 	_ = giftrecordFields
-	// giftrecordDescGiftID is the schema descriptor for gift_id field.
-	giftrecordDescGiftID := giftrecordFields[4].Descriptor()
-	// giftrecord.GiftIDValidator is a validator for the "gift_id" field. It is called by the builders before save.
-	giftrecord.GiftIDValidator = giftrecordDescGiftID.Validators[0].(func(int64) error)
 	// giftrecordDescAmount is the schema descriptor for amount field.
 	giftrecordDescAmount := giftrecordFields[5].Descriptor()
 	// giftrecord.AmountValidator is a validator for the "amount" field. It is called by the builders before save.

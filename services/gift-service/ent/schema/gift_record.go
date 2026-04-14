@@ -17,11 +17,11 @@ type GiftRecord struct {
 // Fields of the GiftRecord.
 func (GiftRecord) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("idempotency_key", uuid.UUID{}), // 唯一索引，幂等防重
-		field.UUID("user_id", uuid.UUID{}),         // 送礼者 ID
-		field.UUID("anchor_id", uuid.UUID{}),       // 主播 ID
+		field.UUID("idempotency_key", uuid.UUID{}).Immutable().Unique(), // 唯一索引，幂等防重
+		field.UUID("user_id", uuid.UUID{}),                              // 送礼者 ID
+		field.UUID("anchor_id", uuid.UUID{}),                            // 主播 ID
 		field.UUID("room_id", uuid.UUID{}),
-		field.Int64("gift_id").Positive(),
+		field.UUID("gift_id", uuid.UUID{}),
 		field.Int64("amount").Positive(),                                               // 送礼金额
 		field.Enum("status").Values("pending", "success", "failed").Default("pending"), // 状态机
 		field.Time("created_at").Default(time.Now).Immutable(),

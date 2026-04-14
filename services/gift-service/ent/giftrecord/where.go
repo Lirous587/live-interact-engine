@@ -76,7 +76,7 @@ func RoomID(v uuid.UUID) predicate.GiftRecord {
 }
 
 // GiftID applies equality check predicate on the "gift_id" field. It's identical to GiftIDEQ.
-func GiftID(v int64) predicate.GiftRecord {
+func GiftID(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldEQ(FieldGiftID, v))
 }
 
@@ -256,42 +256,42 @@ func RoomIDLTE(v uuid.UUID) predicate.GiftRecord {
 }
 
 // GiftIDEQ applies the EQ predicate on the "gift_id" field.
-func GiftIDEQ(v int64) predicate.GiftRecord {
+func GiftIDEQ(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldEQ(FieldGiftID, v))
 }
 
 // GiftIDNEQ applies the NEQ predicate on the "gift_id" field.
-func GiftIDNEQ(v int64) predicate.GiftRecord {
+func GiftIDNEQ(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldNEQ(FieldGiftID, v))
 }
 
 // GiftIDIn applies the In predicate on the "gift_id" field.
-func GiftIDIn(vs ...int64) predicate.GiftRecord {
+func GiftIDIn(vs ...uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldIn(FieldGiftID, vs...))
 }
 
 // GiftIDNotIn applies the NotIn predicate on the "gift_id" field.
-func GiftIDNotIn(vs ...int64) predicate.GiftRecord {
+func GiftIDNotIn(vs ...uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldNotIn(FieldGiftID, vs...))
 }
 
 // GiftIDGT applies the GT predicate on the "gift_id" field.
-func GiftIDGT(v int64) predicate.GiftRecord {
+func GiftIDGT(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldGT(FieldGiftID, v))
 }
 
 // GiftIDGTE applies the GTE predicate on the "gift_id" field.
-func GiftIDGTE(v int64) predicate.GiftRecord {
+func GiftIDGTE(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldGTE(FieldGiftID, v))
 }
 
 // GiftIDLT applies the LT predicate on the "gift_id" field.
-func GiftIDLT(v int64) predicate.GiftRecord {
+func GiftIDLT(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldLT(FieldGiftID, v))
 }
 
 // GiftIDLTE applies the LTE predicate on the "gift_id" field.
-func GiftIDLTE(v int64) predicate.GiftRecord {
+func GiftIDLTE(v uuid.UUID) predicate.GiftRecord {
 	return predicate.GiftRecord(sql.FieldLTE(FieldGiftID, v))
 }
 

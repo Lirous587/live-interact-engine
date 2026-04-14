@@ -29,20 +29,6 @@ func (_u *GiftRecordUpdate) Where(ps ...predicate.GiftRecord) *GiftRecordUpdate 
 	return _u
 }
 
-// SetIdempotencyKey sets the "idempotency_key" field.
-func (_u *GiftRecordUpdate) SetIdempotencyKey(v uuid.UUID) *GiftRecordUpdate {
-	_u.mutation.SetIdempotencyKey(v)
-	return _u
-}
-
-// SetNillableIdempotencyKey sets the "idempotency_key" field if the given value is not nil.
-func (_u *GiftRecordUpdate) SetNillableIdempotencyKey(v *uuid.UUID) *GiftRecordUpdate {
-	if v != nil {
-		_u.SetIdempotencyKey(*v)
-	}
-	return _u
-}
-
 // SetUserID sets the "user_id" field.
 func (_u *GiftRecordUpdate) SetUserID(v uuid.UUID) *GiftRecordUpdate {
 	_u.mutation.SetUserID(v)
@@ -86,23 +72,16 @@ func (_u *GiftRecordUpdate) SetNillableRoomID(v *uuid.UUID) *GiftRecordUpdate {
 }
 
 // SetGiftID sets the "gift_id" field.
-func (_u *GiftRecordUpdate) SetGiftID(v int64) *GiftRecordUpdate {
-	_u.mutation.ResetGiftID()
+func (_u *GiftRecordUpdate) SetGiftID(v uuid.UUID) *GiftRecordUpdate {
 	_u.mutation.SetGiftID(v)
 	return _u
 }
 
 // SetNillableGiftID sets the "gift_id" field if the given value is not nil.
-func (_u *GiftRecordUpdate) SetNillableGiftID(v *int64) *GiftRecordUpdate {
+func (_u *GiftRecordUpdate) SetNillableGiftID(v *uuid.UUID) *GiftRecordUpdate {
 	if v != nil {
 		_u.SetGiftID(*v)
 	}
-	return _u
-}
-
-// AddGiftID adds value to the "gift_id" field.
-func (_u *GiftRecordUpdate) AddGiftID(v int64) *GiftRecordUpdate {
-	_u.mutation.AddGiftID(v)
 	return _u
 }
 
@@ -190,11 +169,6 @@ func (_u *GiftRecordUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *GiftRecordUpdate) check() error {
-	if v, ok := _u.mutation.GiftID(); ok {
-		if err := giftrecord.GiftIDValidator(v); err != nil {
-			return &ValidationError{Name: "gift_id", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.gift_id": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.Amount(); ok {
 		if err := giftrecord.AmountValidator(v); err != nil {
 			return &ValidationError{Name: "amount", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.amount": %w`, err)}
@@ -220,9 +194,6 @@ func (_u *GiftRecordUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 			}
 		}
 	}
-	if value, ok := _u.mutation.IdempotencyKey(); ok {
-		_spec.SetField(giftrecord.FieldIdempotencyKey, field.TypeUUID, value)
-	}
 	if value, ok := _u.mutation.UserID(); ok {
 		_spec.SetField(giftrecord.FieldUserID, field.TypeUUID, value)
 	}
@@ -233,10 +204,7 @@ func (_u *GiftRecordUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 		_spec.SetField(giftrecord.FieldRoomID, field.TypeUUID, value)
 	}
 	if value, ok := _u.mutation.GiftID(); ok {
-		_spec.SetField(giftrecord.FieldGiftID, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedGiftID(); ok {
-		_spec.AddField(giftrecord.FieldGiftID, field.TypeInt64, value)
+		_spec.SetField(giftrecord.FieldGiftID, field.TypeUUID, value)
 	}
 	if value, ok := _u.mutation.Amount(); ok {
 		_spec.SetField(giftrecord.FieldAmount, field.TypeInt64, value)
@@ -268,20 +236,6 @@ type GiftRecordUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *GiftRecordMutation
-}
-
-// SetIdempotencyKey sets the "idempotency_key" field.
-func (_u *GiftRecordUpdateOne) SetIdempotencyKey(v uuid.UUID) *GiftRecordUpdateOne {
-	_u.mutation.SetIdempotencyKey(v)
-	return _u
-}
-
-// SetNillableIdempotencyKey sets the "idempotency_key" field if the given value is not nil.
-func (_u *GiftRecordUpdateOne) SetNillableIdempotencyKey(v *uuid.UUID) *GiftRecordUpdateOne {
-	if v != nil {
-		_u.SetIdempotencyKey(*v)
-	}
-	return _u
 }
 
 // SetUserID sets the "user_id" field.
@@ -327,23 +281,16 @@ func (_u *GiftRecordUpdateOne) SetNillableRoomID(v *uuid.UUID) *GiftRecordUpdate
 }
 
 // SetGiftID sets the "gift_id" field.
-func (_u *GiftRecordUpdateOne) SetGiftID(v int64) *GiftRecordUpdateOne {
-	_u.mutation.ResetGiftID()
+func (_u *GiftRecordUpdateOne) SetGiftID(v uuid.UUID) *GiftRecordUpdateOne {
 	_u.mutation.SetGiftID(v)
 	return _u
 }
 
 // SetNillableGiftID sets the "gift_id" field if the given value is not nil.
-func (_u *GiftRecordUpdateOne) SetNillableGiftID(v *int64) *GiftRecordUpdateOne {
+func (_u *GiftRecordUpdateOne) SetNillableGiftID(v *uuid.UUID) *GiftRecordUpdateOne {
 	if v != nil {
 		_u.SetGiftID(*v)
 	}
-	return _u
-}
-
-// AddGiftID adds value to the "gift_id" field.
-func (_u *GiftRecordUpdateOne) AddGiftID(v int64) *GiftRecordUpdateOne {
-	_u.mutation.AddGiftID(v)
 	return _u
 }
 
@@ -444,11 +391,6 @@ func (_u *GiftRecordUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *GiftRecordUpdateOne) check() error {
-	if v, ok := _u.mutation.GiftID(); ok {
-		if err := giftrecord.GiftIDValidator(v); err != nil {
-			return &ValidationError{Name: "gift_id", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.gift_id": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.Amount(); ok {
 		if err := giftrecord.AmountValidator(v); err != nil {
 			return &ValidationError{Name: "amount", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.amount": %w`, err)}
@@ -491,9 +433,6 @@ func (_u *GiftRecordUpdateOne) sqlSave(ctx context.Context) (_node *GiftRecord, 
 			}
 		}
 	}
-	if value, ok := _u.mutation.IdempotencyKey(); ok {
-		_spec.SetField(giftrecord.FieldIdempotencyKey, field.TypeUUID, value)
-	}
 	if value, ok := _u.mutation.UserID(); ok {
 		_spec.SetField(giftrecord.FieldUserID, field.TypeUUID, value)
 	}
@@ -504,10 +443,7 @@ func (_u *GiftRecordUpdateOne) sqlSave(ctx context.Context) (_node *GiftRecord, 
 		_spec.SetField(giftrecord.FieldRoomID, field.TypeUUID, value)
 	}
 	if value, ok := _u.mutation.GiftID(); ok {
-		_spec.SetField(giftrecord.FieldGiftID, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedGiftID(); ok {
-		_spec.AddField(giftrecord.FieldGiftID, field.TypeInt64, value)
+		_spec.SetField(giftrecord.FieldGiftID, field.TypeUUID, value)
 	}
 	if value, ok := _u.mutation.Amount(); ok {
 		_spec.SetField(giftrecord.FieldAmount, field.TypeInt64, value)

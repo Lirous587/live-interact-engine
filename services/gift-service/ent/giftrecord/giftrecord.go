@@ -61,8 +61,6 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// GiftIDValidator is a validator for the "gift_id" field. It is called by the builders before save.
-	GiftIDValidator func(int64) error
 	// AmountValidator is a validator for the "amount" field. It is called by the builders before save.
 	AmountValidator func(int64) error
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.

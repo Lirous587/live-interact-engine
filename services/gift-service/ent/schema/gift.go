@@ -17,7 +17,7 @@ type Gift struct {
 // Fields of the Gift.
 func (Gift) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("id", uuid.UUID{}).Default(uuid.New).StorageKey("id"),
+		field.UUID("id", uuid.UUID{}).Default(uuid.New),
 		field.String("name").NotEmpty().MinLen(1).MaxLen(50),
 		field.String("description").Optional().MaxLen(200),
 		field.String("icon_url").Optional().MaxLen(500),

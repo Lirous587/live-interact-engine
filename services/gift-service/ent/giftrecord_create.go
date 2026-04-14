@@ -46,7 +46,7 @@ func (_c *GiftRecordCreate) SetRoomID(v uuid.UUID) *GiftRecordCreate {
 }
 
 // SetGiftID sets the "gift_id" field.
-func (_c *GiftRecordCreate) SetGiftID(v int64) *GiftRecordCreate {
+func (_c *GiftRecordCreate) SetGiftID(v uuid.UUID) *GiftRecordCreate {
 	_c.mutation.SetGiftID(v)
 	return _c
 }
@@ -165,11 +165,6 @@ func (_c *GiftRecordCreate) check() error {
 	if _, ok := _c.mutation.GiftID(); !ok {
 		return &ValidationError{Name: "gift_id", err: errors.New(`ent: missing required field "GiftRecord.gift_id"`)}
 	}
-	if v, ok := _c.mutation.GiftID(); ok {
-		if err := giftrecord.GiftIDValidator(v); err != nil {
-			return &ValidationError{Name: "gift_id", err: fmt.Errorf(`ent: validator failed for field "GiftRecord.gift_id": %w`, err)}
-		}
-	}
 	if _, ok := _c.mutation.Amount(); !ok {
 		return &ValidationError{Name: "amount", err: errors.New(`ent: missing required field "GiftRecord.amount"`)}
 	}
@@ -235,7 +230,7 @@ func (_c *GiftRecordCreate) createSpec() (*GiftRecord, *sqlgraph.CreateSpec) {
 		_node.RoomID = value
 	}
 	if value, ok := _c.mutation.GiftID(); ok {
-		_spec.SetField(giftrecord.FieldGiftID, field.TypeInt64, value)
+		_spec.SetField(giftrecord.FieldGiftID, field.TypeUUID, value)
 		_node.GiftID = value
 	}
 	if value, ok := _c.mutation.Amount(); ok {
