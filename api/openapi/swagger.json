@@ -109,6 +109,131 @@
                 }
             }
         },
+        "/v1/gift/list": {
+            "get": {
+                "description": "获取平台全量礼物列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Gifts"
+                ],
+                "summary": "获取礼物列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.ListGiftsResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/gift/send": {
+            "post": {
+                "description": "用户向主播发送礼物，扣除用户钱包余额，生成礼物赠送记录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Gifts"
+                ],
+                "summary": "发送礼物",
+                "parameters": [
+                    {
+                        "description": "请求体",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mapper.SendGiftReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.GiftRecordResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/leaderboard/{room_id}": {
+            "get": {
+                "description": "获取指定房间的礼物赠送排行榜 (按累计送礼金额降序)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Leaderboard"
+                ],
+                "summary": "获取房间排行榜",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "房间 ID (UUID)",
+                        "name": "room_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 100,
+                        "description": "返回前 N 名 (默认 100, 最大 1000)",
+                        "name": "top_n",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.LeaderboardResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/v1/room/assign-role": {
             "post": {
                 "description": "房间所有者为用户分配角色和权限",
@@ -727,6 +852,56 @@
                     }
                 }
             }
+        },
+        "/v1/wallet/{user_id}/balance": {
+            "get": {
+                "description": "获取指定用户的钱包余额",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "获取钱包余额",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户 ID (UUID)",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.WalletResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -819,11 +994,120 @@
                 }
             }
         },
+        "mapper.GiftRecordResp": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "anchor_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "integer"
+                },
+                "gift_id": {
+                    "type": "string"
+                },
+                "idempotency_key": {
+                    "type": "string"
+                },
+                "room_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "pending, success, failed",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "mapper.GiftResp": {
+            "type": "object",
+            "properties": {
+                "cache_key": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "icon_url": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "online, offline, limited_time",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "integer"
+                },
+                "vip_only": {
+                    "type": "boolean"
+                }
+            }
+        },
         "mapper.IsMutedResp": {
             "type": "object",
             "properties": {
                 "is_muted": {
                     "type": "boolean"
+                }
+            }
+        },
+        "mapper.LeaderboardEntryResp": {
+            "type": "object",
+            "properties": {
+                "rank": {
+                    "type": "integer"
+                },
+                "score": {
+                    "description": "累计送礼金额",
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "mapper.LeaderboardResp": {
+            "type": "object",
+            "properties": {
+                "entries": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/mapper.LeaderboardEntryResp"
+                    }
+                },
+                "room_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "mapper.ListGiftsResp": {
+            "type": "object",
+            "properties": {
+                "gifts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/mapper.GiftResp"
+                    }
                 }
             }
         },
@@ -1014,6 +1298,37 @@
                 }
             }
         },
+        "mapper.SendGiftReq": {
+            "type": "object",
+            "required": [
+                "amount",
+                "anchor_id",
+                "gift_id",
+                "idempotency_key",
+                "room_id",
+                "user_id"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "anchor_id": {
+                    "type": "string"
+                },
+                "gift_id": {
+                    "type": "string"
+                },
+                "idempotency_key": {
+                    "type": "string"
+                },
+                "room_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "mapper.UnmuteUserReq": {
             "type": "object",
             "required": [
@@ -1069,6 +1384,27 @@
                 },
                 "user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "mapper.WalletResp": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "version_number": {
+                    "description": "乐观锁版本号",
+                    "type": "integer"
                 }
             }
         }

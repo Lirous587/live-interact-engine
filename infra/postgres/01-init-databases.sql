@@ -8,3 +8,7 @@ CREATE DATABASE user_service;
 
 -- 创建room服务数据库
 CREATE DATABASE room_service;
+
+
+-- 创建gift服务数据库
+CREATE DATABASE gift_service;

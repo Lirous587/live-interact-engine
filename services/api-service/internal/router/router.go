@@ -41,6 +41,9 @@ func RegisterRoutes(r *gin.RouterGroup) {
 
 	// 注册房间相关路由
 	registerRoom(v1)
+
+	// 注册礼物相关路由
+	registerGift(v1)
 }
 
 func registerDanmaka(r *gin.RouterGroup) {
@@ -97,7 +100,7 @@ func registerUser(r *gin.RouterGroup) {
 }
 
 func registerRoom(r *gin.RouterGroup) {
-	userServiceAddr := env.GetString("USER_SERVICE_URL", "user-service:9094")
+	userServiceAddr := env.GetString("USER_SERVICE_URL", "user-service:9095")
 	authMiddleware, err := middleware.NewAuthMiddleware(userServiceAddr)
 	if err != nil {
 		log.Fatalf("初始化 auth 中间件失败: %v", err)
@@ -132,6 +135,48 @@ func registerRoom(r *gin.RouterGroup) {
 		rg.GET("/:room_id/user/:user_id/mute-status", roomHandler.IsMuted)
 		rg.GET("/:room_id/user/:user_id/mute-info", roomHandler.GetMuteInfo)
 		rg.GET("/:room_id/mute-list", roomHandler.GetMuteList)
+	}
+}
+
+func registerGift(r *gin.RouterGroup) {
+	giftServiceURL := env.GetString("GIFT_SERVICE_URL", "gift-service:9096")
+
+	// 创建 gift 客户端
+	giftClient, err := grpc_clients.NewGiftClient(giftServiceURL)
+	if err != nil {
+		log.Fatalf("创建 gift 客户端失败: %v", err)
+	}
+
+	// 加入管理列表
+	clients = append(clients, giftClient)
+
+	// 创建 mappers（业务适配层）
+	giftMapper := mapper.NewGiftMapper(giftClient)
+	walletMapper := mapper.NewWalletMapper(giftClient)
+	leaderboardMapper := mapper.NewLeaderboardMapper(giftClient)
+
+	// 创建 handlers
+	giftHandler := handler.NewGiftHandler(giftMapper)
+	walletHandler := handler.NewWalletHandler(walletMapper)
+	leaderboardHandler := handler.NewLeaderboardHandler(leaderboardMapper)
+
+	// 注册路由 - Gift 路由
+	gg := r.Group("/gift")
+	{
+		gg.POST("/send", giftHandler.SendGift)
+		gg.GET("/list", giftHandler.ListGifts)
+	}
+
+	// 注册路由 - Wallet 路由
+	wg := r.Group("/wallet")
+	{
+		wg.GET("/:user_id/balance", walletHandler.GetWalletBalance)
+	}
+
+	// 注册路由 - Leaderboard 路由
+	lg := r.Group("/leaderboard")
+	{
+		lg.GET("/:room_id", leaderboardHandler.GetLeaderboard)
 	}
 }
 

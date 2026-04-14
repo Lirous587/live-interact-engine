@@ -34,10 +34,12 @@ services:
       - DANMAKU_SERVICE_URL=danmaku-service:9093
       - USER_SERVICE_URL=user-service:9094
       - ROOM_SERVICE_URL=room-service:9095
+      - GIFT_SERVICE_URL=gift-service:9096
     depends_on:
       - jaeger
       - user-service
       - room-service
+      - gift-service
     networks:
       - live-interact
 
@@ -149,6 +151,46 @@ services:
     depends_on:
       - jaeger
       - postgres
+    networks:
+      - live-interact
+
+  # Gift Service
+  gift-service:
+    build:
+      context: .
+      dockerfile: Dockerfile-gift
+    container_name: gift-service
+    ports:
+      - "9096:9096" # gRPC API 端口
+    environment:
+      # 服务配置
+      - GRPC_ADDR=:9096
+
+      # 日志配置
+      - LOG_LEVEL=debug
+      - LOG_FILENAME=logs/gift-service.log
+      - LOG_MAX_SIZE=100
+      - LOG_MAX_AGE=7
+      - LOG_MAX_BACKUPS=5
+
+      # PostgreSQL 配置
+      - DATABASE_DSN=postgres://postgres:password@postgres:5432/gift_service?sslmode=disable
+      - POSTGRES_MAX_CONNS=25
+      - POSTGRES_MIN_CONNS=5
+      - POSTGRES_MAX_CONN_LIFETIME_SECONDS=300
+      - POSTGRES_MAX_CONN_IDLE_TIME_SECONDS=60
+
+      # Redis 配置
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+
+      # 链路追踪
+      - JAEGER_ENDPOINT=jaeger:4318
+    depends_on:
+      - jaeger
+      - postgres
+      - redis
     networks:
       - live-interact
 

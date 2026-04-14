@@ -60,10 +60,82 @@ definitions:
           $ref: '#/definitions/mapper.MuteResp'
         type: array
     type: object
+  mapper.GiftRecordResp:
+    properties:
+      amount:
+        type: integer
+      anchor_id:
+        type: string
+      created_at:
+        type: integer
+      gift_id:
+        type: string
+      idempotency_key:
+        type: string
+      room_id:
+        type: string
+      status:
+        description: pending, success, failed
+        type: string
+      updated_at:
+        type: integer
+      user_id:
+        type: string
+    type: object
+  mapper.GiftResp:
+    properties:
+      cache_key:
+        type: string
+      created_at:
+        type: integer
+      description:
+        type: string
+      icon_url:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      status:
+        description: online, offline, limited_time
+        type: string
+      updated_at:
+        type: integer
+      vip_only:
+        type: boolean
+    type: object
   mapper.IsMutedResp:
     properties:
       is_muted:
         type: boolean
+    type: object
+  mapper.LeaderboardEntryResp:
+    properties:
+      rank:
+        type: integer
+      score:
+        description: 累计送礼金额
+        type: integer
+      user_id:
+        type: string
+    type: object
+  mapper.LeaderboardResp:
+    properties:
+      entries:
+        items:
+          $ref: '#/definitions/mapper.LeaderboardEntryResp'
+        type: array
+      room_id:
+        type: string
+    type: object
+  mapper.ListGiftsResp:
+    properties:
+      gifts:
+        items:
+          $ref: '#/definitions/mapper.GiftResp'
+        type: array
     type: object
   mapper.LoginReq:
     properties:
@@ -194,6 +266,28 @@ definitions:
     - user_id
     - username
     type: object
+  mapper.SendGiftReq:
+    properties:
+      amount:
+        type: integer
+      anchor_id:
+        type: string
+      gift_id:
+        type: string
+      idempotency_key:
+        type: string
+      room_id:
+        type: string
+      user_id:
+        type: string
+    required:
+    - amount
+    - anchor_id
+    - gift_id
+    - idempotency_key
+    - room_id
+    - user_id
+    type: object
   mapper.UnmuteUserReq:
     properties:
       room_id:
@@ -231,6 +325,20 @@ definitions:
         type: integer
       user_id:
         type: string
+    type: object
+  mapper.WalletResp:
+    properties:
+      balance:
+        type: integer
+      created_at:
+        type: integer
+      updated_at:
+        type: integer
+      user_id:
+        type: string
+      version_number:
+        description: 乐观锁版本号
+        type: integer
     type: object
 host: localhost:8080
 info:
@@ -307,6 +415,90 @@ paths:
       summary: 订阅房间弹幕
       tags:
       - Danmaku
+  /v1/gift/list:
+    get:
+      description: 获取平台全量礼物列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mapper.ListGiftsResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取礼物列表
+      tags:
+      - Gifts
+  /v1/gift/send:
+    post:
+      consumes:
+      - application/json
+      description: 用户向主播发送礼物，扣除用户钱包余额，生成礼物赠送记录
+      parameters:
+      - description: 请求体
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/mapper.SendGiftReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mapper.GiftRecordResp'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 发送礼物
+      tags:
+      - Gifts
+  /v1/leaderboard/{room_id}:
+    get:
+      description: 获取指定房间的礼物赠送排行榜 (按累计送礼金额降序)
+      parameters:
+      - description: 房间 ID (UUID)
+        in: path
+        name: room_id
+        required: true
+        type: string
+      - default: 100
+        description: 返回前 N 名 (默认 100, 最大 1000)
+        in: query
+        name: top_n
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mapper.LeaderboardResp'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取房间排行榜
+      tags:
+      - Leaderboard
   /v1/room/{room_id}:
     get:
       description: 根据房间ID获取房间详细信息
@@ -724,4 +916,38 @@ paths:
       summary: 用户注册
       tags:
       - User
+  /v1/wallet/{user_id}/balance:
+    get:
+      description: 获取指定用户的钱包余额
+      parameters:
+      - description: 用户 ID (UUID)
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mapper.WalletResp'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取钱包余额
+      tags:
+      - Wallet
 swagger: "2.0"
