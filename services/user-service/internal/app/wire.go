@@ -38,7 +38,12 @@ func InitDependencies() (*Handlers, error) {
 	userRepo := postgres.NewUserRepository(client)
 
 	// Redis Token Repository
-	tokenRepo, err := redis.NewTokenRepository()
+	redisClient, err := redis.NewClient()
+	if err != nil {
+		log.Fatalf("初始化 Redis Client 失败: %v", err)
+	}
+
+	tokenRepo, err := redis.NewTokenRepository(redisClient)
 	if err != nil {
 		log.Fatalf("初始化 Redis TokenRepository 失败: %v", err)
 	}

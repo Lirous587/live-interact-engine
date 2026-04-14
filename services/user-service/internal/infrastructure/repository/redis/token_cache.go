@@ -24,13 +24,7 @@ type TokenRepository struct {
 }
 
 // NewTokenRepository 创建 TokenRepository 实例
-func NewTokenRepository() (domain.TokenRepository, error) {
-	// 初始化 Redis 客户端
-	client, err := NewClient()
-	if err != nil {
-		return nil, err
-	}
-
+func NewTokenRepository(client *redis.Client) (domain.TokenRepository, error) {
 	// 默认 30 天
 	defaultSeconds := int64(30 * 24 * 60 * 60)
 	expiresSeconds := env.GetInt64("TOKEN_REFRESH_EXPIRES_SECONDS", defaultSeconds)
