@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"live-interact-engine/services/gift-service/internal/domain"
-	"live-interact-engine/services/gift-service/internal/infrastructure/cache"
 	"live-interact-engine/services/gift-service/internal/infrastructure/grpc"
 	"live-interact-engine/services/gift-service/internal/infrastructure/repository/postgres"
 	"live-interact-engine/services/gift-service/internal/infrastructure/repository/redis"
@@ -47,8 +46,8 @@ func InitDependencies(ctx context.Context) (*Deps, error) {
 		log.Fatalf("初始化 Redis Client 失败: %v", err)
 	}
 
-	giftCache := cache.NewGiftCache(redisClient)
-	walletCache := cache.NewWalletCache(redisClient)
+	giftCache := redis.NewGiftCache(redisClient)
+	walletCache := redis.NewWalletCache(redisClient)
 
 	// ==================== 初始化 Services ====================
 	giftService := service.NewGiftService(giftRepo, giftCache)
