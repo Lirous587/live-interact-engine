@@ -44,37 +44,19 @@ func (r *UserRepository) GetUser(ctx context.Context, userID uuid.UUID) (*domain
 
 // SaveUser 保存用户（插入或更新）
 func (r *UserRepository) SaveUser(ctx context.Context, user *domain.User) error {
-	// 先尝试更新
-	count, err := r.client.User.
-		Update().
-		Where(entuser.IDEQ(user.UserID)).
+	err := r.client.User.Create().
+		SetID(user.UserID).
 		SetUsername(user.Username).
 		SetEmail(user.Email).
 		SetPasswordHash(user.PasswordHash).
+		SetCreatedAt(user.CreatedAt.Unix()).
 		SetUpdatedAt(user.UpdatedAt.Unix()).
 		SetIsActive(user.IsActive).
-		Save(ctx)
+		OnConflictColumns(entuser.FieldID).
+		UpdateNewValues().
+		Exec(ctx)
 
-	if err != nil {
-		return err
-	}
-
-	// 如果没有行被更新，则创建新用户
-	if count == 0 {
-		_, err := r.client.User.
-			Create().
-			SetID(user.UserID).
-			SetUsername(user.Username).
-			SetEmail(user.Email).
-			SetPasswordHash(user.PasswordHash).
-			SetCreatedAt(user.CreatedAt.Unix()).
-			SetUpdatedAt(user.UpdatedAt.Unix()).
-			SetIsActive(user.IsActive).
-			Save(ctx)
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // GetUserByEmail 按邮箱获取用户（用于登录）
