@@ -9,6 +9,7 @@ import (
 	"live-interact-engine/services/gift-service/ent/giftrecord"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -19,6 +20,7 @@ type GiftRecordCreate struct {
 	config
 	mutation *GiftRecordMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetIdempotencyKey sets the "idempotency_key" field.
@@ -213,6 +215,7 @@ func (_c *GiftRecordCreate) createSpec() (*GiftRecord, *sqlgraph.CreateSpec) {
 		_node = &GiftRecord{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(giftrecord.Table, sqlgraph.NewFieldSpec(giftrecord.FieldID, field.TypeInt))
 	)
+	_spec.OnConflict = _c.conflict
 	if value, ok := _c.mutation.IdempotencyKey(); ok {
 		_spec.SetField(giftrecord.FieldIdempotencyKey, field.TypeUUID, value)
 		_node.IdempotencyKey = value
@@ -252,11 +255,337 @@ func (_c *GiftRecordCreate) createSpec() (*GiftRecord, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.GiftRecord.Create().
+//		SetIdempotencyKey(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.GiftRecordUpsert) {
+//			SetIdempotencyKey(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *GiftRecordCreate) OnConflict(opts ...sql.ConflictOption) *GiftRecordUpsertOne {
+	_c.conflict = opts
+	return &GiftRecordUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.GiftRecord.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *GiftRecordCreate) OnConflictColumns(columns ...string) *GiftRecordUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &GiftRecordUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// GiftRecordUpsertOne is the builder for "upsert"-ing
+	//  one GiftRecord node.
+	GiftRecordUpsertOne struct {
+		create *GiftRecordCreate
+	}
+
+	// GiftRecordUpsert is the "OnConflict" setter.
+	GiftRecordUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetUserID sets the "user_id" field.
+func (u *GiftRecordUpsert) SetUserID(v uuid.UUID) *GiftRecordUpsert {
+	u.Set(giftrecord.FieldUserID, v)
+	return u
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *GiftRecordUpsert) UpdateUserID() *GiftRecordUpsert {
+	u.SetExcluded(giftrecord.FieldUserID)
+	return u
+}
+
+// SetAnchorID sets the "anchor_id" field.
+func (u *GiftRecordUpsert) SetAnchorID(v uuid.UUID) *GiftRecordUpsert {
+	u.Set(giftrecord.FieldAnchorID, v)
+	return u
+}
+
+// UpdateAnchorID sets the "anchor_id" field to the value that was provided on create.
+func (u *GiftRecordUpsert) UpdateAnchorID() *GiftRecordUpsert {
+	u.SetExcluded(giftrecord.FieldAnchorID)
+	return u
+}
+
+// SetRoomID sets the "room_id" field.
+func (u *GiftRecordUpsert) SetRoomID(v uuid.UUID) *GiftRecordUpsert {
+	u.Set(giftrecord.FieldRoomID, v)
+	return u
+}
+
+// UpdateRoomID sets the "room_id" field to the value that was provided on create.
+func (u *GiftRecordUpsert) UpdateRoomID() *GiftRecordUpsert {
+	u.SetExcluded(giftrecord.FieldRoomID)
+	return u
+}
+
+// SetGiftID sets the "gift_id" field.
+func (u *GiftRecordUpsert) SetGiftID(v uuid.UUID) *GiftRecordUpsert {
+	u.Set(giftrecord.FieldGiftID, v)
+	return u
+}
+
+// UpdateGiftID sets the "gift_id" field to the value that was provided on create.
+func (u *GiftRecordUpsert) UpdateGiftID() *GiftRecordUpsert {
+	u.SetExcluded(giftrecord.FieldGiftID)
+	return u
+}
+
+// SetAmount sets the "amount" field.
+func (u *GiftRecordUpsert) SetAmount(v int64) *GiftRecordUpsert {
+	u.Set(giftrecord.FieldAmount, v)
+	return u
+}
+
+// UpdateAmount sets the "amount" field to the value that was provided on create.
+func (u *GiftRecordUpsert) UpdateAmount() *GiftRecordUpsert {
+	u.SetExcluded(giftrecord.FieldAmount)
+	return u
+}
+
+// AddAmount adds v to the "amount" field.
+func (u *GiftRecordUpsert) AddAmount(v int64) *GiftRecordUpsert {
+	u.Add(giftrecord.FieldAmount, v)
+	return u
+}
+
+// SetStatus sets the "status" field.
+func (u *GiftRecordUpsert) SetStatus(v giftrecord.Status) *GiftRecordUpsert {
+	u.Set(giftrecord.FieldStatus, v)
+	return u
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *GiftRecordUpsert) UpdateStatus() *GiftRecordUpsert {
+	u.SetExcluded(giftrecord.FieldStatus)
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *GiftRecordUpsert) SetUpdatedAt(v time.Time) *GiftRecordUpsert {
+	u.Set(giftrecord.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *GiftRecordUpsert) UpdateUpdatedAt() *GiftRecordUpsert {
+	u.SetExcluded(giftrecord.FieldUpdatedAt)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.GiftRecord.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *GiftRecordUpsertOne) UpdateNewValues() *GiftRecordUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.IdempotencyKey(); exists {
+			s.SetIgnore(giftrecord.FieldIdempotencyKey)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(giftrecord.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.GiftRecord.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *GiftRecordUpsertOne) Ignore() *GiftRecordUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *GiftRecordUpsertOne) DoNothing() *GiftRecordUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the GiftRecordCreate.OnConflict
+// documentation for more info.
+func (u *GiftRecordUpsertOne) Update(set func(*GiftRecordUpsert)) *GiftRecordUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&GiftRecordUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUserID sets the "user_id" field.
+func (u *GiftRecordUpsertOne) SetUserID(v uuid.UUID) *GiftRecordUpsertOne {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.SetUserID(v)
+	})
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *GiftRecordUpsertOne) UpdateUserID() *GiftRecordUpsertOne {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.UpdateUserID()
+	})
+}
+
+// SetAnchorID sets the "anchor_id" field.
+func (u *GiftRecordUpsertOne) SetAnchorID(v uuid.UUID) *GiftRecordUpsertOne {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.SetAnchorID(v)
+	})
+}
+
+// UpdateAnchorID sets the "anchor_id" field to the value that was provided on create.
+func (u *GiftRecordUpsertOne) UpdateAnchorID() *GiftRecordUpsertOne {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.UpdateAnchorID()
+	})
+}
+
+// SetRoomID sets the "room_id" field.
+func (u *GiftRecordUpsertOne) SetRoomID(v uuid.UUID) *GiftRecordUpsertOne {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.SetRoomID(v)
+	})
+}
+
+// UpdateRoomID sets the "room_id" field to the value that was provided on create.
+func (u *GiftRecordUpsertOne) UpdateRoomID() *GiftRecordUpsertOne {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.UpdateRoomID()
+	})
+}
+
+// SetGiftID sets the "gift_id" field.
+func (u *GiftRecordUpsertOne) SetGiftID(v uuid.UUID) *GiftRecordUpsertOne {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.SetGiftID(v)
+	})
+}
+
+// UpdateGiftID sets the "gift_id" field to the value that was provided on create.
+func (u *GiftRecordUpsertOne) UpdateGiftID() *GiftRecordUpsertOne {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.UpdateGiftID()
+	})
+}
+
+// SetAmount sets the "amount" field.
+func (u *GiftRecordUpsertOne) SetAmount(v int64) *GiftRecordUpsertOne {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.SetAmount(v)
+	})
+}
+
+// AddAmount adds v to the "amount" field.
+func (u *GiftRecordUpsertOne) AddAmount(v int64) *GiftRecordUpsertOne {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.AddAmount(v)
+	})
+}
+
+// UpdateAmount sets the "amount" field to the value that was provided on create.
+func (u *GiftRecordUpsertOne) UpdateAmount() *GiftRecordUpsertOne {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.UpdateAmount()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *GiftRecordUpsertOne) SetStatus(v giftrecord.Status) *GiftRecordUpsertOne {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *GiftRecordUpsertOne) UpdateStatus() *GiftRecordUpsertOne {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *GiftRecordUpsertOne) SetUpdatedAt(v time.Time) *GiftRecordUpsertOne {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *GiftRecordUpsertOne) UpdateUpdatedAt() *GiftRecordUpsertOne {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *GiftRecordUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for GiftRecordCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *GiftRecordUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *GiftRecordUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *GiftRecordUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // GiftRecordCreateBulk is the builder for creating many GiftRecord entities in bulk.
 type GiftRecordCreateBulk struct {
 	config
 	err      error
 	builders []*GiftRecordCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the GiftRecord entities in the database.
@@ -286,6 +615,7 @@ func (_c *GiftRecordCreateBulk) Save(ctx context.Context) ([]*GiftRecord, error)
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -336,6 +666,225 @@ func (_c *GiftRecordCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *GiftRecordCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.GiftRecord.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.GiftRecordUpsert) {
+//			SetIdempotencyKey(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *GiftRecordCreateBulk) OnConflict(opts ...sql.ConflictOption) *GiftRecordUpsertBulk {
+	_c.conflict = opts
+	return &GiftRecordUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.GiftRecord.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *GiftRecordCreateBulk) OnConflictColumns(columns ...string) *GiftRecordUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &GiftRecordUpsertBulk{
+		create: _c,
+	}
+}
+
+// GiftRecordUpsertBulk is the builder for "upsert"-ing
+// a bulk of GiftRecord nodes.
+type GiftRecordUpsertBulk struct {
+	create *GiftRecordCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.GiftRecord.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *GiftRecordUpsertBulk) UpdateNewValues() *GiftRecordUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.IdempotencyKey(); exists {
+				s.SetIgnore(giftrecord.FieldIdempotencyKey)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(giftrecord.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.GiftRecord.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *GiftRecordUpsertBulk) Ignore() *GiftRecordUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *GiftRecordUpsertBulk) DoNothing() *GiftRecordUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the GiftRecordCreateBulk.OnConflict
+// documentation for more info.
+func (u *GiftRecordUpsertBulk) Update(set func(*GiftRecordUpsert)) *GiftRecordUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&GiftRecordUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUserID sets the "user_id" field.
+func (u *GiftRecordUpsertBulk) SetUserID(v uuid.UUID) *GiftRecordUpsertBulk {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.SetUserID(v)
+	})
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *GiftRecordUpsertBulk) UpdateUserID() *GiftRecordUpsertBulk {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.UpdateUserID()
+	})
+}
+
+// SetAnchorID sets the "anchor_id" field.
+func (u *GiftRecordUpsertBulk) SetAnchorID(v uuid.UUID) *GiftRecordUpsertBulk {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.SetAnchorID(v)
+	})
+}
+
+// UpdateAnchorID sets the "anchor_id" field to the value that was provided on create.
+func (u *GiftRecordUpsertBulk) UpdateAnchorID() *GiftRecordUpsertBulk {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.UpdateAnchorID()
+	})
+}
+
+// SetRoomID sets the "room_id" field.
+func (u *GiftRecordUpsertBulk) SetRoomID(v uuid.UUID) *GiftRecordUpsertBulk {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.SetRoomID(v)
+	})
+}
+
+// UpdateRoomID sets the "room_id" field to the value that was provided on create.
+func (u *GiftRecordUpsertBulk) UpdateRoomID() *GiftRecordUpsertBulk {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.UpdateRoomID()
+	})
+}
+
+// SetGiftID sets the "gift_id" field.
+func (u *GiftRecordUpsertBulk) SetGiftID(v uuid.UUID) *GiftRecordUpsertBulk {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.SetGiftID(v)
+	})
+}
+
+// UpdateGiftID sets the "gift_id" field to the value that was provided on create.
+func (u *GiftRecordUpsertBulk) UpdateGiftID() *GiftRecordUpsertBulk {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.UpdateGiftID()
+	})
+}
+
+// SetAmount sets the "amount" field.
+func (u *GiftRecordUpsertBulk) SetAmount(v int64) *GiftRecordUpsertBulk {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.SetAmount(v)
+	})
+}
+
+// AddAmount adds v to the "amount" field.
+func (u *GiftRecordUpsertBulk) AddAmount(v int64) *GiftRecordUpsertBulk {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.AddAmount(v)
+	})
+}
+
+// UpdateAmount sets the "amount" field to the value that was provided on create.
+func (u *GiftRecordUpsertBulk) UpdateAmount() *GiftRecordUpsertBulk {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.UpdateAmount()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *GiftRecordUpsertBulk) SetStatus(v giftrecord.Status) *GiftRecordUpsertBulk {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *GiftRecordUpsertBulk) UpdateStatus() *GiftRecordUpsertBulk {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *GiftRecordUpsertBulk) SetUpdatedAt(v time.Time) *GiftRecordUpsertBulk {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *GiftRecordUpsertBulk) UpdateUpdatedAt() *GiftRecordUpsertBulk {
+	return u.Update(func(s *GiftRecordUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *GiftRecordUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the GiftRecordCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for GiftRecordCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *GiftRecordUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

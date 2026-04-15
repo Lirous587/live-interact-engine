@@ -23,28 +23,19 @@ func NewGiftRepository(client *ent.Client) domain.GiftRepository {
 
 // SaveGift 保存或更新礼物
 func (r *GiftRepository) SaveGift(ctx context.Context, gift *domain.Gift) error {
-	if gift.ID == uuid.Nil {
-		// 创建新礼物
-		_, err := r.client.Gift.Create().
-			SetName(gift.Name).
-			SetDescription(gift.Description).
-			SetIconURL(gift.IconURL).
-			SetCacheKey(gift.CacheKey).
-			SetPrice(gift.Price).
-			SetVipOnly(gift.VIPOnly).
-			SetStatus(entgift.Status(gift.Status)).
-			Save(ctx)
-		return err
-	}
-	// 更新礼物
-	_, err := r.client.Gift.UpdateOneID(gift.ID).
+	err := r.client.Gift.Create().
+		SetID(gift.ID).
 		SetName(gift.Name).
 		SetDescription(gift.Description).
 		SetIconURL(gift.IconURL).
+		SetCacheKey(gift.CacheKey).
 		SetPrice(gift.Price).
 		SetVipOnly(gift.VIPOnly).
 		SetStatus(entgift.Status(gift.Status)).
-		Save(ctx)
+		OnConflictColumns(entgift.FieldID).
+		UpdateNewValues().
+		Exec(ctx)
+
 	return err
 }
 

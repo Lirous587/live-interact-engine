@@ -22,32 +22,17 @@ func NewGiftRecordRepository(client *ent.Client) domain.GiftRecordRepository {
 }
 
 func (r *GiftRecordRepository) SaveGiftRecord(ctx context.Context, record *domain.GiftRecord) error {
-	if record.IdempotencyKey == uuid.Nil {
-		// 创建新记录
-		_, err := r.client.GiftRecord.
-			Create().
-			SetIdempotencyKey(record.IdempotencyKey).
-			SetUserID(record.UserID).
-			SetAnchorID(record.AnchorID).
-			SetRoomID(record.RoomID).
-			SetGiftID(record.GiftID).
-			SetAmount(record.Amount).
-			SetStatus(entrecord.Status(record.Status)).
-			Save(ctx)
-		return err
-	}
-
-	// 更新记录
-	_, err := r.client.GiftRecord.
-		Update().
-		Where(entrecord.IdempotencyKeyEQ(record.IdempotencyKey)).
+	err := r.client.GiftRecord.Create().
+		SetIdempotencyKey(record.IdempotencyKey).
 		SetUserID(record.UserID).
 		SetAnchorID(record.AnchorID).
 		SetRoomID(record.RoomID).
 		SetGiftID(record.GiftID).
 		SetAmount(record.Amount).
 		SetStatus(entrecord.Status(record.Status)).
-		Save(ctx)
+		OnConflictColumns(entrecord.FieldIdempotencyKey).
+		UpdateNewValues().
+		Exec(ctx)
 
 	return err
 }

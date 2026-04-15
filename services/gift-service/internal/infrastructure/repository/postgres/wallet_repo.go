@@ -24,24 +24,15 @@ func NewWalletRepository(client *ent.Client) domain.WalletRepository {
 // SaveWallet 保存或更新钱包
 // SaveWallet 保存或更新钱包
 func (r *WalletRepository) SaveWallet(ctx context.Context, wallet *domain.Wallet) error {
-	if wallet.CreatedAt.IsZero() {
-		// 创建新钱包
-		_, err := r.client.Wallet.
-			Create().
-			SetUserID(wallet.UserID).
-			SetBalance(wallet.Balance).
-			SetVersionNumber(wallet.VersionNumber).
-			Save(ctx)
-		return err
-	}
-
-	// 更新钱包
-	_, err := r.client.Wallet.
-		Update().
-		Where(entwallet.UserIDEQ(wallet.UserID)).
+	err := r.client.Wallet.
+		Create().
+		SetUserID(wallet.UserID).
 		SetBalance(wallet.Balance).
 		SetVersionNumber(wallet.VersionNumber).
-		Save(ctx)
+		OnConflictColumns(entwallet.FieldUserID).
+		UpdateNewValues().
+		Exec(ctx)
+
 	return err
 }
 
