@@ -132,7 +132,7 @@ func registerRoom(r *gin.RouterGroup) {
 	// 注册路由
 	rg := r.Group("/room")
 	{
-		rg.POST("/create", authMiddleware.Validate(), roomHandler.SaveRoom)
+		rg.POST("", authMiddleware.Validate(), roomHandler.SaveRoom)
 		rg.GET("/:room_id", roomHandler.GetRoom)
 		rg.POST("/assign-role", authMiddleware.Validate(), roomHandler.AssignRole)
 		rg.POST("/remove-role", authMiddleware.Validate(), roomHandler.RemoveRole)

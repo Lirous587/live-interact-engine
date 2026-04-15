@@ -545,6 +545,38 @@ paths:
       summary: 获取房间排行榜
       tags:
       - Leaderboard
+  /v1/room:
+    post:
+      consumes:
+      - application/json
+      description: 用户创建一个新房间
+      parameters:
+      - description: 创建房间请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mapper.CreateRoomReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 房间信息
+          schema:
+            $ref: '#/definitions/mapper.RoomResp'
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未授权
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 创建/更新房间
+      tags:
+      - Room
   /v1/room/{room_id}:
     get:
       description: 根据房间ID获取房间详细信息
@@ -765,38 +797,6 @@ paths:
             additionalProperties: true
             type: object
       summary: 分配用户角色
-      tags:
-      - Room
-  /v1/room/create:
-    post:
-      consumes:
-      - application/json
-      description: 用户创建一个新房间
-      parameters:
-      - description: 创建房间请求
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/mapper.CreateRoomReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 房间信息
-          schema:
-            $ref: '#/definitions/mapper.RoomResp'
-        "400":
-          description: 参数错误
-          schema:
-            additionalProperties: true
-            type: object
-        "401":
-          description: 未授权
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 创建房间
       tags:
       - Room
   /v1/room/mute:

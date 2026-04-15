@@ -297,6 +297,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/room": {
+            "post": {
+                "description": "用户创建一个新房间",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Room"
+                ],
+                "summary": "创建/更新房间",
+                "parameters": [
+                    {
+                        "description": "创建房间请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mapper.CreateRoomReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "房间信息",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.RoomResp"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/v1/room/assign-role": {
             "post": {
                 "description": "房间所有者为用户分配角色和权限",
@@ -327,54 +375,6 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "参数错误",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/room/create": {
-            "post": {
-                "description": "用户创建一个新房间",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Room"
-                ],
-                "summary": "创建房间",
-                "parameters": [
-                    {
-                        "description": "创建房间请求",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/mapper.CreateRoomReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "房间信息",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.RoomResp"
                         }
                     },
                     "400": {

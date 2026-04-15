@@ -7,7 +7,6 @@ import (
 	"live-interact-engine/services/gift-service/internal/domain"
 	"os"
 
-	_ "live-interact-engine/shared/logger"
 	"log"
 	"time"
 
