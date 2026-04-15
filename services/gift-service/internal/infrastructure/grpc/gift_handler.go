@@ -22,7 +22,6 @@ type GiftHandler struct {
 	giftService       *service.GiftService
 	giftRecordService domain.GiftRecordService
 	publisher         *events.Publisher
-	logger            *zap.Logger
 }
 
 // NewGiftHandler 创建 GiftHandler 实例
@@ -102,7 +101,7 @@ func (h *GiftHandler) SendGift(ctx context.Context, req *pb.SendGiftRequest) (*p
 			Amount:         giftRecord.Amount,
 		}
 		if err := h.publisher.PublishGiftSendSuccess(context.Background(), event); err != nil {
-			h.logger.Error("failed to publish gift event", zap.Error(err))
+			zap.L().Error("failed to publish gift event", zap.Error(err))
 		}
 	}()
 

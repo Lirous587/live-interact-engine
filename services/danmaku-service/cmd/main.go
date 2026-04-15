@@ -37,54 +37,47 @@ func main() {
 		}
 	}()
 
-	// 1. 创建 SubscriptionManager
+	// 初始化依赖
+	log.Println("Initializing dependencies...")
 	subCfg := &subscription.ManagerConfig{
 		Type: "memory",
 	}
 
-	// 2. 创建 Service
 	danmakuService, err := service.NewDanmakuService(subCfg)
 	if err != nil {
-		log.Fatalf("创建 DanmakuService 失败: %v", err)
+		log.Fatalf("Failed to initialize service: %v", err)
 	}
 
-	// 3. 创建 Handler
+	// 创建 gRPC 服务器
 	handler := grpc.NewDanmakuHandler(danmakuService)
-
-	// 4. 创建 gRPC Server
 	opts := telemetry.SetupGRPCServerTracing()
 	grpcServer := grpc_server.NewServer(opts...)
 
-	// 5. 注册服务
+	// 注册服务
 	pb.RegisterDanmakuServiceServer(grpcServer, handler)
 
-	// 6. 启动监听
-	lis, err := net.Listen("tcp", grpcAddr)
+	// 启动监听
+	listener, err := net.Listen("tcp", grpcAddr)
 	if err != nil {
-		log.Fatalf("监听端口失败: %v", err)
+		log.Fatalf("Failed to listen on port %s: %v", grpcAddr, err)
 	}
 
-	log.Printf("Danmaku gRPC 服务启动，监听端口 :%s", lis.Addr())
+	log.Printf("Danmaku service started, listening on %s", listener.Addr())
 
-	// 7. 启动服务（阻塞）
+	// 启动服务器
 	go func() {
-		if err := grpcServer.Serve(lis); err != nil {
-			log.Fatalf("gRPC 服务启动失败: %v", err)
+		if err := grpcServer.Serve(listener); err != nil {
+			log.Fatalf("gRPC server error: %v", err)
 		}
 	}()
 
-	// 8. 监听 OS 信号（Ctrl+C、SIGTERM）
+	// 处理信号
 	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
-	// 阻塞直到收到信号
-	sig := <-sigChan
-	log.Printf("收到信号: %v，开始优雅关闭...", sig)
-
-	// 9. 优雅关闭
-	_, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	<-sigChan
+	log.Println("Shutting down danmaku service...")
 
 	grpcServer.GracefulStop()
-	log.Println("gRPC 服务已关闭")
+	log.Println("Danmaku service stopped")
 }

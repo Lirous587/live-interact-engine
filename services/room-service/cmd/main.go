@@ -17,6 +17,10 @@ import (
 	"google.golang.org/grpc"
 )
 
+var (
+	grpcAddr = env.GetString("GRPC_ADDR", ":9095")
+)
+
 func main() {
 	// 初始化追踪
 	tp, err := telemetry.InitTracer("room-service")
@@ -39,10 +43,9 @@ func main() {
 	}
 
 	// 启动 gRPC 服务器
-	grpcPort := env.GetString("GRPC_PORT", ":9095")
-	listener, err := net.Listen("tcp", grpcPort)
+	listener, err := net.Listen("tcp", grpcAddr)
 	if err != nil {
-		log.Fatalf("Failed to listen on port %s: %v", grpcPort, err)
+		log.Fatalf("Failed to listen on port %s: %v", grpcAddr, err)
 	}
 
 	// 创建 gRPC 服务器
@@ -52,7 +55,7 @@ func main() {
 	// 注册服务
 	pb.RegisterRoomServiceServer(grpcServer, deps.RoomHandler)
 
-	log.Printf("Room service started, listening on %s", grpcPort)
+	log.Printf("Room service started, listening on %s", listener.Addr())
 
 	// 启动服务器
 	go func() {
