@@ -75,35 +75,19 @@ func (r *UserRoomRoleRepository) GetUserRoomRole(ctx context.Context, userID, ro
 
 // SaveUserRoomRole 保存用户房间角色（插入或更新）
 func (r *UserRoomRoleRepository) SaveUserRoomRole(ctx context.Context, urr *domain.UserRoomRole) error {
-	count, err := r.client.UserRoomRole.
-		Update().
-		Where(
-			entuserroomrole.UserIDEQ(urr.UserID),
-			entuserroomrole.RoomIDEQ(urr.RoomID),
-		).
+	err := r.client.UserRoomRole.
+		Create().
+		SetUserID(urr.UserID).
+		SetRoomID(urr.RoomID).
 		SetRoleName(urr.Role).
 		SetPermissions(convertPermissionsToInt32(urr.Permissions)).
+		SetCreatedAt(urr.CreatedAt.Unix()).
 		SetUpdatedAt(urr.UpdatedAt.Unix()).
-		Save(ctx)
+		OnConflictColumns(entuserroomrole.FieldUserID, entuserroomrole.FieldRoomID).
+		UpdateNewValues().
+		Exec(ctx)
 
-	if err != nil {
-		return err
-	}
-
-	if count == 0 {
-		_, err := r.client.UserRoomRole.
-			Create().
-			SetUserID(urr.UserID).
-			SetRoomID(urr.RoomID).
-			SetRoleName(urr.Role).
-			SetPermissions(convertPermissionsToInt32(urr.Permissions)).
-			SetCreatedAt(urr.CreatedAt.Unix()).
-			SetUpdatedAt(urr.UpdatedAt.Unix()).
-			Save(ctx)
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // DeleteUserRoomRole 删除用户房间角色

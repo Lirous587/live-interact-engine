@@ -25,34 +25,20 @@ func NewRoomRepository(client *ent.Client) domain.RoomRepository {
 
 // SaveRoom 保存房间信息（插入或更新）
 func (r *RoomRepository) SaveRoom(ctx context.Context, room *domain.Room) error {
-	count, err := r.client.Room.
-		Update().
-		Where(entroom.IDEQ(room.RoomID)).
+	err := r.client.Room.
+		Create().
+		SetID(room.RoomID).
+		SetOwnerID(room.OwnerID).
 		SetTitle(room.Title).
 		SetDescription(room.Description).
+		SetCreatedAt(room.CreatedAt.Unix()).
 		SetUpdatedAt(room.UpdatedAt.Unix()).
 		SetIsActive(room.IsActive).
-		Save(ctx)
+		OnConflictColumns(entroom.FieldID).
+		UpdateNewValues().
+		Exec(ctx)
 
-	if err != nil {
-		return err
-	}
-
-	if count == 0 {
-		_, err := r.client.Room.
-			Create().
-			SetID(room.RoomID).
-			SetOwnerID(room.OwnerID).
-			SetTitle(room.Title).
-			SetDescription(room.Description).
-			SetCreatedAt(room.CreatedAt.Unix()).
-			SetUpdatedAt(room.UpdatedAt.Unix()).
-			SetIsActive(room.IsActive).
-			Save(ctx)
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // GetRoom 获取房间信息

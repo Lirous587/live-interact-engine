@@ -22,33 +22,8 @@ func NewMuteRepository(client *ent.Client) domain.MuteRepository {
 func (r *MuteRepository) Save(ctx context.Context, mute *domain.Mute) error {
 	expiresAt := time.Unix(mute.MutedAt.Unix()+mute.Duration, 0)
 
-	// 先检查是否已存在相同的禁言记录（同房间同用户）
-	existing, err := r.client.Mute.Query().
-		Where(
-			entmute.RoomIDEQ(mute.RoomID),
-			entmute.UserIDEQ(mute.UserID),
-		).
-		First(ctx)
-
-	if err != nil && !ent.IsNotFound(err) {
-		return err
-	}
-
-	// 如果已存在，则更新；否则创建
-	if existing != nil {
-		_, err = r.client.Mute.UpdateOne(existing).
-			SetAdminID(mute.AdminID).
-			SetReason(mute.Reason).
-			SetDuration(mute.Duration).
-			SetMutedAt(mute.MutedAt.Unix()).
-			SetExpiresAt(expiresAt.Unix()).
-			Save(ctx)
-		return err
-	}
-
-	// 新建禁言记录
-	_, err = r.client.Mute.Create().
-		SetID(uuid.Must(uuid.NewV7())).
+	// 使用 room_id + user_id 作为冲突目标
+	err := r.client.Mute.Create().
 		SetRoomID(mute.RoomID).
 		SetUserID(mute.UserID).
 		SetAdminID(mute.AdminID).
@@ -56,7 +31,9 @@ func (r *MuteRepository) Save(ctx context.Context, mute *domain.Mute) error {
 		SetDuration(mute.Duration).
 		SetMutedAt(mute.MutedAt.Unix()).
 		SetExpiresAt(expiresAt.Unix()).
-		Save(ctx)
+		OnConflictColumns(entmute.FieldRoomID, entmute.FieldUserID).
+		UpdateNewValues().
+		Exec(ctx)
 
 	return err
 }

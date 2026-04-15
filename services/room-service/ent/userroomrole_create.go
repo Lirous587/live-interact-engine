@@ -9,6 +9,7 @@ import (
 	"live-interact-engine/services/room-service/ent/room"
 	"live-interact-engine/services/room-service/ent/userroomrole"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -19,6 +20,7 @@ type UserRoomRoleCreate struct {
 	config
 	mutation *UserRoomRoleMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetUserID sets the "user_id" field.
@@ -181,6 +183,7 @@ func (_c *UserRoomRoleCreate) createSpec() (*UserRoomRole, *sqlgraph.CreateSpec)
 		_node = &UserRoomRole{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(userroomrole.Table, sqlgraph.NewFieldSpec(userroomrole.FieldID, field.TypeInt))
 	)
+	_spec.OnConflict = _c.conflict
 	if value, ok := _c.mutation.UserID(); ok {
 		_spec.SetField(userroomrole.FieldUserID, field.TypeUUID, value)
 		_node.UserID = value
@@ -221,11 +224,282 @@ func (_c *UserRoomRoleCreate) createSpec() (*UserRoomRole, *sqlgraph.CreateSpec)
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.UserRoomRole.Create().
+//		SetUserID(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.UserRoomRoleUpsert) {
+//			SetUserID(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *UserRoomRoleCreate) OnConflict(opts ...sql.ConflictOption) *UserRoomRoleUpsertOne {
+	_c.conflict = opts
+	return &UserRoomRoleUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.UserRoomRole.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *UserRoomRoleCreate) OnConflictColumns(columns ...string) *UserRoomRoleUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &UserRoomRoleUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// UserRoomRoleUpsertOne is the builder for "upsert"-ing
+	//  one UserRoomRole node.
+	UserRoomRoleUpsertOne struct {
+		create *UserRoomRoleCreate
+	}
+
+	// UserRoomRoleUpsert is the "OnConflict" setter.
+	UserRoomRoleUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetUserID sets the "user_id" field.
+func (u *UserRoomRoleUpsert) SetUserID(v uuid.UUID) *UserRoomRoleUpsert {
+	u.Set(userroomrole.FieldUserID, v)
+	return u
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *UserRoomRoleUpsert) UpdateUserID() *UserRoomRoleUpsert {
+	u.SetExcluded(userroomrole.FieldUserID)
+	return u
+}
+
+// SetRoomID sets the "room_id" field.
+func (u *UserRoomRoleUpsert) SetRoomID(v uuid.UUID) *UserRoomRoleUpsert {
+	u.Set(userroomrole.FieldRoomID, v)
+	return u
+}
+
+// UpdateRoomID sets the "room_id" field to the value that was provided on create.
+func (u *UserRoomRoleUpsert) UpdateRoomID() *UserRoomRoleUpsert {
+	u.SetExcluded(userroomrole.FieldRoomID)
+	return u
+}
+
+// SetRoleName sets the "role_name" field.
+func (u *UserRoomRoleUpsert) SetRoleName(v string) *UserRoomRoleUpsert {
+	u.Set(userroomrole.FieldRoleName, v)
+	return u
+}
+
+// UpdateRoleName sets the "role_name" field to the value that was provided on create.
+func (u *UserRoomRoleUpsert) UpdateRoleName() *UserRoomRoleUpsert {
+	u.SetExcluded(userroomrole.FieldRoleName)
+	return u
+}
+
+// SetPermissions sets the "permissions" field.
+func (u *UserRoomRoleUpsert) SetPermissions(v []int32) *UserRoomRoleUpsert {
+	u.Set(userroomrole.FieldPermissions, v)
+	return u
+}
+
+// UpdatePermissions sets the "permissions" field to the value that was provided on create.
+func (u *UserRoomRoleUpsert) UpdatePermissions() *UserRoomRoleUpsert {
+	u.SetExcluded(userroomrole.FieldPermissions)
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *UserRoomRoleUpsert) SetUpdatedAt(v int64) *UserRoomRoleUpsert {
+	u.Set(userroomrole.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *UserRoomRoleUpsert) UpdateUpdatedAt() *UserRoomRoleUpsert {
+	u.SetExcluded(userroomrole.FieldUpdatedAt)
+	return u
+}
+
+// AddUpdatedAt adds v to the "updated_at" field.
+func (u *UserRoomRoleUpsert) AddUpdatedAt(v int64) *UserRoomRoleUpsert {
+	u.Add(userroomrole.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.UserRoomRole.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *UserRoomRoleUpsertOne) UpdateNewValues() *UserRoomRoleUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(userroomrole.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.UserRoomRole.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *UserRoomRoleUpsertOne) Ignore() *UserRoomRoleUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *UserRoomRoleUpsertOne) DoNothing() *UserRoomRoleUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the UserRoomRoleCreate.OnConflict
+// documentation for more info.
+func (u *UserRoomRoleUpsertOne) Update(set func(*UserRoomRoleUpsert)) *UserRoomRoleUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&UserRoomRoleUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUserID sets the "user_id" field.
+func (u *UserRoomRoleUpsertOne) SetUserID(v uuid.UUID) *UserRoomRoleUpsertOne {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.SetUserID(v)
+	})
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *UserRoomRoleUpsertOne) UpdateUserID() *UserRoomRoleUpsertOne {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.UpdateUserID()
+	})
+}
+
+// SetRoomID sets the "room_id" field.
+func (u *UserRoomRoleUpsertOne) SetRoomID(v uuid.UUID) *UserRoomRoleUpsertOne {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.SetRoomID(v)
+	})
+}
+
+// UpdateRoomID sets the "room_id" field to the value that was provided on create.
+func (u *UserRoomRoleUpsertOne) UpdateRoomID() *UserRoomRoleUpsertOne {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.UpdateRoomID()
+	})
+}
+
+// SetRoleName sets the "role_name" field.
+func (u *UserRoomRoleUpsertOne) SetRoleName(v string) *UserRoomRoleUpsertOne {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.SetRoleName(v)
+	})
+}
+
+// UpdateRoleName sets the "role_name" field to the value that was provided on create.
+func (u *UserRoomRoleUpsertOne) UpdateRoleName() *UserRoomRoleUpsertOne {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.UpdateRoleName()
+	})
+}
+
+// SetPermissions sets the "permissions" field.
+func (u *UserRoomRoleUpsertOne) SetPermissions(v []int32) *UserRoomRoleUpsertOne {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.SetPermissions(v)
+	})
+}
+
+// UpdatePermissions sets the "permissions" field to the value that was provided on create.
+func (u *UserRoomRoleUpsertOne) UpdatePermissions() *UserRoomRoleUpsertOne {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.UpdatePermissions()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *UserRoomRoleUpsertOne) SetUpdatedAt(v int64) *UserRoomRoleUpsertOne {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// AddUpdatedAt adds v to the "updated_at" field.
+func (u *UserRoomRoleUpsertOne) AddUpdatedAt(v int64) *UserRoomRoleUpsertOne {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.AddUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *UserRoomRoleUpsertOne) UpdateUpdatedAt() *UserRoomRoleUpsertOne {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *UserRoomRoleUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for UserRoomRoleCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *UserRoomRoleUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *UserRoomRoleUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *UserRoomRoleUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // UserRoomRoleCreateBulk is the builder for creating many UserRoomRole entities in bulk.
 type UserRoomRoleCreateBulk struct {
 	config
 	err      error
 	builders []*UserRoomRoleCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the UserRoomRole entities in the database.
@@ -255,6 +529,7 @@ func (_c *UserRoomRoleCreateBulk) Save(ctx context.Context) ([]*UserRoomRole, er
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -305,6 +580,194 @@ func (_c *UserRoomRoleCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *UserRoomRoleCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.UserRoomRole.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.UserRoomRoleUpsert) {
+//			SetUserID(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *UserRoomRoleCreateBulk) OnConflict(opts ...sql.ConflictOption) *UserRoomRoleUpsertBulk {
+	_c.conflict = opts
+	return &UserRoomRoleUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.UserRoomRole.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *UserRoomRoleCreateBulk) OnConflictColumns(columns ...string) *UserRoomRoleUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &UserRoomRoleUpsertBulk{
+		create: _c,
+	}
+}
+
+// UserRoomRoleUpsertBulk is the builder for "upsert"-ing
+// a bulk of UserRoomRole nodes.
+type UserRoomRoleUpsertBulk struct {
+	create *UserRoomRoleCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.UserRoomRole.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *UserRoomRoleUpsertBulk) UpdateNewValues() *UserRoomRoleUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(userroomrole.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.UserRoomRole.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *UserRoomRoleUpsertBulk) Ignore() *UserRoomRoleUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *UserRoomRoleUpsertBulk) DoNothing() *UserRoomRoleUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the UserRoomRoleCreateBulk.OnConflict
+// documentation for more info.
+func (u *UserRoomRoleUpsertBulk) Update(set func(*UserRoomRoleUpsert)) *UserRoomRoleUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&UserRoomRoleUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUserID sets the "user_id" field.
+func (u *UserRoomRoleUpsertBulk) SetUserID(v uuid.UUID) *UserRoomRoleUpsertBulk {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.SetUserID(v)
+	})
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *UserRoomRoleUpsertBulk) UpdateUserID() *UserRoomRoleUpsertBulk {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.UpdateUserID()
+	})
+}
+
+// SetRoomID sets the "room_id" field.
+func (u *UserRoomRoleUpsertBulk) SetRoomID(v uuid.UUID) *UserRoomRoleUpsertBulk {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.SetRoomID(v)
+	})
+}
+
+// UpdateRoomID sets the "room_id" field to the value that was provided on create.
+func (u *UserRoomRoleUpsertBulk) UpdateRoomID() *UserRoomRoleUpsertBulk {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.UpdateRoomID()
+	})
+}
+
+// SetRoleName sets the "role_name" field.
+func (u *UserRoomRoleUpsertBulk) SetRoleName(v string) *UserRoomRoleUpsertBulk {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.SetRoleName(v)
+	})
+}
+
+// UpdateRoleName sets the "role_name" field to the value that was provided on create.
+func (u *UserRoomRoleUpsertBulk) UpdateRoleName() *UserRoomRoleUpsertBulk {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.UpdateRoleName()
+	})
+}
+
+// SetPermissions sets the "permissions" field.
+func (u *UserRoomRoleUpsertBulk) SetPermissions(v []int32) *UserRoomRoleUpsertBulk {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.SetPermissions(v)
+	})
+}
+
+// UpdatePermissions sets the "permissions" field to the value that was provided on create.
+func (u *UserRoomRoleUpsertBulk) UpdatePermissions() *UserRoomRoleUpsertBulk {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.UpdatePermissions()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *UserRoomRoleUpsertBulk) SetUpdatedAt(v int64) *UserRoomRoleUpsertBulk {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// AddUpdatedAt adds v to the "updated_at" field.
+func (u *UserRoomRoleUpsertBulk) AddUpdatedAt(v int64) *UserRoomRoleUpsertBulk {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.AddUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *UserRoomRoleUpsertBulk) UpdateUpdatedAt() *UserRoomRoleUpsertBulk {
+	return u.Update(func(s *UserRoomRoleUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *UserRoomRoleUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the UserRoomRoleCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for UserRoomRoleCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *UserRoomRoleUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"live-interact-engine/services/room-service/ent/mute"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -18,6 +20,7 @@ type MuteCreate struct {
 	config
 	mutation *MuteMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetRoomID sets the "room_id" field.
@@ -242,6 +245,7 @@ func (_c *MuteCreate) createSpec() (*Mute, *sqlgraph.CreateSpec) {
 		_node = &Mute{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(mute.Table, sqlgraph.NewFieldSpec(mute.FieldID, field.TypeUUID))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
@@ -285,11 +289,423 @@ func (_c *MuteCreate) createSpec() (*Mute, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Mute.Create().
+//		SetRoomID(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.MuteUpsert) {
+//			SetRoomID(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *MuteCreate) OnConflict(opts ...sql.ConflictOption) *MuteUpsertOne {
+	_c.conflict = opts
+	return &MuteUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Mute.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *MuteCreate) OnConflictColumns(columns ...string) *MuteUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &MuteUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// MuteUpsertOne is the builder for "upsert"-ing
+	//  one Mute node.
+	MuteUpsertOne struct {
+		create *MuteCreate
+	}
+
+	// MuteUpsert is the "OnConflict" setter.
+	MuteUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetRoomID sets the "room_id" field.
+func (u *MuteUpsert) SetRoomID(v uuid.UUID) *MuteUpsert {
+	u.Set(mute.FieldRoomID, v)
+	return u
+}
+
+// UpdateRoomID sets the "room_id" field to the value that was provided on create.
+func (u *MuteUpsert) UpdateRoomID() *MuteUpsert {
+	u.SetExcluded(mute.FieldRoomID)
+	return u
+}
+
+// SetUserID sets the "user_id" field.
+func (u *MuteUpsert) SetUserID(v uuid.UUID) *MuteUpsert {
+	u.Set(mute.FieldUserID, v)
+	return u
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *MuteUpsert) UpdateUserID() *MuteUpsert {
+	u.SetExcluded(mute.FieldUserID)
+	return u
+}
+
+// SetAdminID sets the "admin_id" field.
+func (u *MuteUpsert) SetAdminID(v uuid.UUID) *MuteUpsert {
+	u.Set(mute.FieldAdminID, v)
+	return u
+}
+
+// UpdateAdminID sets the "admin_id" field to the value that was provided on create.
+func (u *MuteUpsert) UpdateAdminID() *MuteUpsert {
+	u.SetExcluded(mute.FieldAdminID)
+	return u
+}
+
+// SetReason sets the "reason" field.
+func (u *MuteUpsert) SetReason(v string) *MuteUpsert {
+	u.Set(mute.FieldReason, v)
+	return u
+}
+
+// UpdateReason sets the "reason" field to the value that was provided on create.
+func (u *MuteUpsert) UpdateReason() *MuteUpsert {
+	u.SetExcluded(mute.FieldReason)
+	return u
+}
+
+// ClearReason clears the value of the "reason" field.
+func (u *MuteUpsert) ClearReason() *MuteUpsert {
+	u.SetNull(mute.FieldReason)
+	return u
+}
+
+// SetDuration sets the "duration" field.
+func (u *MuteUpsert) SetDuration(v int64) *MuteUpsert {
+	u.Set(mute.FieldDuration, v)
+	return u
+}
+
+// UpdateDuration sets the "duration" field to the value that was provided on create.
+func (u *MuteUpsert) UpdateDuration() *MuteUpsert {
+	u.SetExcluded(mute.FieldDuration)
+	return u
+}
+
+// AddDuration adds v to the "duration" field.
+func (u *MuteUpsert) AddDuration(v int64) *MuteUpsert {
+	u.Add(mute.FieldDuration, v)
+	return u
+}
+
+// SetMutedAt sets the "muted_at" field.
+func (u *MuteUpsert) SetMutedAt(v int64) *MuteUpsert {
+	u.Set(mute.FieldMutedAt, v)
+	return u
+}
+
+// UpdateMutedAt sets the "muted_at" field to the value that was provided on create.
+func (u *MuteUpsert) UpdateMutedAt() *MuteUpsert {
+	u.SetExcluded(mute.FieldMutedAt)
+	return u
+}
+
+// AddMutedAt adds v to the "muted_at" field.
+func (u *MuteUpsert) AddMutedAt(v int64) *MuteUpsert {
+	u.Add(mute.FieldMutedAt, v)
+	return u
+}
+
+// SetExpiresAt sets the "expires_at" field.
+func (u *MuteUpsert) SetExpiresAt(v int64) *MuteUpsert {
+	u.Set(mute.FieldExpiresAt, v)
+	return u
+}
+
+// UpdateExpiresAt sets the "expires_at" field to the value that was provided on create.
+func (u *MuteUpsert) UpdateExpiresAt() *MuteUpsert {
+	u.SetExcluded(mute.FieldExpiresAt)
+	return u
+}
+
+// AddExpiresAt adds v to the "expires_at" field.
+func (u *MuteUpsert) AddExpiresAt(v int64) *MuteUpsert {
+	u.Add(mute.FieldExpiresAt, v)
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *MuteUpsert) SetUpdatedAt(v int64) *MuteUpsert {
+	u.Set(mute.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *MuteUpsert) UpdateUpdatedAt() *MuteUpsert {
+	u.SetExcluded(mute.FieldUpdatedAt)
+	return u
+}
+
+// AddUpdatedAt adds v to the "updated_at" field.
+func (u *MuteUpsert) AddUpdatedAt(v int64) *MuteUpsert {
+	u.Add(mute.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.Mute.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(mute.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *MuteUpsertOne) UpdateNewValues() *MuteUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(mute.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(mute.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Mute.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *MuteUpsertOne) Ignore() *MuteUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *MuteUpsertOne) DoNothing() *MuteUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the MuteCreate.OnConflict
+// documentation for more info.
+func (u *MuteUpsertOne) Update(set func(*MuteUpsert)) *MuteUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&MuteUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetRoomID sets the "room_id" field.
+func (u *MuteUpsertOne) SetRoomID(v uuid.UUID) *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.SetRoomID(v)
+	})
+}
+
+// UpdateRoomID sets the "room_id" field to the value that was provided on create.
+func (u *MuteUpsertOne) UpdateRoomID() *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.UpdateRoomID()
+	})
+}
+
+// SetUserID sets the "user_id" field.
+func (u *MuteUpsertOne) SetUserID(v uuid.UUID) *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.SetUserID(v)
+	})
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *MuteUpsertOne) UpdateUserID() *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.UpdateUserID()
+	})
+}
+
+// SetAdminID sets the "admin_id" field.
+func (u *MuteUpsertOne) SetAdminID(v uuid.UUID) *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.SetAdminID(v)
+	})
+}
+
+// UpdateAdminID sets the "admin_id" field to the value that was provided on create.
+func (u *MuteUpsertOne) UpdateAdminID() *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.UpdateAdminID()
+	})
+}
+
+// SetReason sets the "reason" field.
+func (u *MuteUpsertOne) SetReason(v string) *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.SetReason(v)
+	})
+}
+
+// UpdateReason sets the "reason" field to the value that was provided on create.
+func (u *MuteUpsertOne) UpdateReason() *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.UpdateReason()
+	})
+}
+
+// ClearReason clears the value of the "reason" field.
+func (u *MuteUpsertOne) ClearReason() *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.ClearReason()
+	})
+}
+
+// SetDuration sets the "duration" field.
+func (u *MuteUpsertOne) SetDuration(v int64) *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.SetDuration(v)
+	})
+}
+
+// AddDuration adds v to the "duration" field.
+func (u *MuteUpsertOne) AddDuration(v int64) *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.AddDuration(v)
+	})
+}
+
+// UpdateDuration sets the "duration" field to the value that was provided on create.
+func (u *MuteUpsertOne) UpdateDuration() *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.UpdateDuration()
+	})
+}
+
+// SetMutedAt sets the "muted_at" field.
+func (u *MuteUpsertOne) SetMutedAt(v int64) *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.SetMutedAt(v)
+	})
+}
+
+// AddMutedAt adds v to the "muted_at" field.
+func (u *MuteUpsertOne) AddMutedAt(v int64) *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.AddMutedAt(v)
+	})
+}
+
+// UpdateMutedAt sets the "muted_at" field to the value that was provided on create.
+func (u *MuteUpsertOne) UpdateMutedAt() *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.UpdateMutedAt()
+	})
+}
+
+// SetExpiresAt sets the "expires_at" field.
+func (u *MuteUpsertOne) SetExpiresAt(v int64) *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.SetExpiresAt(v)
+	})
+}
+
+// AddExpiresAt adds v to the "expires_at" field.
+func (u *MuteUpsertOne) AddExpiresAt(v int64) *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.AddExpiresAt(v)
+	})
+}
+
+// UpdateExpiresAt sets the "expires_at" field to the value that was provided on create.
+func (u *MuteUpsertOne) UpdateExpiresAt() *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.UpdateExpiresAt()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *MuteUpsertOne) SetUpdatedAt(v int64) *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// AddUpdatedAt adds v to the "updated_at" field.
+func (u *MuteUpsertOne) AddUpdatedAt(v int64) *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.AddUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *MuteUpsertOne) UpdateUpdatedAt() *MuteUpsertOne {
+	return u.Update(func(s *MuteUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *MuteUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for MuteCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *MuteUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *MuteUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: MuteUpsertOne.ID is not supported by MySQL driver. Use MuteUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *MuteUpsertOne) IDX(ctx context.Context) uuid.UUID {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // MuteCreateBulk is the builder for creating many Mute entities in bulk.
 type MuteCreateBulk struct {
 	config
 	err      error
 	builders []*MuteCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Mute entities in the database.
@@ -319,6 +735,7 @@ func (_c *MuteCreateBulk) Save(ctx context.Context) ([]*Mute, error) {
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -365,6 +782,270 @@ func (_c *MuteCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *MuteCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Mute.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.MuteUpsert) {
+//			SetRoomID(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *MuteCreateBulk) OnConflict(opts ...sql.ConflictOption) *MuteUpsertBulk {
+	_c.conflict = opts
+	return &MuteUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Mute.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *MuteCreateBulk) OnConflictColumns(columns ...string) *MuteUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &MuteUpsertBulk{
+		create: _c,
+	}
+}
+
+// MuteUpsertBulk is the builder for "upsert"-ing
+// a bulk of Mute nodes.
+type MuteUpsertBulk struct {
+	create *MuteCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Mute.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(mute.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *MuteUpsertBulk) UpdateNewValues() *MuteUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(mute.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(mute.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Mute.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *MuteUpsertBulk) Ignore() *MuteUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *MuteUpsertBulk) DoNothing() *MuteUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the MuteCreateBulk.OnConflict
+// documentation for more info.
+func (u *MuteUpsertBulk) Update(set func(*MuteUpsert)) *MuteUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&MuteUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetRoomID sets the "room_id" field.
+func (u *MuteUpsertBulk) SetRoomID(v uuid.UUID) *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.SetRoomID(v)
+	})
+}
+
+// UpdateRoomID sets the "room_id" field to the value that was provided on create.
+func (u *MuteUpsertBulk) UpdateRoomID() *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.UpdateRoomID()
+	})
+}
+
+// SetUserID sets the "user_id" field.
+func (u *MuteUpsertBulk) SetUserID(v uuid.UUID) *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.SetUserID(v)
+	})
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *MuteUpsertBulk) UpdateUserID() *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.UpdateUserID()
+	})
+}
+
+// SetAdminID sets the "admin_id" field.
+func (u *MuteUpsertBulk) SetAdminID(v uuid.UUID) *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.SetAdminID(v)
+	})
+}
+
+// UpdateAdminID sets the "admin_id" field to the value that was provided on create.
+func (u *MuteUpsertBulk) UpdateAdminID() *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.UpdateAdminID()
+	})
+}
+
+// SetReason sets the "reason" field.
+func (u *MuteUpsertBulk) SetReason(v string) *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.SetReason(v)
+	})
+}
+
+// UpdateReason sets the "reason" field to the value that was provided on create.
+func (u *MuteUpsertBulk) UpdateReason() *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.UpdateReason()
+	})
+}
+
+// ClearReason clears the value of the "reason" field.
+func (u *MuteUpsertBulk) ClearReason() *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.ClearReason()
+	})
+}
+
+// SetDuration sets the "duration" field.
+func (u *MuteUpsertBulk) SetDuration(v int64) *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.SetDuration(v)
+	})
+}
+
+// AddDuration adds v to the "duration" field.
+func (u *MuteUpsertBulk) AddDuration(v int64) *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.AddDuration(v)
+	})
+}
+
+// UpdateDuration sets the "duration" field to the value that was provided on create.
+func (u *MuteUpsertBulk) UpdateDuration() *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.UpdateDuration()
+	})
+}
+
+// SetMutedAt sets the "muted_at" field.
+func (u *MuteUpsertBulk) SetMutedAt(v int64) *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.SetMutedAt(v)
+	})
+}
+
+// AddMutedAt adds v to the "muted_at" field.
+func (u *MuteUpsertBulk) AddMutedAt(v int64) *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.AddMutedAt(v)
+	})
+}
+
+// UpdateMutedAt sets the "muted_at" field to the value that was provided on create.
+func (u *MuteUpsertBulk) UpdateMutedAt() *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.UpdateMutedAt()
+	})
+}
+
+// SetExpiresAt sets the "expires_at" field.
+func (u *MuteUpsertBulk) SetExpiresAt(v int64) *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.SetExpiresAt(v)
+	})
+}
+
+// AddExpiresAt adds v to the "expires_at" field.
+func (u *MuteUpsertBulk) AddExpiresAt(v int64) *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.AddExpiresAt(v)
+	})
+}
+
+// UpdateExpiresAt sets the "expires_at" field to the value that was provided on create.
+func (u *MuteUpsertBulk) UpdateExpiresAt() *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.UpdateExpiresAt()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *MuteUpsertBulk) SetUpdatedAt(v int64) *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// AddUpdatedAt adds v to the "updated_at" field.
+func (u *MuteUpsertBulk) AddUpdatedAt(v int64) *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.AddUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *MuteUpsertBulk) UpdateUpdatedAt() *MuteUpsertBulk {
+	return u.Update(func(s *MuteUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *MuteUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the MuteCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for MuteCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *MuteUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

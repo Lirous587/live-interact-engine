@@ -9,6 +9,8 @@ import (
 	"live-interact-engine/services/room-service/ent/room"
 	"live-interact-engine/services/room-service/ent/userroomrole"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -19,6 +21,7 @@ type RoomCreate struct {
 	config
 	mutation *RoomMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetOwnerID sets the "owner_id" field.
@@ -224,6 +227,7 @@ func (_c *RoomCreate) createSpec() (*Room, *sqlgraph.CreateSpec) {
 		_node = &Room{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(room.Table, sqlgraph.NewFieldSpec(room.FieldID, field.TypeUUID))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
@@ -271,11 +275,306 @@ func (_c *RoomCreate) createSpec() (*Room, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Room.Create().
+//		SetOwnerID(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.RoomUpsert) {
+//			SetOwnerID(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *RoomCreate) OnConflict(opts ...sql.ConflictOption) *RoomUpsertOne {
+	_c.conflict = opts
+	return &RoomUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Room.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *RoomCreate) OnConflictColumns(columns ...string) *RoomUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &RoomUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// RoomUpsertOne is the builder for "upsert"-ing
+	//  one Room node.
+	RoomUpsertOne struct {
+		create *RoomCreate
+	}
+
+	// RoomUpsert is the "OnConflict" setter.
+	RoomUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetOwnerID sets the "owner_id" field.
+func (u *RoomUpsert) SetOwnerID(v uuid.UUID) *RoomUpsert {
+	u.Set(room.FieldOwnerID, v)
+	return u
+}
+
+// UpdateOwnerID sets the "owner_id" field to the value that was provided on create.
+func (u *RoomUpsert) UpdateOwnerID() *RoomUpsert {
+	u.SetExcluded(room.FieldOwnerID)
+	return u
+}
+
+// SetTitle sets the "title" field.
+func (u *RoomUpsert) SetTitle(v string) *RoomUpsert {
+	u.Set(room.FieldTitle, v)
+	return u
+}
+
+// UpdateTitle sets the "title" field to the value that was provided on create.
+func (u *RoomUpsert) UpdateTitle() *RoomUpsert {
+	u.SetExcluded(room.FieldTitle)
+	return u
+}
+
+// SetDescription sets the "description" field.
+func (u *RoomUpsert) SetDescription(v string) *RoomUpsert {
+	u.Set(room.FieldDescription, v)
+	return u
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *RoomUpsert) UpdateDescription() *RoomUpsert {
+	u.SetExcluded(room.FieldDescription)
+	return u
+}
+
+// ClearDescription clears the value of the "description" field.
+func (u *RoomUpsert) ClearDescription() *RoomUpsert {
+	u.SetNull(room.FieldDescription)
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *RoomUpsert) SetUpdatedAt(v int64) *RoomUpsert {
+	u.Set(room.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *RoomUpsert) UpdateUpdatedAt() *RoomUpsert {
+	u.SetExcluded(room.FieldUpdatedAt)
+	return u
+}
+
+// AddUpdatedAt adds v to the "updated_at" field.
+func (u *RoomUpsert) AddUpdatedAt(v int64) *RoomUpsert {
+	u.Add(room.FieldUpdatedAt, v)
+	return u
+}
+
+// SetIsActive sets the "is_active" field.
+func (u *RoomUpsert) SetIsActive(v bool) *RoomUpsert {
+	u.Set(room.FieldIsActive, v)
+	return u
+}
+
+// UpdateIsActive sets the "is_active" field to the value that was provided on create.
+func (u *RoomUpsert) UpdateIsActive() *RoomUpsert {
+	u.SetExcluded(room.FieldIsActive)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.Room.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(room.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *RoomUpsertOne) UpdateNewValues() *RoomUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(room.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(room.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Room.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *RoomUpsertOne) Ignore() *RoomUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *RoomUpsertOne) DoNothing() *RoomUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the RoomCreate.OnConflict
+// documentation for more info.
+func (u *RoomUpsertOne) Update(set func(*RoomUpsert)) *RoomUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&RoomUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetOwnerID sets the "owner_id" field.
+func (u *RoomUpsertOne) SetOwnerID(v uuid.UUID) *RoomUpsertOne {
+	return u.Update(func(s *RoomUpsert) {
+		s.SetOwnerID(v)
+	})
+}
+
+// UpdateOwnerID sets the "owner_id" field to the value that was provided on create.
+func (u *RoomUpsertOne) UpdateOwnerID() *RoomUpsertOne {
+	return u.Update(func(s *RoomUpsert) {
+		s.UpdateOwnerID()
+	})
+}
+
+// SetTitle sets the "title" field.
+func (u *RoomUpsertOne) SetTitle(v string) *RoomUpsertOne {
+	return u.Update(func(s *RoomUpsert) {
+		s.SetTitle(v)
+	})
+}
+
+// UpdateTitle sets the "title" field to the value that was provided on create.
+func (u *RoomUpsertOne) UpdateTitle() *RoomUpsertOne {
+	return u.Update(func(s *RoomUpsert) {
+		s.UpdateTitle()
+	})
+}
+
+// SetDescription sets the "description" field.
+func (u *RoomUpsertOne) SetDescription(v string) *RoomUpsertOne {
+	return u.Update(func(s *RoomUpsert) {
+		s.SetDescription(v)
+	})
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *RoomUpsertOne) UpdateDescription() *RoomUpsertOne {
+	return u.Update(func(s *RoomUpsert) {
+		s.UpdateDescription()
+	})
+}
+
+// ClearDescription clears the value of the "description" field.
+func (u *RoomUpsertOne) ClearDescription() *RoomUpsertOne {
+	return u.Update(func(s *RoomUpsert) {
+		s.ClearDescription()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *RoomUpsertOne) SetUpdatedAt(v int64) *RoomUpsertOne {
+	return u.Update(func(s *RoomUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// AddUpdatedAt adds v to the "updated_at" field.
+func (u *RoomUpsertOne) AddUpdatedAt(v int64) *RoomUpsertOne {
+	return u.Update(func(s *RoomUpsert) {
+		s.AddUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *RoomUpsertOne) UpdateUpdatedAt() *RoomUpsertOne {
+	return u.Update(func(s *RoomUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetIsActive sets the "is_active" field.
+func (u *RoomUpsertOne) SetIsActive(v bool) *RoomUpsertOne {
+	return u.Update(func(s *RoomUpsert) {
+		s.SetIsActive(v)
+	})
+}
+
+// UpdateIsActive sets the "is_active" field to the value that was provided on create.
+func (u *RoomUpsertOne) UpdateIsActive() *RoomUpsertOne {
+	return u.Update(func(s *RoomUpsert) {
+		s.UpdateIsActive()
+	})
+}
+
+// Exec executes the query.
+func (u *RoomUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for RoomCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *RoomUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *RoomUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: RoomUpsertOne.ID is not supported by MySQL driver. Use RoomUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *RoomUpsertOne) IDX(ctx context.Context) uuid.UUID {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // RoomCreateBulk is the builder for creating many Room entities in bulk.
 type RoomCreateBulk struct {
 	config
 	err      error
 	builders []*RoomCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Room entities in the database.
@@ -305,6 +604,7 @@ func (_c *RoomCreateBulk) Save(ctx context.Context) ([]*Room, error) {
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -351,6 +651,207 @@ func (_c *RoomCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *RoomCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Room.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.RoomUpsert) {
+//			SetOwnerID(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *RoomCreateBulk) OnConflict(opts ...sql.ConflictOption) *RoomUpsertBulk {
+	_c.conflict = opts
+	return &RoomUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Room.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *RoomCreateBulk) OnConflictColumns(columns ...string) *RoomUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &RoomUpsertBulk{
+		create: _c,
+	}
+}
+
+// RoomUpsertBulk is the builder for "upsert"-ing
+// a bulk of Room nodes.
+type RoomUpsertBulk struct {
+	create *RoomCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Room.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(room.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *RoomUpsertBulk) UpdateNewValues() *RoomUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(room.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(room.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Room.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *RoomUpsertBulk) Ignore() *RoomUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *RoomUpsertBulk) DoNothing() *RoomUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the RoomCreateBulk.OnConflict
+// documentation for more info.
+func (u *RoomUpsertBulk) Update(set func(*RoomUpsert)) *RoomUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&RoomUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetOwnerID sets the "owner_id" field.
+func (u *RoomUpsertBulk) SetOwnerID(v uuid.UUID) *RoomUpsertBulk {
+	return u.Update(func(s *RoomUpsert) {
+		s.SetOwnerID(v)
+	})
+}
+
+// UpdateOwnerID sets the "owner_id" field to the value that was provided on create.
+func (u *RoomUpsertBulk) UpdateOwnerID() *RoomUpsertBulk {
+	return u.Update(func(s *RoomUpsert) {
+		s.UpdateOwnerID()
+	})
+}
+
+// SetTitle sets the "title" field.
+func (u *RoomUpsertBulk) SetTitle(v string) *RoomUpsertBulk {
+	return u.Update(func(s *RoomUpsert) {
+		s.SetTitle(v)
+	})
+}
+
+// UpdateTitle sets the "title" field to the value that was provided on create.
+func (u *RoomUpsertBulk) UpdateTitle() *RoomUpsertBulk {
+	return u.Update(func(s *RoomUpsert) {
+		s.UpdateTitle()
+	})
+}
+
+// SetDescription sets the "description" field.
+func (u *RoomUpsertBulk) SetDescription(v string) *RoomUpsertBulk {
+	return u.Update(func(s *RoomUpsert) {
+		s.SetDescription(v)
+	})
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *RoomUpsertBulk) UpdateDescription() *RoomUpsertBulk {
+	return u.Update(func(s *RoomUpsert) {
+		s.UpdateDescription()
+	})
+}
+
+// ClearDescription clears the value of the "description" field.
+func (u *RoomUpsertBulk) ClearDescription() *RoomUpsertBulk {
+	return u.Update(func(s *RoomUpsert) {
+		s.ClearDescription()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *RoomUpsertBulk) SetUpdatedAt(v int64) *RoomUpsertBulk {
+	return u.Update(func(s *RoomUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// AddUpdatedAt adds v to the "updated_at" field.
+func (u *RoomUpsertBulk) AddUpdatedAt(v int64) *RoomUpsertBulk {
+	return u.Update(func(s *RoomUpsert) {
+		s.AddUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *RoomUpsertBulk) UpdateUpdatedAt() *RoomUpsertBulk {
+	return u.Update(func(s *RoomUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetIsActive sets the "is_active" field.
+func (u *RoomUpsertBulk) SetIsActive(v bool) *RoomUpsertBulk {
+	return u.Update(func(s *RoomUpsert) {
+		s.SetIsActive(v)
+	})
+}
+
+// UpdateIsActive sets the "is_active" field to the value that was provided on create.
+func (u *RoomUpsertBulk) UpdateIsActive() *RoomUpsertBulk {
+	return u.Update(func(s *RoomUpsert) {
+		s.UpdateIsActive()
+	})
+}
+
+// Exec executes the query.
+func (u *RoomUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the RoomCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for RoomCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *RoomUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
