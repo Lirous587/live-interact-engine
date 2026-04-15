@@ -19,8 +19,8 @@ func NewRoomHandler(roomMapper *mapper.RoomMapper) *RoomHandler {
 	}
 }
 
-// CreateRoom 创建房间 API
-// @Summary 创建房间
+// SaveRoom 创建/更新房间 API
+// @Summary 创建/更新房间
 // @Description 用户创建一个新房间
 // @Tags Room
 // @Accept json
@@ -29,8 +29,8 @@ func NewRoomHandler(roomMapper *mapper.RoomMapper) *RoomHandler {
 // @Success 200 {object} mapper.RoomResp "房间信息"
 // @Failure 400 {object} map[string]interface{} "参数错误"
 // @Failure 401 {object} map[string]interface{} "未授权"
-// @Router /v1/room/create [post]
-func (h *RoomHandler) CreateRoom(ctx *gin.Context) {
+// @Router /v1/room [post]
+func (h *RoomHandler) SaveRoom(ctx *gin.Context) {
 	var req mapper.CreateRoomReq
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		response.InvalidParams(ctx, err)
