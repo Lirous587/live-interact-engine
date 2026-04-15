@@ -92,7 +92,7 @@ services:
       - LOG_MAX_BACKUPS=5
 
       # Token 配置
-      - TOKEN_ACCESS_EXPIRES_SECONDS=300 # 5 分钟
+      - TOKEN_ACCESS_EXPIRES_SECONDS=604800 # 60 分钟
       - TOKEN_ACCESS_SECRET=your-secret-key-change-this
       - TOKEN_REFRESH_EXPIRES_SECONDS=2592000 # 30 天
 

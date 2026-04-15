@@ -224,6 +224,16 @@ definitions:
       username:
         type: string
     type: object
+  mapper.RemoveRoleReq:
+    properties:
+      room_id:
+        type: string
+      user_id:
+        type: string
+    required:
+    - room_id
+    - user_id
+    type: object
   mapper.RoomResp:
     properties:
       created_at:
@@ -360,6 +370,11 @@ paths:
       - application/json
       description: 在房间内发送弹幕消息
       parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: 发送弹幕请求
         in: body
         name: request
@@ -378,11 +393,18 @@ paths:
           schema:
             additionalProperties: true
             type: object
+        "401":
+          description: 未授权
+          schema:
+            additionalProperties: true
+            type: object
         "500":
           description: 服务器错误
           schema:
             additionalProperties: true
             type: object
+      security:
+      - Bearer: []
       summary: 发送弹幕
       tags:
       - Danmaku
@@ -390,6 +412,11 @@ paths:
     get:
       description: 通过 SSE 实时订阅房间内的弹幕消息
       parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: 房间ID
         in: query
         name: room_id
@@ -412,6 +439,13 @@ paths:
           schema:
             additionalProperties: true
             type: object
+        "401":
+          description: 未授权
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - Bearer: []
       summary: 订阅房间弹幕
       tags:
       - Danmaku
@@ -439,6 +473,11 @@ paths:
       - application/json
       description: 用户向主播发送礼物，扣除用户钱包余额，生成礼物赠送记录
       parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: 请求体
         in: body
         name: body
@@ -457,11 +496,18 @@ paths:
           schema:
             additionalProperties: true
             type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
         "500":
           description: Internal Server Error
           schema:
             additionalProperties: true
             type: object
+      security:
+      - Bearer: []
       summary: 发送礼物
       tags:
       - Gifts
@@ -620,7 +666,7 @@ paths:
       summary: 检查禁言状态
       tags:
       - Room
-  /v1/room/{room_id}/user/{user_id}/permission:
+  /v1/room/{room_id}/user/{user_id}/permission/{permission}:
     get:
       description: 检查用户是否拥有指定权限
       parameters:
@@ -635,7 +681,7 @@ paths:
         required: true
         type: string
       - description: 权限值
-        in: query
+        in: path
         name: permission
         required: true
         type: integer
@@ -786,6 +832,39 @@ paths:
       summary: 禁言用户
       tags:
       - Room
+  /v1/room/remove-role:
+    post:
+      consumes:
+      - application/json
+      description: 房间所有者移除用户权限
+      parameters:
+      - description: 移除权限请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mapper.RemoveRoleReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 参数错误
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未授权
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 移除用户权限
+      tags:
+      - Room
   /v1/room/unmute:
     post:
       consumes:
@@ -918,8 +997,13 @@ paths:
       - User
   /v1/wallet/{user_id}/balance:
     get:
-      description: 获取指定用户的钱包余额
+      description: 获取指定用户的钱包余额（通常获取自己的钱包）
       parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: 用户 ID (UUID)
         in: path
         name: user_id
@@ -937,6 +1021,11 @@ paths:
           schema:
             additionalProperties: true
             type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
         "404":
           description: Not Found
           schema:
@@ -947,6 +1036,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - Bearer: []
       summary: 获取钱包余额
       tags:
       - Wallet

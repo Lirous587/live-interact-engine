@@ -118,6 +118,41 @@ func (h *RoomHandler) AssignRole(ctx *gin.Context) {
 	response.Success(ctx, gin.H{})
 }
 
+// RemoveRole 移除用户权限 API
+// @Summary 移除用户权限
+// @Description 房间所有者移除用户权限
+// @Tags Room
+// @Accept json
+// @Produce json
+// @Param request body mapper.RemoveRoleReq true "移除权限请求"
+// @Success 200 {object} map[string]interface{} "操作成功"
+// @Failure 400 {object} map[string]interface{} "参数错误"
+// @Failure 401 {object} map[string]interface{} "未授权"
+// @Router /v1/room/remove-role [post]
+func (h *RoomHandler) RemoveRole(ctx *gin.Context) {
+	var req mapper.RemoveRoleReq
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	// 获取房间所有者ID
+	ownerID, ok := ctxutil.GetUserID(ctx)
+	if !ok || ownerID == "" {
+		response.Error(ctx, errors.New("unauthorized: user_id not found"))
+		return
+	}
+
+	// 调用 mapper
+	err := h.roomMapper.RemoveRole(ctx.Request.Context(), ownerID, &req)
+	if err != nil {
+		response.Error(ctx, err)
+		return
+	}
+
+	response.Success(ctx, gin.H{})
+}
+
 // GetUserRoomRole 获取用户在房间的角色 API
 // @Summary 获取用户角色
 // @Description 获取用户在指定房间的角色和权限信息
@@ -160,28 +195,18 @@ func (h *RoomHandler) GetUserRoomRole(ctx *gin.Context) {
 // @Produce json
 // @Param room_id path string true "房间ID"
 // @Param user_id path string true "用户ID"
-// @Param permission query int true "权限值"
+// @Param permission path int true "权限值"
 // @Success 200 {object} mapper.CheckPermissionResp "权限检查结果"
 // @Failure 400 {object} map[string]interface{} "参数错误"
-// @Router /v1/room/{room_id}/user/{user_id}/permission [get]
+// @Router /v1/room/{room_id}/user/{user_id}/permission/{permission} [get]
 func (h *RoomHandler) CheckPermission(ctx *gin.Context) {
-	roomID := ctx.Param("room_id")
-	userID := ctx.Param("user_id")
-
-	if roomID == "" || userID == "" {
-		response.InvalidParams(ctx, errors.New("room_id and user_id required"))
-		return
-	}
 
 	// 从 query 参数获取 permission
 	var req mapper.CheckPermissionReq
-	if err := ctx.ShouldBindQuery(&req); err != nil {
+	if err := ctx.ShouldBindUri(&req); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
-
-	req.RoomID = roomID
-	req.UserID = userID
 
 	// 调用 mapper
 	resp, err := h.roomMapper.CheckPermission(ctx.Request.Context(), &req)
@@ -243,6 +268,14 @@ func (h *RoomHandler) UnmuteUser(ctx *gin.Context) {
 		response.InvalidParams(ctx, err)
 		return
 	}
+
+	adminID, ok := ctxutil.GetUserID(ctx)
+	if !ok || adminID == "" {
+		response.Error(ctx, errors.New("unauthorized: user_id not found"))
+		return
+	}
+
+	req.SetAdminID(adminID)
 
 	err := h.roomMapper.UnmuteUser(ctx.Request.Context(), &req)
 	if err != nil {

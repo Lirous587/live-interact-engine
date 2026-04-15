@@ -28,9 +28,12 @@ func NewGiftHandler(giftMapper *mapper.GiftMapper) *GiftHandler {
 //	@Tags			Gifts
 //	@Accept			json
 //	@Produce		json
+//	@Security		Bearer
+//	@Param			Authorization	header	string	true	"Bearer Token"
 //	@Param			body	body		mapper.SendGiftReq	true	"请求体"
 //	@Success		200	{object}	mapper.GiftRecordResp
 //	@Failure		400	{object}	map[string]interface{}
+//	@Failure		401	{object}	map[string]interface{}
 //	@Failure		500	{object}	map[string]interface{}
 //	@Router			/v1/gift/send [post]
 func (h *GiftHandler) SendGift(ctx *gin.Context) {
@@ -85,12 +88,15 @@ func NewWalletHandler(walletMapper *mapper.WalletMapper) *WalletHandler {
 // GetWalletBalance godoc
 //
 //	@Summary		获取钱包余额
-//	@Description	获取指定用户的钱包余额
+//	@Description	获取指定用户的钱包余额（通常获取自己的钱包）
 //	@Tags			Wallet
 //	@Produce		json
+//	@Security		Bearer
+//	@Param			Authorization	header	string	true	"Bearer Token"
 //	@Param			user_id	path		string	true	"用户 ID (UUID)"
 //	@Success		200	{object}	mapper.WalletResp
 //	@Failure		400	{object}	map[string]interface{}
+//	@Failure		401	{object}	map[string]interface{}
 //	@Failure		404	{object}	map[string]interface{}
 //	@Failure		500	{object}	map[string]interface{}
 //	@Router			/v1/wallet/{user_id}/balance [get]

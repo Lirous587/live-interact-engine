@@ -58,6 +58,32 @@ restart:
 		docker-compose restart
 		@echo "✓ Services restarted!"
 
+# 单个服务重新构建脚本
+.PHONY: rebuild-api
+rebuild-api: build-services
+		docker-compose up -d --build api-service
+		@echo "✓ api-service rebuilt!"
+
+.PHONY: rebuild-user
+rebuild-user: build-services
+		docker-compose up -d --build user-service
+		@echo "✓ user-service rebuilt!"
+
+.PHONY: rebuild-room
+rebuild-room: build-services
+		docker-compose up -d --build room-service
+		@echo "✓ room-service rebuilt!"
+
+.PHONY: rebuild-danmaku
+rebuild-danmaku: build-services
+		docker-compose up -d --build danmaku-service
+		@echo "✓ danmaku-service rebuilt!"
+
+.PHONY: rebuild-gift
+rebuild-gift: build-services
+		docker-compose up -d --build gift-service
+		@echo "✓ gift-service rebuilt!"
+
 # 完全清理（删除所有，包括数据）
 .PHONY: clean
 clean:

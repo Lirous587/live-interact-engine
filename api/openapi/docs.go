@@ -26,6 +26,11 @@ const docTemplate = `{
     "paths": {
         "/v1/danmaku/send": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "在房间内发送弹幕消息",
                 "consumes": [
                     "application/json"
@@ -38,6 +43,13 @@ const docTemplate = `{
                 ],
                 "summary": "发送弹幕",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "发送弹幕请求",
                         "name": "request",
@@ -62,6 +74,13 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
                     "500": {
                         "description": "服务器错误",
                         "schema": {
@@ -74,6 +93,11 @@ const docTemplate = `{
         },
         "/v1/danmaku/subscribe": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "通过 SSE 实时订阅房间内的弹幕消息",
                 "produces": [
                     "text/event-stream"
@@ -83,6 +107,13 @@ const docTemplate = `{
                 ],
                 "summary": "订阅房间弹幕",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "房间ID",
@@ -107,6 +138,13 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -144,6 +182,11 @@ const docTemplate = `{
         },
         "/v1/gift/send": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "用户向主播发送礼物，扣除用户钱包余额，生成礼物赠送记录",
                 "consumes": [
                     "application/json"
@@ -156,6 +199,13 @@ const docTemplate = `{
                 ],
                 "summary": "发送礼物",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "请求体",
                         "name": "body",
@@ -175,6 +225,13 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -358,6 +415,55 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/mapper.MuteUserReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/room/remove-role": {
+            "post": {
+                "description": "房间所有者移除用户权限",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Room"
+                ],
+                "summary": "移除用户权限",
+                "parameters": [
+                    {
+                        "description": "移除权限请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mapper.RemoveRoleReq"
                         }
                     }
                 ],
@@ -614,7 +720,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/room/{room_id}/user/{user_id}/permission": {
+        "/v1/room/{room_id}/user/{user_id}/permission/{permission}": {
             "get": {
                 "description": "检查用户是否拥有指定权限",
                 "produces": [
@@ -643,7 +749,7 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "权限值",
                         "name": "permission",
-                        "in": "query",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -861,7 +967,12 @@ const docTemplate = `{
         },
         "/v1/wallet/{user_id}/balance": {
             "get": {
-                "description": "获取指定用户的钱包余额",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取指定用户的钱包余额（通常获取自己的钱包）",
                 "produces": [
                     "application/json"
                 ],
@@ -870,6 +981,13 @@ const docTemplate = `{
                 ],
                 "summary": "获取钱包余额",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "用户 ID (UUID)",
@@ -887,6 +1005,13 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -1240,6 +1365,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "mapper.RemoveRoleReq": {
+            "type": "object",
+            "required": [
+                "room_id",
+                "user_id"
+            ],
+            "properties": {
+                "room_id": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }

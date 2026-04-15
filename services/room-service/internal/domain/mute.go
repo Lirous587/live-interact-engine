@@ -25,7 +25,7 @@ func (m *Mute) IsExpired() bool {
 }
 
 type MuteRepository interface {
-	Create(ctx context.Context, mute *Mute) error
+	Save(ctx context.Context, mute *Mute) error
 	Delete(ctx context.Context, roomID, userID uuid.UUID) error
 	GetByRoomAndUser(ctx context.Context, roomID, userID uuid.UUID) (*Mute, error)
 	ListByRoom(ctx context.Context, roomID uuid.UUID, offset, limit int) ([]*Mute, error)

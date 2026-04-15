@@ -22,6 +22,7 @@ const (
 	RoomService_CreateRoom_FullMethodName      = "/room.RoomService/CreateRoom"
 	RoomService_GetRoom_FullMethodName         = "/room.RoomService/GetRoom"
 	RoomService_AssignRole_FullMethodName      = "/room.RoomService/AssignRole"
+	RoomService_RemoveRole_FullMethodName      = "/room.RoomService/RemoveRole"
 	RoomService_GetUserRoomRole_FullMethodName = "/room.RoomService/GetUserRoomRole"
 	RoomService_CheckPermission_FullMethodName = "/room.RoomService/CheckPermission"
 	RoomService_MuteUser_FullMethodName        = "/room.RoomService/MuteUser"
@@ -38,6 +39,7 @@ type RoomServiceClient interface {
 	CreateRoom(ctx context.Context, in *CreateRoomRequest, opts ...grpc.CallOption) (*CreateRoomResponse, error)
 	GetRoom(ctx context.Context, in *GetRoomRequest, opts ...grpc.CallOption) (*GetRoomResponse, error)
 	AssignRole(ctx context.Context, in *AssignRoleRequest, opts ...grpc.CallOption) (*AssignRoleResponse, error)
+	RemoveRole(ctx context.Context, in *RemoveRoleRequest, opts ...grpc.CallOption) (*RemoveRoleResponse, error)
 	GetUserRoomRole(ctx context.Context, in *GetUserRoomRoleRequest, opts ...grpc.CallOption) (*GetUserRoomRoleResponse, error)
 	CheckPermission(ctx context.Context, in *CheckPermissionRequest, opts ...grpc.CallOption) (*CheckPermissionResponse, error)
 	MuteUser(ctx context.Context, in *MuteUserRequest, opts ...grpc.CallOption) (*MuteUserResponse, error)
@@ -79,6 +81,16 @@ func (c *roomServiceClient) AssignRole(ctx context.Context, in *AssignRoleReques
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AssignRoleResponse)
 	err := c.cc.Invoke(ctx, RoomService_AssignRole_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roomServiceClient) RemoveRole(ctx context.Context, in *RemoveRoleRequest, opts ...grpc.CallOption) (*RemoveRoleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveRoleResponse)
+	err := c.cc.Invoke(ctx, RoomService_RemoveRole_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -162,6 +174,7 @@ type RoomServiceServer interface {
 	CreateRoom(context.Context, *CreateRoomRequest) (*CreateRoomResponse, error)
 	GetRoom(context.Context, *GetRoomRequest) (*GetRoomResponse, error)
 	AssignRole(context.Context, *AssignRoleRequest) (*AssignRoleResponse, error)
+	RemoveRole(context.Context, *RemoveRoleRequest) (*RemoveRoleResponse, error)
 	GetUserRoomRole(context.Context, *GetUserRoomRoleRequest) (*GetUserRoomRoleResponse, error)
 	CheckPermission(context.Context, *CheckPermissionRequest) (*CheckPermissionResponse, error)
 	MuteUser(context.Context, *MuteUserRequest) (*MuteUserResponse, error)
@@ -187,6 +200,9 @@ func (UnimplementedRoomServiceServer) GetRoom(context.Context, *GetRoomRequest) 
 }
 func (UnimplementedRoomServiceServer) AssignRole(context.Context, *AssignRoleRequest) (*AssignRoleResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method AssignRole not implemented")
+}
+func (UnimplementedRoomServiceServer) RemoveRole(context.Context, *RemoveRoleRequest) (*RemoveRoleResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RemoveRole not implemented")
 }
 func (UnimplementedRoomServiceServer) GetUserRoomRole(context.Context, *GetUserRoomRoleRequest) (*GetUserRoomRoleResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUserRoomRole not implemented")
@@ -280,6 +296,24 @@ func _RoomService_AssignRole_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RoomServiceServer).AssignRole(ctx, req.(*AssignRoleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RoomService_RemoveRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoomServiceServer).RemoveRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RoomService_RemoveRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoomServiceServer).RemoveRole(ctx, req.(*RemoveRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -428,6 +462,10 @@ var RoomService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AssignRole",
 			Handler:    _RoomService_AssignRole_Handler,
+		},
+		{
+			MethodName: "RemoveRole",
+			Handler:    _RoomService_RemoveRole_Handler,
 		},
 		{
 			MethodName: "GetUserRoomRole",

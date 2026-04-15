@@ -317,6 +317,102 @@ func (*AssignRoleResponse) Descriptor() ([]byte, []int) {
 	return file_room_room_api_proto_rawDescGZIP(), []int{5}
 }
 
+type RemoveRoleRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OwnerId       string                 `protobuf:"bytes,1,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
+	RoomId        string                 `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveRoleRequest) Reset() {
+	*x = RemoveRoleRequest{}
+	mi := &file_room_room_api_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveRoleRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveRoleRequest) ProtoMessage() {}
+
+func (x *RemoveRoleRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_room_room_api_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveRoleRequest.ProtoReflect.Descriptor instead.
+func (*RemoveRoleRequest) Descriptor() ([]byte, []int) {
+	return file_room_room_api_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *RemoveRoleRequest) GetOwnerId() string {
+	if x != nil {
+		return x.OwnerId
+	}
+	return ""
+}
+
+func (x *RemoveRoleRequest) GetRoomId() string {
+	if x != nil {
+		return x.RoomId
+	}
+	return ""
+}
+
+func (x *RemoveRoleRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type RemoveRoleResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveRoleResponse) Reset() {
+	*x = RemoveRoleResponse{}
+	mi := &file_room_room_api_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveRoleResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveRoleResponse) ProtoMessage() {}
+
+func (x *RemoveRoleResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_room_room_api_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveRoleResponse.ProtoReflect.Descriptor instead.
+func (*RemoveRoleResponse) Descriptor() ([]byte, []int) {
+	return file_room_room_api_proto_rawDescGZIP(), []int{7}
+}
+
 type GetUserRoomRoleRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -327,7 +423,7 @@ type GetUserRoomRoleRequest struct {
 
 func (x *GetUserRoomRoleRequest) Reset() {
 	*x = GetUserRoomRoleRequest{}
-	mi := &file_room_room_api_proto_msgTypes[6]
+	mi := &file_room_room_api_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -339,7 +435,7 @@ func (x *GetUserRoomRoleRequest) String() string {
 func (*GetUserRoomRoleRequest) ProtoMessage() {}
 
 func (x *GetUserRoomRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_room_room_api_proto_msgTypes[6]
+	mi := &file_room_room_api_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -352,7 +448,7 @@ func (x *GetUserRoomRoleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserRoomRoleRequest.ProtoReflect.Descriptor instead.
 func (*GetUserRoomRoleRequest) Descriptor() ([]byte, []int) {
-	return file_room_room_api_proto_rawDescGZIP(), []int{6}
+	return file_room_room_api_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetUserRoomRoleRequest) GetUserId() string {
@@ -378,7 +474,7 @@ type GetUserRoomRoleResponse struct {
 
 func (x *GetUserRoomRoleResponse) Reset() {
 	*x = GetUserRoomRoleResponse{}
-	mi := &file_room_room_api_proto_msgTypes[7]
+	mi := &file_room_room_api_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -390,7 +486,7 @@ func (x *GetUserRoomRoleResponse) String() string {
 func (*GetUserRoomRoleResponse) ProtoMessage() {}
 
 func (x *GetUserRoomRoleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_room_room_api_proto_msgTypes[7]
+	mi := &file_room_room_api_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -403,7 +499,7 @@ func (x *GetUserRoomRoleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserRoomRoleResponse.ProtoReflect.Descriptor instead.
 func (*GetUserRoomRoleResponse) Descriptor() ([]byte, []int) {
-	return file_room_room_api_proto_rawDescGZIP(), []int{7}
+	return file_room_room_api_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetUserRoomRoleResponse) GetUserRoomRole() *UserRoomRole {
@@ -424,7 +520,7 @@ type CheckPermissionRequest struct {
 
 func (x *CheckPermissionRequest) Reset() {
 	*x = CheckPermissionRequest{}
-	mi := &file_room_room_api_proto_msgTypes[8]
+	mi := &file_room_room_api_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -436,7 +532,7 @@ func (x *CheckPermissionRequest) String() string {
 func (*CheckPermissionRequest) ProtoMessage() {}
 
 func (x *CheckPermissionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_room_room_api_proto_msgTypes[8]
+	mi := &file_room_room_api_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -449,7 +545,7 @@ func (x *CheckPermissionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckPermissionRequest.ProtoReflect.Descriptor instead.
 func (*CheckPermissionRequest) Descriptor() ([]byte, []int) {
-	return file_room_room_api_proto_rawDescGZIP(), []int{8}
+	return file_room_room_api_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *CheckPermissionRequest) GetUserId() string {
@@ -482,7 +578,7 @@ type CheckPermissionResponse struct {
 
 func (x *CheckPermissionResponse) Reset() {
 	*x = CheckPermissionResponse{}
-	mi := &file_room_room_api_proto_msgTypes[9]
+	mi := &file_room_room_api_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -494,7 +590,7 @@ func (x *CheckPermissionResponse) String() string {
 func (*CheckPermissionResponse) ProtoMessage() {}
 
 func (x *CheckPermissionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_room_room_api_proto_msgTypes[9]
+	mi := &file_room_room_api_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -507,7 +603,7 @@ func (x *CheckPermissionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckPermissionResponse.ProtoReflect.Descriptor instead.
 func (*CheckPermissionResponse) Descriptor() ([]byte, []int) {
-	return file_room_room_api_proto_rawDescGZIP(), []int{9}
+	return file_room_room_api_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *CheckPermissionResponse) GetHasPermission() bool {
@@ -533,7 +629,7 @@ type Mute struct {
 
 func (x *Mute) Reset() {
 	*x = Mute{}
-	mi := &file_room_room_api_proto_msgTypes[10]
+	mi := &file_room_room_api_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -545,7 +641,7 @@ func (x *Mute) String() string {
 func (*Mute) ProtoMessage() {}
 
 func (x *Mute) ProtoReflect() protoreflect.Message {
-	mi := &file_room_room_api_proto_msgTypes[10]
+	mi := &file_room_room_api_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -558,7 +654,7 @@ func (x *Mute) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Mute.ProtoReflect.Descriptor instead.
 func (*Mute) Descriptor() ([]byte, []int) {
-	return file_room_room_api_proto_rawDescGZIP(), []int{10}
+	return file_room_room_api_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *Mute) GetUserId() string {
@@ -630,7 +726,7 @@ type MuteUserRequest struct {
 
 func (x *MuteUserRequest) Reset() {
 	*x = MuteUserRequest{}
-	mi := &file_room_room_api_proto_msgTypes[11]
+	mi := &file_room_room_api_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -642,7 +738,7 @@ func (x *MuteUserRequest) String() string {
 func (*MuteUserRequest) ProtoMessage() {}
 
 func (x *MuteUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_room_room_api_proto_msgTypes[11]
+	mi := &file_room_room_api_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -655,7 +751,7 @@ func (x *MuteUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MuteUserRequest.ProtoReflect.Descriptor instead.
 func (*MuteUserRequest) Descriptor() ([]byte, []int) {
-	return file_room_room_api_proto_rawDescGZIP(), []int{11}
+	return file_room_room_api_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *MuteUserRequest) GetAdminId() string {
@@ -701,7 +797,7 @@ type MuteUserResponse struct {
 
 func (x *MuteUserResponse) Reset() {
 	*x = MuteUserResponse{}
-	mi := &file_room_room_api_proto_msgTypes[12]
+	mi := &file_room_room_api_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -713,7 +809,7 @@ func (x *MuteUserResponse) String() string {
 func (*MuteUserResponse) ProtoMessage() {}
 
 func (x *MuteUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_room_room_api_proto_msgTypes[12]
+	mi := &file_room_room_api_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -726,20 +822,21 @@ func (x *MuteUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MuteUserResponse.ProtoReflect.Descriptor instead.
 func (*MuteUserResponse) Descriptor() ([]byte, []int) {
-	return file_room_room_api_proto_rawDescGZIP(), []int{12}
+	return file_room_room_api_proto_rawDescGZIP(), []int{14}
 }
 
 type UnmuteUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RoomId        string                 `protobuf:"bytes,1,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
 	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	AdminId       string                 `protobuf:"bytes,3,opt,name=admin_id,json=adminId,proto3" json:"admin_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UnmuteUserRequest) Reset() {
 	*x = UnmuteUserRequest{}
-	mi := &file_room_room_api_proto_msgTypes[13]
+	mi := &file_room_room_api_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -751,7 +848,7 @@ func (x *UnmuteUserRequest) String() string {
 func (*UnmuteUserRequest) ProtoMessage() {}
 
 func (x *UnmuteUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_room_room_api_proto_msgTypes[13]
+	mi := &file_room_room_api_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -764,7 +861,7 @@ func (x *UnmuteUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnmuteUserRequest.ProtoReflect.Descriptor instead.
 func (*UnmuteUserRequest) Descriptor() ([]byte, []int) {
-	return file_room_room_api_proto_rawDescGZIP(), []int{13}
+	return file_room_room_api_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *UnmuteUserRequest) GetRoomId() string {
@@ -781,6 +878,13 @@ func (x *UnmuteUserRequest) GetUserId() string {
 	return ""
 }
 
+func (x *UnmuteUserRequest) GetAdminId() string {
+	if x != nil {
+		return x.AdminId
+	}
+	return ""
+}
+
 type UnmuteUserResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -789,7 +893,7 @@ type UnmuteUserResponse struct {
 
 func (x *UnmuteUserResponse) Reset() {
 	*x = UnmuteUserResponse{}
-	mi := &file_room_room_api_proto_msgTypes[14]
+	mi := &file_room_room_api_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -801,7 +905,7 @@ func (x *UnmuteUserResponse) String() string {
 func (*UnmuteUserResponse) ProtoMessage() {}
 
 func (x *UnmuteUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_room_room_api_proto_msgTypes[14]
+	mi := &file_room_room_api_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -814,7 +918,7 @@ func (x *UnmuteUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnmuteUserResponse.ProtoReflect.Descriptor instead.
 func (*UnmuteUserResponse) Descriptor() ([]byte, []int) {
-	return file_room_room_api_proto_rawDescGZIP(), []int{14}
+	return file_room_room_api_proto_rawDescGZIP(), []int{16}
 }
 
 type IsMutedRequest struct {
@@ -827,7 +931,7 @@ type IsMutedRequest struct {
 
 func (x *IsMutedRequest) Reset() {
 	*x = IsMutedRequest{}
-	mi := &file_room_room_api_proto_msgTypes[15]
+	mi := &file_room_room_api_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -839,7 +943,7 @@ func (x *IsMutedRequest) String() string {
 func (*IsMutedRequest) ProtoMessage() {}
 
 func (x *IsMutedRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_room_room_api_proto_msgTypes[15]
+	mi := &file_room_room_api_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -852,7 +956,7 @@ func (x *IsMutedRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IsMutedRequest.ProtoReflect.Descriptor instead.
 func (*IsMutedRequest) Descriptor() ([]byte, []int) {
-	return file_room_room_api_proto_rawDescGZIP(), []int{15}
+	return file_room_room_api_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *IsMutedRequest) GetRoomId() string {
@@ -878,7 +982,7 @@ type IsMutedResponse struct {
 
 func (x *IsMutedResponse) Reset() {
 	*x = IsMutedResponse{}
-	mi := &file_room_room_api_proto_msgTypes[16]
+	mi := &file_room_room_api_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -890,7 +994,7 @@ func (x *IsMutedResponse) String() string {
 func (*IsMutedResponse) ProtoMessage() {}
 
 func (x *IsMutedResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_room_room_api_proto_msgTypes[16]
+	mi := &file_room_room_api_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -903,7 +1007,7 @@ func (x *IsMutedResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IsMutedResponse.ProtoReflect.Descriptor instead.
 func (*IsMutedResponse) Descriptor() ([]byte, []int) {
-	return file_room_room_api_proto_rawDescGZIP(), []int{16}
+	return file_room_room_api_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *IsMutedResponse) GetIsMuted() bool {
@@ -924,7 +1028,7 @@ type GetMuteListRequest struct {
 
 func (x *GetMuteListRequest) Reset() {
 	*x = GetMuteListRequest{}
-	mi := &file_room_room_api_proto_msgTypes[17]
+	mi := &file_room_room_api_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -936,7 +1040,7 @@ func (x *GetMuteListRequest) String() string {
 func (*GetMuteListRequest) ProtoMessage() {}
 
 func (x *GetMuteListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_room_room_api_proto_msgTypes[17]
+	mi := &file_room_room_api_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -949,7 +1053,7 @@ func (x *GetMuteListRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMuteListRequest.ProtoReflect.Descriptor instead.
 func (*GetMuteListRequest) Descriptor() ([]byte, []int) {
-	return file_room_room_api_proto_rawDescGZIP(), []int{17}
+	return file_room_room_api_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetMuteListRequest) GetRoomId() string {
@@ -982,7 +1086,7 @@ type GetMuteListResponse struct {
 
 func (x *GetMuteListResponse) Reset() {
 	*x = GetMuteListResponse{}
-	mi := &file_room_room_api_proto_msgTypes[18]
+	mi := &file_room_room_api_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -994,7 +1098,7 @@ func (x *GetMuteListResponse) String() string {
 func (*GetMuteListResponse) ProtoMessage() {}
 
 func (x *GetMuteListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_room_room_api_proto_msgTypes[18]
+	mi := &file_room_room_api_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1007,7 +1111,7 @@ func (x *GetMuteListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMuteListResponse.ProtoReflect.Descriptor instead.
 func (*GetMuteListResponse) Descriptor() ([]byte, []int) {
-	return file_room_room_api_proto_rawDescGZIP(), []int{18}
+	return file_room_room_api_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GetMuteListResponse) GetMutes() []*Mute {
@@ -1027,7 +1131,7 @@ type GetMuteInfoRequest struct {
 
 func (x *GetMuteInfoRequest) Reset() {
 	*x = GetMuteInfoRequest{}
-	mi := &file_room_room_api_proto_msgTypes[19]
+	mi := &file_room_room_api_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1039,7 +1143,7 @@ func (x *GetMuteInfoRequest) String() string {
 func (*GetMuteInfoRequest) ProtoMessage() {}
 
 func (x *GetMuteInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_room_room_api_proto_msgTypes[19]
+	mi := &file_room_room_api_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1052,7 +1156,7 @@ func (x *GetMuteInfoRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMuteInfoRequest.ProtoReflect.Descriptor instead.
 func (*GetMuteInfoRequest) Descriptor() ([]byte, []int) {
-	return file_room_room_api_proto_rawDescGZIP(), []int{19}
+	return file_room_room_api_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetMuteInfoRequest) GetRoomId() string {
@@ -1078,7 +1182,7 @@ type GetMuteInfoResponse struct {
 
 func (x *GetMuteInfoResponse) Reset() {
 	*x = GetMuteInfoResponse{}
-	mi := &file_room_room_api_proto_msgTypes[20]
+	mi := &file_room_room_api_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1090,7 +1194,7 @@ func (x *GetMuteInfoResponse) String() string {
 func (*GetMuteInfoResponse) ProtoMessage() {}
 
 func (x *GetMuteInfoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_room_room_api_proto_msgTypes[20]
+	mi := &file_room_room_api_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1103,7 +1207,7 @@ func (x *GetMuteInfoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMuteInfoResponse.ProtoReflect.Descriptor instead.
 func (*GetMuteInfoResponse) Descriptor() ([]byte, []int) {
-	return file_room_room_api_proto_rawDescGZIP(), []int{20}
+	return file_room_room_api_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GetMuteInfoResponse) GetMute() *Mute {
@@ -1135,7 +1239,12 @@ const file_room_room_api_proto_rawDesc = "" +
 	"\aroom_id\x18\x02 \x01(\tR\x06roomId\x12\x17\n" +
 	"\auser_id\x18\x03 \x01(\tR\x06userId\x12\"\n" +
 	"\x04role\x18\x04 \x01(\x0e2\x0e.room.RoleTypeR\x04role\"\x14\n" +
-	"\x12AssignRoleResponse\"J\n" +
+	"\x12AssignRoleResponse\"`\n" +
+	"\x11RemoveRoleRequest\x12\x19\n" +
+	"\bowner_id\x18\x01 \x01(\tR\aownerId\x12\x17\n" +
+	"\aroom_id\x18\x02 \x01(\tR\x06roomId\x12\x17\n" +
+	"\auser_id\x18\x03 \x01(\tR\x06userId\"\x14\n" +
+	"\x12RemoveRoleResponse\"J\n" +
 	"\x16GetUserRoomRoleRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x17\n" +
 	"\aroom_id\x18\x02 \x01(\tR\x06roomId\"S\n" +
@@ -1166,10 +1275,11 @@ const file_room_room_api_proto_rawDesc = "" +
 	"\auser_id\x18\x03 \x01(\tR\x06userId\x12\x1a\n" +
 	"\bduration\x18\x04 \x01(\x03R\bduration\x12\x16\n" +
 	"\x06reason\x18\x05 \x01(\tR\x06reason\"\x12\n" +
-	"\x10MuteUserResponse\"E\n" +
+	"\x10MuteUserResponse\"`\n" +
 	"\x11UnmuteUserRequest\x12\x17\n" +
 	"\aroom_id\x18\x01 \x01(\tR\x06roomId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\"\x14\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x19\n" +
+	"\badmin_id\x18\x03 \x01(\tR\aadminId\"\x14\n" +
 	"\x12UnmuteUserResponse\"B\n" +
 	"\x0eIsMutedRequest\x12\x17\n" +
 	"\aroom_id\x18\x01 \x01(\tR\x06roomId\x12\x17\n" +
@@ -1202,7 +1312,7 @@ func file_room_room_api_proto_rawDescGZIP() []byte {
 	return file_room_room_api_proto_rawDescData
 }
 
-var file_room_room_api_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_room_room_api_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_room_room_api_proto_goTypes = []any{
 	(*CreateRoomRequest)(nil),       // 0: room.CreateRoomRequest
 	(*CreateRoomResponse)(nil),      // 1: room.CreateRoomResponse
@@ -1210,34 +1320,36 @@ var file_room_room_api_proto_goTypes = []any{
 	(*GetRoomResponse)(nil),         // 3: room.GetRoomResponse
 	(*AssignRoleRequest)(nil),       // 4: room.AssignRoleRequest
 	(*AssignRoleResponse)(nil),      // 5: room.AssignRoleResponse
-	(*GetUserRoomRoleRequest)(nil),  // 6: room.GetUserRoomRoleRequest
-	(*GetUserRoomRoleResponse)(nil), // 7: room.GetUserRoomRoleResponse
-	(*CheckPermissionRequest)(nil),  // 8: room.CheckPermissionRequest
-	(*CheckPermissionResponse)(nil), // 9: room.CheckPermissionResponse
-	(*Mute)(nil),                    // 10: room.Mute
-	(*MuteUserRequest)(nil),         // 11: room.MuteUserRequest
-	(*MuteUserResponse)(nil),        // 12: room.MuteUserResponse
-	(*UnmuteUserRequest)(nil),       // 13: room.UnmuteUserRequest
-	(*UnmuteUserResponse)(nil),      // 14: room.UnmuteUserResponse
-	(*IsMutedRequest)(nil),          // 15: room.IsMutedRequest
-	(*IsMutedResponse)(nil),         // 16: room.IsMutedResponse
-	(*GetMuteListRequest)(nil),      // 17: room.GetMuteListRequest
-	(*GetMuteListResponse)(nil),     // 18: room.GetMuteListResponse
-	(*GetMuteInfoRequest)(nil),      // 19: room.GetMuteInfoRequest
-	(*GetMuteInfoResponse)(nil),     // 20: room.GetMuteInfoResponse
-	(*Room)(nil),                    // 21: room.Room
-	(RoleType)(0),                   // 22: room.RoleType
-	(*UserRoomRole)(nil),            // 23: room.UserRoomRole
-	(Permission)(0),                 // 24: room.Permission
+	(*RemoveRoleRequest)(nil),       // 6: room.RemoveRoleRequest
+	(*RemoveRoleResponse)(nil),      // 7: room.RemoveRoleResponse
+	(*GetUserRoomRoleRequest)(nil),  // 8: room.GetUserRoomRoleRequest
+	(*GetUserRoomRoleResponse)(nil), // 9: room.GetUserRoomRoleResponse
+	(*CheckPermissionRequest)(nil),  // 10: room.CheckPermissionRequest
+	(*CheckPermissionResponse)(nil), // 11: room.CheckPermissionResponse
+	(*Mute)(nil),                    // 12: room.Mute
+	(*MuteUserRequest)(nil),         // 13: room.MuteUserRequest
+	(*MuteUserResponse)(nil),        // 14: room.MuteUserResponse
+	(*UnmuteUserRequest)(nil),       // 15: room.UnmuteUserRequest
+	(*UnmuteUserResponse)(nil),      // 16: room.UnmuteUserResponse
+	(*IsMutedRequest)(nil),          // 17: room.IsMutedRequest
+	(*IsMutedResponse)(nil),         // 18: room.IsMutedResponse
+	(*GetMuteListRequest)(nil),      // 19: room.GetMuteListRequest
+	(*GetMuteListResponse)(nil),     // 20: room.GetMuteListResponse
+	(*GetMuteInfoRequest)(nil),      // 21: room.GetMuteInfoRequest
+	(*GetMuteInfoResponse)(nil),     // 22: room.GetMuteInfoResponse
+	(*Room)(nil),                    // 23: room.Room
+	(RoleType)(0),                   // 24: room.RoleType
+	(*UserRoomRole)(nil),            // 25: room.UserRoomRole
+	(Permission)(0),                 // 26: room.Permission
 }
 var file_room_room_api_proto_depIdxs = []int32{
-	21, // 0: room.CreateRoomResponse.room:type_name -> room.Room
-	21, // 1: room.GetRoomResponse.room:type_name -> room.Room
-	22, // 2: room.AssignRoleRequest.role:type_name -> room.RoleType
-	23, // 3: room.GetUserRoomRoleResponse.user_room_role:type_name -> room.UserRoomRole
-	24, // 4: room.CheckPermissionRequest.permission:type_name -> room.Permission
-	10, // 5: room.GetMuteListResponse.mutes:type_name -> room.Mute
-	10, // 6: room.GetMuteInfoResponse.mute:type_name -> room.Mute
+	23, // 0: room.CreateRoomResponse.room:type_name -> room.Room
+	23, // 1: room.GetRoomResponse.room:type_name -> room.Room
+	24, // 2: room.AssignRoleRequest.role:type_name -> room.RoleType
+	25, // 3: room.GetUserRoomRoleResponse.user_room_role:type_name -> room.UserRoomRole
+	26, // 4: room.CheckPermissionRequest.permission:type_name -> room.Permission
+	12, // 5: room.GetMuteListResponse.mutes:type_name -> room.Mute
+	12, // 6: room.GetMuteInfoResponse.mute:type_name -> room.Mute
 	7,  // [7:7] is the sub-list for method output_type
 	7,  // [7:7] is the sub-list for method input_type
 	7,  // [7:7] is the sub-list for extension type_name
@@ -1257,7 +1369,7 @@ func file_room_room_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_room_room_api_proto_rawDesc), len(file_room_room_api_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   21,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -29,6 +29,12 @@ type AssignRoleReq struct {
 	Role   string `json:"role" binding:"required,oneof=owner administrator vip"`
 }
 
+// RemoveRoleReq 移除角色请求体
+type RemoveRoleReq struct {
+	RoomID string `json:"room_id" binding:"required"`
+	UserID string `json:"user_id" binding:"required"`
+}
+
 // GetUserRoomRoleReq 获取用户房间角色请求体
 type GetUserRoomRoleReq struct {
 	RoomID string `uri:"room_id" binding:"required"`
@@ -52,8 +58,17 @@ type MuteUserReq struct {
 
 // UnmuteUserReq 解除禁言请求体
 type UnmuteUserReq struct {
-	RoomID string `json:"room_id" binding:"required"`
-	UserID string `json:"user_id" binding:"required"`
+	RoomID  string `json:"room_id" binding:"required"`
+	UserID  string `json:"user_id" binding:"required"`
+	adminID string `json:"-"`
+}
+
+func (u *UnmuteUserReq) SetAdminID(id string) {
+	u.adminID = id
+}
+
+func (u *UnmuteUserReq) GetAdminID() string {
+	return u.adminID
 }
 
 // IsMutedReq 检查禁言状态请求体
@@ -70,9 +85,9 @@ type GetMuteInfoReq struct {
 
 // GetMuteListReq 获取禁言列表请求体
 type GetMuteListReq struct {
-	RoomID string `uri:"room_id" binding:"required"`
-	Offset int32  `form:"offset" binding:"gte=0"`
-	Limit  int32  `form:"limit" binding:"gte=1,lte=100"`
+	RoomID string
+	Offset int32 `form:"offset" binding:"gte=0"`
+	Limit  int32 `form:"limit" binding:"gte=1,lte=100"`
 }
 
 // ==================== 响应体定义 ====================
@@ -218,6 +233,18 @@ func (m *RoomMapper) AssignRole(ctx context.Context, ownerID string, req *Assign
 	return m.roomClient.AssignRole(ctx, pbReq)
 }
 
+// RemoveRole 移除用户角色
+func (m *RoomMapper) RemoveRole(ctx context.Context, ownerID string, req *RemoveRoleReq) error {
+	pbReq := &pb.RemoveRoleRequest{
+		OwnerId: ownerID,
+		RoomId:  req.RoomID,
+		UserId:  req.UserID,
+	}
+
+	// 调用 gRPC 服务
+	return m.roomClient.RemoveRole(ctx, pbReq)
+}
+
 // GetUserRoomRole 获取用户在房间中的角色
 func (m *RoomMapper) GetUserRoomRole(ctx context.Context, req *GetUserRoomRoleReq) (*UserRoomRoleResp, error) {
 	// 构造 pb.GetUserRoomRoleRequest
@@ -298,8 +325,9 @@ func (m *RoomMapper) MuteUser(ctx context.Context, adminID string, req *MuteUser
 // UnmuteUser 解除禁言
 func (m *RoomMapper) UnmuteUser(ctx context.Context, req *UnmuteUserReq) error {
 	pbReq := &pb.UnmuteUserRequest{
-		RoomId: req.RoomID,
-		UserId: req.UserID,
+		RoomId:  req.RoomID,
+		UserId:  req.UserID,
+		AdminId: req.GetAdminID(),
 	}
 
 	return m.roomClient.UnmuteUser(ctx, pbReq)

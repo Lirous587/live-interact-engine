@@ -47,6 +47,12 @@ func RegisterRoutes(r *gin.RouterGroup) {
 }
 
 func registerDanmaka(r *gin.RouterGroup) {
+	userServiceAddr := env.GetString("USER_SERVICE_URL", "user-service:9095")
+	authMiddleware, err := middleware.NewAuthMiddleware(userServiceAddr)
+	if err != nil {
+		log.Fatalf("初始化 auth 中间件失败: %v", err)
+	}
+
 	danmakuServiceURL := env.GetString("DANMAKU_SERVICE_URL", "danmaku-service:9093")
 
 	// 创建 danmaku 客户端
@@ -67,8 +73,8 @@ func registerDanmaka(r *gin.RouterGroup) {
 	// 注册路由
 	dg := r.Group("/danmaku")
 	{
-		dg.POST("/send", danmakuHandler.SendDanmaku)
-		dg.GET("/subscribe", danmakuHandler.SubscribeDanmaku)
+		dg.POST("/send", authMiddleware.Validate(), danmakuHandler.SendDanmaku)
+		dg.GET("/subscribe", authMiddleware.Validate(), danmakuHandler.SubscribeDanmaku)
 	}
 }
 
@@ -129,7 +135,9 @@ func registerRoom(r *gin.RouterGroup) {
 		rg.POST("/create", authMiddleware.Validate(), roomHandler.CreateRoom)
 		rg.GET("/:room_id", roomHandler.GetRoom)
 		rg.POST("/assign-role", authMiddleware.Validate(), roomHandler.AssignRole)
+		rg.POST("/remove-role", authMiddleware.Validate(), roomHandler.RemoveRole)
 		rg.GET("/:room_id/user/:user_id/role", roomHandler.GetUserRoomRole)
+		rg.GET("/:room_id/user/:user_id/permission/:permission", authMiddleware.Validate(), roomHandler.CheckPermission)
 		rg.POST("/mute", authMiddleware.Validate(), roomHandler.MuteUser)
 		rg.POST("/unmute", authMiddleware.Validate(), roomHandler.UnmuteUser)
 		rg.GET("/:room_id/user/:user_id/mute-status", roomHandler.IsMuted)
@@ -139,6 +147,12 @@ func registerRoom(r *gin.RouterGroup) {
 }
 
 func registerGift(r *gin.RouterGroup) {
+	userServiceAddr := env.GetString("USER_SERVICE_URL", "user-service:9095")
+	authMiddleware, err := middleware.NewAuthMiddleware(userServiceAddr)
+	if err != nil {
+		log.Fatalf("初始化 auth 中间件失败: %v", err)
+	}
+
 	giftServiceURL := env.GetString("GIFT_SERVICE_URL", "gift-service:9096")
 
 	// 创建 gift 客户端
@@ -163,14 +177,14 @@ func registerGift(r *gin.RouterGroup) {
 	// 注册路由 - Gift 路由
 	gg := r.Group("/gift")
 	{
-		gg.POST("/send", giftHandler.SendGift)
+		gg.POST("/send", authMiddleware.Validate(), giftHandler.SendGift)
 		gg.GET("/list", giftHandler.ListGifts)
 	}
 
 	// 注册路由 - Wallet 路由
 	wg := r.Group("/wallet")
 	{
-		wg.GET("/:user_id/balance", walletHandler.GetWalletBalance)
+		wg.GET("/:user_id/balance", authMiddleware.Validate(), walletHandler.GetWalletBalance)
 	}
 
 	// 注册路由 - Leaderboard 路由

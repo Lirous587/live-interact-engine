@@ -18,9 +18,9 @@ type Room struct {
 // Fields of the Room.
 func (Room) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("id", uuid.UUID{}).Default(func() uuid.UUID {
-			return uuid.Must(uuid.NewV7())
-		}),
+		field.UUID("id", uuid.UUID{}).
+			Default(func() uuid.UUID { return uuid.Must(uuid.NewV7()) }).
+			Immutable(),
 		field.UUID("owner_id", uuid.UUID{}), // 房间所有者 ID（来自 user-service）
 		field.String("title").NotEmpty().MinLen(1).MaxLen(30),
 		field.Text("description").Optional(),

@@ -18,8 +18,8 @@ type TokenService struct {
 }
 
 func NewTokenService(tokenRepo domain.TokenRepository) (domain.TokenService, error) {
-	// Token 过期时间，单位秒，默认 5 分钟
-	accessTokenExpire := env.GetInt64("TOKEN_ACCESS_EXPIRES_SECONDS", 5*60)
+	// Token 过期时间，单位秒，默认 7 天
+	accessTokenExpire := env.GetInt64("TOKEN_ACCESS_EXPIRES_SECONDS", 7*24*60*60)
 
 	// Token 签名密钥，必须设置
 	accessTokenSecret := env.GetString("TOKEN_ACCESS_SECRET", "")
@@ -59,7 +59,7 @@ func (s *TokenService) ValidateToken(ctx context.Context, accessToken string) (*
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			// Token 已过期: 作为合法的业务状态返回，不作为系统错误
-			// 尝试从抛出错误的 claims 里获取 payload 
+			// 尝试从抛出错误的 claims 里获取 payload
 			if claims != nil {
 				return claims.PayLoad, domain.TokenStatusExpired, nil
 			}

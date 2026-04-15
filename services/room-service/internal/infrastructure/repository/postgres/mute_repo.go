@@ -19,10 +19,35 @@ func NewMuteRepository(client *ent.Client) domain.MuteRepository {
 	return &MuteRepository{client: client}
 }
 
-func (r *MuteRepository) Create(ctx context.Context, mute *domain.Mute) error {
+func (r *MuteRepository) Save(ctx context.Context, mute *domain.Mute) error {
 	expiresAt := time.Unix(mute.MutedAt.Unix()+mute.Duration, 0)
 
-	_, err := r.client.Mute.Create().
+	// 先检查是否已存在相同的禁言记录（同房间同用户）
+	existing, err := r.client.Mute.Query().
+		Where(
+			entmute.RoomIDEQ(mute.RoomID),
+			entmute.UserIDEQ(mute.UserID),
+		).
+		First(ctx)
+
+	if err != nil && !ent.IsNotFound(err) {
+		return err
+	}
+
+	// 如果已存在，则更新；否则创建
+	if existing != nil {
+		_, err = r.client.Mute.UpdateOne(existing).
+			SetAdminID(mute.AdminID).
+			SetReason(mute.Reason).
+			SetDuration(mute.Duration).
+			SetMutedAt(mute.MutedAt.Unix()).
+			SetExpiresAt(expiresAt.Unix()).
+			Save(ctx)
+		return err
+	}
+
+	// 新建禁言记录
+	_, err = r.client.Mute.Create().
 		SetID(uuid.Must(uuid.NewV7())).
 		SetRoomID(mute.RoomID).
 		SetUserID(mute.UserID).

@@ -64,6 +64,12 @@ func (c *RoomClient) AssignRole(ctx context.Context, req *pb.AssignRoleRequest) 
 	return err
 }
 
+// RemoveRole 移除用户角色
+func (c *RoomClient) RemoveRole(ctx context.Context, req *pb.RemoveRoleRequest) error {
+	_, err := c.client.RemoveRole(ctx, req)
+	return err
+}
+
 // GetUserRoomRole 获取用户在房间中的角色
 func (c *RoomClient) GetUserRoomRole(ctx context.Context, req *pb.GetUserRoomRoleRequest) (*pb.UserRoomRole, error) {
 	resp, err := c.client.GetUserRoomRole(ctx, req)

@@ -105,6 +105,33 @@ func (h *RoomHandler) AssignRole(ctx context.Context, req *pb.AssignRoleRequest)
 	return &pb.AssignRoleResponse{}, nil
 }
 
+// RemoveRole 移除用户权限
+func (h *RoomHandler) RemoveRole(ctx context.Context, req *pb.RemoveRoleRequest) (*pb.RemoveRoleResponse, error) {
+	span := trace.SpanFromContext(ctx)
+
+	ownerID, err := uuid.Parse(req.OwnerId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	roomID, err := uuid.Parse(req.RoomId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	err = h.roomService.RemoveRole(ctx, ownerID, roomID, userID)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	return &pb.RemoveRoleResponse{}, nil
+}
+
 // GetUserRoomRole 获取用户在房间的权限
 func (h *RoomHandler) GetUserRoomRole(ctx context.Context, req *pb.GetUserRoomRoleRequest) (*pb.GetUserRoomRoleResponse, error) {
 	span := trace.SpanFromContext(ctx)
@@ -195,7 +222,12 @@ func (h *RoomHandler) UnmuteUser(ctx context.Context, req *pb.UnmuteUserRequest)
 		return nil, svcerr.MapServiceErrorToGRPC(err, span)
 	}
 
-	err = h.roomService.UnmuteUser(ctx, roomID, userID)
+	adminID, err := uuid.Parse(req.AdminId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	err = h.roomService.UnmuteUser(ctx, roomID, userID, adminID)
 	if err != nil {
 		return nil, svcerr.MapServiceErrorToGRPC(err, span)
 	}

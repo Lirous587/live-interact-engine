@@ -9,8 +9,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// 角色常量已移至 domain.room.go
-
 // RoomService 实现 domain.RoomService 接口
 type RoomService struct {
 	roomRepo         domain.RoomRepository
@@ -29,8 +27,14 @@ func NewRoomService(roomRepo domain.RoomRepository, userRoomRoleRepo domain.User
 
 // CreateRoom 创建房间（owner_id 自动成为 owner）
 func (s *RoomService) CreateRoom(ctx context.Context, title, description string, ownerID uuid.UUID) (*domain.Room, error) {
+	roomID, err := uuid.NewV7()
+	if err != nil {
+		return nil, err
+	}
+
 	now := time.Now()
 	room := &domain.Room{
+		RoomID:      roomID,
 		OwnerID:     ownerID,
 		Title:       title,
 		Description: description,
@@ -93,6 +97,11 @@ func (s *RoomService) AssignRole(ctx context.Context, ownerID, roomID, userID uu
 		return types.ErrNotRoomOwner
 	}
 
+	// 在领域层验证角色分配的合法性
+	if err := domain.ValidateRoleAssignment(ownerID, userID, roleName); err != nil {
+		return types.ErrPermissionDenied
+	}
+
 	// 根据角色自动推导权限
 	permissions := domain.GetPermissionsByRole(roleName)
 
@@ -108,6 +117,29 @@ func (s *RoomService) AssignRole(ctx context.Context, ownerID, roomID, userID uu
 	}
 
 	return s.userRoomRoleRepo.SaveUserRoomRole(ctx, userRoomRole)
+}
+
+// RemoveRole 移除用户权限（只有 owner 能操作）
+func (s *RoomService) RemoveRole(ctx context.Context, ownerID, roomID, userID uuid.UUID) error {
+	// 检查是否是房间 owner
+	room, err := s.roomRepo.GetRoom(ctx, roomID)
+	if err != nil {
+		return err
+	}
+	if room == nil {
+		return types.ErrRoomNotFound
+	}
+
+	if room.OwnerID != ownerID {
+		return types.ErrNotRoomOwner
+	}
+
+	// 不能移除 owner 自己的权限
+	if ownerID == userID {
+		return types.ErrPermissionDenied
+	}
+
+	return s.userRoomRoleRepo.DeleteUserRoomRole(ctx, userID, roomID)
 }
 
 // GetUserRoomRole 获取用户在房间的权限
@@ -144,6 +176,29 @@ func (s *RoomService) MuteUser(ctx context.Context, roomID, userID, adminID uuid
 		return types.ErrRoomNotFound
 	}
 
+	// 获取管理员的角色信息
+	adminRole, err := s.userRoomRoleRepo.GetUserRoomRole(ctx, adminID, roomID)
+	if err != nil {
+		return err
+	}
+	if adminRole == nil {
+		return types.ErrUserRoomRoleNotFound
+	}
+
+	// 获取目标用户的角色信息
+	targetRole, err := s.userRoomRoleRepo.GetUserRoomRole(ctx, userID, roomID)
+	if err != nil {
+		return err
+	}
+	if targetRole == nil {
+		return types.ErrUserRoomRoleNotFound
+	}
+
+	// 在领域层验证禁言操作的合法性
+	if err := domain.ValidateMuteAction(adminRole.Role, targetRole.Role, adminID, userID); err != nil {
+		return types.ErrPermissionDenied
+	}
+
 	now := time.Now()
 	mute := &domain.Mute{
 		RoomID:    roomID,
@@ -157,10 +212,33 @@ func (s *RoomService) MuteUser(ctx context.Context, roomID, userID, adminID uuid
 		UpdatedAt: now,
 	}
 
-	return s.muteRepo.Create(ctx, mute)
+	return s.muteRepo.Save(ctx, mute)
 }
 
-func (s *RoomService) UnmuteUser(ctx context.Context, roomID, userID uuid.UUID) error {
+func (s *RoomService) UnmuteUser(ctx context.Context, roomID, userID, adminID uuid.UUID) error {
+	// 获取目标用户的角色信息
+	targetRole, err := s.userRoomRoleRepo.GetUserRoomRole(ctx, userID, roomID)
+	if err != nil {
+		return err
+	}
+	if targetRole == nil {
+		return types.ErrUserRoomRoleNotFound
+	}
+
+	// 获取操作者的角色信息
+	adminRole, err := s.userRoomRoleRepo.GetUserRoomRole(ctx, adminID, roomID)
+	if err != nil {
+		return err
+	}
+	if adminRole == nil {
+		return types.ErrUserRoomRoleNotFound
+	}
+
+	// 在领域层验证解禁操作的合法性
+	if err := domain.ValidateUnmuteAction(adminRole.Role, targetRole.Role); err != nil {
+		return types.ErrPermissionDenied
+	}
+
 	return s.muteRepo.Delete(ctx, roomID, userID)
 }
 

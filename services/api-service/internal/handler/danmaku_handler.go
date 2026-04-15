@@ -31,9 +31,12 @@ func NewDanmakuHandler(danmakuMapper *mapper.DanmakuMapper) *DanmakuHandler {
 // @Tags Danmaku
 // @Accept json
 // @Produce json
+// @Security Bearer
+// @Param Authorization header string true "Bearer Token"
 // @Param request body mapper.SendDanmakuReq true "发送弹幕请求"
 // @Success 200 {object} mapper.DanmakuResp "弹幕信息"
 // @Failure 400 {object} map[string]interface{} "参数错误"
+// @Failure 401 {object} map[string]interface{} "未授权"
 // @Failure 500 {object} map[string]interface{} "服务器错误"
 // @Router /v1/danmaku/send [post]
 func (h *DanmakuHandler) SendDanmaku(ctx *gin.Context) {
@@ -58,10 +61,13 @@ func (h *DanmakuHandler) SendDanmaku(ctx *gin.Context) {
 // @Description 通过 SSE 实时订阅房间内的弹幕消息
 // @Tags Danmaku
 // @Produce text/event-stream
+// @Security Bearer
+// @Param Authorization header string true "Bearer Token"
 // @Param room_id query string true "房间ID"
 // @Param user_id query string true "用户ID"
 // @Success 200 {object} mapper.DanmakuResp "实时弹幕流"
 // @Failure 400 {object} map[string]interface{} "参数错误"
+// @Failure 401 {object} map[string]interface{} "未授权"
 // @Router /v1/danmaku/subscribe [get]
 func (h *DanmakuHandler) SubscribeDanmaku(ctx *gin.Context) {
 	var req mapper.SubscribeDanmakuReq

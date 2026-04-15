@@ -35,6 +35,14 @@ message AssignRoleRequest {
 
 message AssignRoleResponse {}
 
+message RemoveRoleRequest {
+  string owner_id = 1;
+  string room_id  = 2;
+  string user_id  = 3;
+}
+
+message RemoveRoleResponse {}
+
 message GetUserRoomRoleRequest {
   string user_id = 1;
   string room_id = 2;
@@ -78,8 +86,9 @@ message MuteUserRequest {
 message MuteUserResponse {}
 
 message UnmuteUserRequest {
-  string room_id = 1;
-  string user_id = 2;
+  string room_id  = 1;
+  string user_id  = 2;
+  string admin_id = 3;
 }
 
 message UnmuteUserResponse {}

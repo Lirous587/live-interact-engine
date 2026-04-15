@@ -22,11 +22,12 @@ type RoomService interface {
 	CreateRoom(ctx context.Context, title, description string, ownerID uuid.UUID) (*Room, error)
 	GetRoom(ctx context.Context, roomID uuid.UUID) (*Room, error)
 	AssignRole(ctx context.Context, ownerID, roomID, userID uuid.UUID, roleName string) error
+	RemoveRole(ctx context.Context, ownerID, roomID, userID uuid.UUID) error
 	GetUserRoomRole(ctx context.Context, userID, roomID uuid.UUID) (*UserRoomRole, error)
 	CheckPermission(ctx context.Context, userID, roomID uuid.UUID, permission Permission) (bool, error)
 
 	MuteUser(ctx context.Context, roomID, userID, adminID uuid.UUID, duration int64, reason string) error
-	UnmuteUser(ctx context.Context, roomID, userID uuid.UUID) error
+	UnmuteUser(ctx context.Context, roomID, userID, adminID uuid.UUID) error
 	IsMuted(ctx context.Context, roomID, userID uuid.UUID) (bool, error)
 	GetMuteInfo(ctx context.Context, roomID, userID uuid.UUID) (*Mute, error)
 	GetMuteList(ctx context.Context, roomID uuid.UUID, offset, limit int) ([]*Mute, error)

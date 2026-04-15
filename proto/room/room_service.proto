@@ -10,6 +10,7 @@ service RoomService {
   rpc CreateRoom(CreateRoomRequest) returns (CreateRoomResponse);
   rpc GetRoom(GetRoomRequest) returns (GetRoomResponse);
   rpc AssignRole(AssignRoleRequest) returns (AssignRoleResponse);
+  rpc RemoveRole(RemoveRoleRequest) returns (RemoveRoleResponse);
   rpc GetUserRoomRole(GetUserRoomRoleRequest) returns (GetUserRoomRoleResponse);
   rpc CheckPermission(CheckPermissionRequest) returns (CheckPermissionResponse);
   rpc MuteUser(MuteUserRequest) returns (MuteUserResponse);
