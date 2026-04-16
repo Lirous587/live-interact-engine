@@ -9,7 +9,6 @@ import (
 
 	entwallet "live-interact-engine/services/gift-service/ent/wallet"
 
-	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 )
 
@@ -23,16 +22,13 @@ func NewWalletRepository(client *ent.Client) domain.WalletRepository {
 	}
 }
 
-// CreateWallet 创建新钱包，如果唯一约束冲突则什么都不做
-// （避免并发创建时失败，实际的余额更新由 UpdateWallet 处理）
+// CreateWallet 创建新钱包
 func (r *WalletRepository) CreateWallet(ctx context.Context, wallet *domain.Wallet) error {
 	err := r.client.Wallet.
 		Create().
 		SetUserID(wallet.UserID).
 		SetBalance(wallet.Balance).
 		SetVersionNumber(wallet.VersionNumber).
-		OnConflict(sql.ConflictColumns("user_id")).
-		DoNothing(). // 如果已存在，什么都不做
 		Exec(ctx)
 
 	return err

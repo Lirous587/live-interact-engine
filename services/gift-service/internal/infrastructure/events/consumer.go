@@ -14,11 +14,11 @@ import (
 )
 
 type Consumer struct {
-	conn                   *amqp.Connection
-	channel                *amqp.Channel
-	walletTransactionRepo  domain.WalletTransactionRepository
-	walletRepo             domain.WalletRepository
-	walletService          domain.WalletService
+	conn                  *amqp.Connection
+	channel               *amqp.Channel
+	walletTransactionRepo domain.WalletTransactionRepository
+	walletRepo            domain.WalletRepository
+	walletService         domain.WalletService
 }
 
 // NewConsumer 创建消费者
@@ -233,7 +233,6 @@ func (c *Consumer) handleGiftSendSuccessEvent(ctx context.Context, msg *amqp.Del
 
 		// 更新钱包余额
 		wallet.Balance += event.Amount
-		wallet.VersionNumber++
 		err = c.walletRepo.UpdateWalletTx(ctx, tx, wallet)
 		if err != nil {
 			tx.Rollback()
@@ -338,7 +337,6 @@ func (c *Consumer) handleWalletRechargeEvent(ctx context.Context, msg *amqp.Deli
 
 		// 更新钱包余额
 		wallet.Balance += event.Amount
-		wallet.VersionNumber++
 		err = c.walletRepo.UpdateWalletTx(ctx, tx, wallet)
 		if err != nil {
 			tx.Rollback()

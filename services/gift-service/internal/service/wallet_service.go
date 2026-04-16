@@ -58,21 +58,22 @@ func (s *WalletService) DeductBalance(ctx context.Context, userID uuid.UUID, amo
 			return 0, err
 		}
 
-		// 钱包不存在，创建钱包
-		newWallet := &domain.Wallet{
-			UserID:        userID,
-			Balance:       0,
-			VersionNumber: 0,
-		}
+		if errors.Is(err, types.ErrWalletNotFound) {
+			// 钱包不存在，创建钱包
+			newWallet := &domain.Wallet{
+				UserID:        userID,
+				Balance:       0,
+				VersionNumber: 0,
+			}
 
-		if err := s.walletRepo.CreateWallet(ctx, newWallet); err != nil {
-			zap.L().Error("failed to create wallet for user",
-				zap.String("user_id", userID.String()),
-				zap.Error(err))
-			return 0, err
+			if err := s.walletRepo.CreateWallet(ctx, newWallet); err != nil {
+				zap.L().Error("failed to create wallet for user",
+					zap.String("user_id", userID.String()),
+					zap.Error(err))
+				return 0, err
+			}
+			wallet = newWallet
 		}
-
-		wallet = newWallet
 
 		balance := wallet.Balance
 
@@ -100,19 +101,22 @@ func (s *WalletService) IncrementBalance(ctx context.Context, userID uuid.UUID, 
 			return 0, err
 		}
 
-		// 如果钱包不存在，创建钱包（托底工作）
-		newWallet := &domain.Wallet{
-			UserID:        userID,
-			Balance:       0,
-			VersionNumber: 0,
+		if errors.Is(err, types.ErrWalletNotFound) {
+			// 钱包不存在，创建钱包
+			newWallet := &domain.Wallet{
+				UserID:        userID,
+				Balance:       0,
+				VersionNumber: 0,
+			}
+
+			if err := s.walletRepo.CreateWallet(ctx, newWallet); err != nil {
+				zap.L().Error("failed to create wallet for user",
+					zap.String("user_id", userID.String()),
+					zap.Error(err))
+				return 0, err
+			}
+			wallet = newWallet
 		}
-		if err := s.walletRepo.CreateWallet(ctx, newWallet); err != nil {
-			zap.L().Error("failed to create wallet for user",
-				zap.String("user_id", userID.String()),
-				zap.Error(err))
-			return 0, err
-		}
-		wallet = newWallet
 
 		balance := wallet.Balance
 
