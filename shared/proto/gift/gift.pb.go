@@ -425,66 +425,6 @@ func (x *GiftRecord) GetUpdatedAt() int64 {
 	return 0
 }
 
-type LeaderboardEntry struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"` // UUID
-	Score         int64                  `protobuf:"varint,2,opt,name=score,proto3" json:"score,omitempty"`                // 累计送礼金额
-	Rank          int32                  `protobuf:"varint,3,opt,name=rank,proto3" json:"rank,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *LeaderboardEntry) Reset() {
-	*x = LeaderboardEntry{}
-	mi := &file_gift_gift_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *LeaderboardEntry) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*LeaderboardEntry) ProtoMessage() {}
-
-func (x *LeaderboardEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_gift_gift_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use LeaderboardEntry.ProtoReflect.Descriptor instead.
-func (*LeaderboardEntry) Descriptor() ([]byte, []int) {
-	return file_gift_gift_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *LeaderboardEntry) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *LeaderboardEntry) GetScore() int64 {
-	if x != nil {
-		return x.Score
-	}
-	return 0
-}
-
-func (x *LeaderboardEntry) GetRank() int32 {
-	if x != nil {
-		return x.Rank
-	}
-	return 0
-}
-
 var File_gift_gift_proto protoreflect.FileDescriptor
 
 const file_gift_gift_proto_rawDesc = "" +
@@ -524,11 +464,7 @@ const file_gift_gift_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\x03R\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\x03R\tupdatedAt\"U\n" +
-	"\x10LeaderboardEntry\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x14\n" +
-	"\x05score\x18\x02 \x01(\x03R\x05score\x12\x12\n" +
-	"\x04rank\x18\x03 \x01(\x05R\x04rank*x\n" +
+	"updated_at\x18\t \x01(\x03R\tupdatedAt*x\n" +
 	"\n" +
 	"GiftStatus\x12\x1b\n" +
 	"\x17GIFT_STATUS_UNSPECIFIED\x10\x00\x12\x16\n" +
@@ -554,14 +490,13 @@ func file_gift_gift_proto_rawDescGZIP() []byte {
 }
 
 var file_gift_gift_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_gift_gift_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_gift_gift_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_gift_gift_proto_goTypes = []any{
-	(GiftStatus)(0),          // 0: gift.GiftStatus
-	(GiftRecordStatus)(0),    // 1: gift.GiftRecordStatus
-	(*Gift)(nil),             // 2: gift.Gift
-	(*Wallet)(nil),           // 3: gift.Wallet
-	(*GiftRecord)(nil),       // 4: gift.GiftRecord
-	(*LeaderboardEntry)(nil), // 5: gift.LeaderboardEntry
+	(GiftStatus)(0),       // 0: gift.GiftStatus
+	(GiftRecordStatus)(0), // 1: gift.GiftRecordStatus
+	(*Gift)(nil),          // 2: gift.Gift
+	(*Wallet)(nil),        // 3: gift.Wallet
+	(*GiftRecord)(nil),    // 4: gift.GiftRecord
 }
 var file_gift_gift_proto_depIdxs = []int32{
 	0, // 0: gift.Gift.status:type_name -> gift.GiftStatus
@@ -584,7 +519,7 @@ func file_gift_gift_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_gift_gift_proto_rawDesc), len(file_gift_gift_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   4,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

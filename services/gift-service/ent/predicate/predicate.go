@@ -9,8 +9,8 @@ import (
 // Gift is the predicate function for gift builders.
 type Gift func(*sql.Selector)
 
-// GiftRecord is the predicate function for giftrecord builders.
-type GiftRecord func(*sql.Selector)
-
 // Wallet is the predicate function for wallet builders.
 type Wallet func(*sql.Selector)
+
+// WalletTransaction is the predicate function for wallettransaction builders.
+type WalletTransaction func(*sql.Selector)

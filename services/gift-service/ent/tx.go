@@ -14,10 +14,10 @@ type Tx struct {
 	config
 	// Gift is the client for interacting with the Gift builders.
 	Gift *GiftClient
-	// GiftRecord is the client for interacting with the GiftRecord builders.
-	GiftRecord *GiftRecordClient
 	// Wallet is the client for interacting with the Wallet builders.
 	Wallet *WalletClient
+	// WalletTransaction is the client for interacting with the WalletTransaction builders.
+	WalletTransaction *WalletTransactionClient
 
 	// lazily loaded.
 	client     *Client
@@ -150,8 +150,8 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Gift = NewGiftClient(tx.config)
-	tx.GiftRecord = NewGiftRecordClient(tx.config)
 	tx.Wallet = NewWalletClient(tx.config)
+	tx.WalletTransaction = NewWalletTransactionClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

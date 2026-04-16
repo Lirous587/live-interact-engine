@@ -37,6 +37,12 @@ var (
 		codes.InvalidArgument,
 		"Invalid balance",
 	)
+
+	ErrVersionConflict = svcerr.NewError(
+		svcerr.ErrorTypeConflict,
+		codes.Aborted,
+		"Version conflict, please retry",
+	)
 )
 
 // ==================== 礼物相关错误 ====================

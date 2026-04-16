@@ -49,62 +49,6 @@ var (
 			},
 		},
 	}
-	// GiftRecordsColumns holds the columns for the "gift_records" table.
-	GiftRecordsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "idempotency_key", Type: field.TypeUUID, Unique: true},
-		{Name: "user_id", Type: field.TypeUUID},
-		{Name: "anchor_id", Type: field.TypeUUID},
-		{Name: "room_id", Type: field.TypeUUID},
-		{Name: "gift_id", Type: field.TypeUUID},
-		{Name: "amount", Type: field.TypeInt64},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "success", "failed"}, Default: "pending"},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-	}
-	// GiftRecordsTable holds the schema information for the "gift_records" table.
-	GiftRecordsTable = &schema.Table{
-		Name:       "gift_records",
-		Columns:    GiftRecordsColumns,
-		PrimaryKey: []*schema.Column{GiftRecordsColumns[0]},
-		Indexes: []*schema.Index{
-			{
-				Name:    "giftrecord_idempotency_key",
-				Unique:  true,
-				Columns: []*schema.Column{GiftRecordsColumns[1]},
-			},
-			{
-				Name:    "giftrecord_user_id",
-				Unique:  false,
-				Columns: []*schema.Column{GiftRecordsColumns[2]},
-			},
-			{
-				Name:    "giftrecord_anchor_id",
-				Unique:  false,
-				Columns: []*schema.Column{GiftRecordsColumns[3]},
-			},
-			{
-				Name:    "giftrecord_room_id",
-				Unique:  false,
-				Columns: []*schema.Column{GiftRecordsColumns[4]},
-			},
-			{
-				Name:    "giftrecord_status",
-				Unique:  false,
-				Columns: []*schema.Column{GiftRecordsColumns[7]},
-			},
-			{
-				Name:    "giftrecord_created_at",
-				Unique:  false,
-				Columns: []*schema.Column{GiftRecordsColumns[8]},
-			},
-			{
-				Name:    "giftrecord_status_created_at",
-				Unique:  false,
-				Columns: []*schema.Column{GiftRecordsColumns[7], GiftRecordsColumns[8]},
-			},
-		},
-	}
 	// WalletsColumns holds the columns for the "wallets" table.
 	WalletsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -132,11 +76,48 @@ var (
 			},
 		},
 	}
+	// WalletTransactionsColumns holds the columns for the "wallet_transactions" table.
+	WalletTransactionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "idempotency_key", Type: field.TypeUUID, Unique: true},
+		{Name: "type", Type: field.TypeInt},
+		{Name: "payer_id", Type: field.TypeUUID},
+		{Name: "payee_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "amount", Type: field.TypeInt64},
+		{Name: "room_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "gift_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "status", Type: field.TypeString, Default: "success"},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// WalletTransactionsTable holds the schema information for the "wallet_transactions" table.
+	WalletTransactionsTable = &schema.Table{
+		Name:       "wallet_transactions",
+		Columns:    WalletTransactionsColumns,
+		PrimaryKey: []*schema.Column{WalletTransactionsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "wallettransaction_payer_id_type",
+				Unique:  false,
+				Columns: []*schema.Column{WalletTransactionsColumns[3], WalletTransactionsColumns[2]},
+			},
+			{
+				Name:    "wallettransaction_payee_id_type",
+				Unique:  false,
+				Columns: []*schema.Column{WalletTransactionsColumns[4], WalletTransactionsColumns[2]},
+			},
+			{
+				Name:    "wallettransaction_idempotency_key",
+				Unique:  true,
+				Columns: []*schema.Column{WalletTransactionsColumns[1]},
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		GiftsTable,
-		GiftRecordsTable,
 		WalletsTable,
+		WalletTransactionsTable,
 	}
 )
 

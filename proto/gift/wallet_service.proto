@@ -13,8 +13,8 @@ service WalletService {
   // 初始化用户钱包（在用户注册时调用）
   rpc InitializeWallet(InitializeWalletRequest) returns (InitializeWalletResponse);
 
-  // 充值（未来扩展）
-  // rpc Recharge(RechargeRequest) returns (RechargeResponse);
+  // 充值
+  rpc Recharge(RechargeRequest) returns (RechargeResponse);
 
   // 提现（未来扩展）
   // rpc Withdraw(WithdrawRequest) returns (WithdrawResponse);
@@ -27,4 +27,16 @@ message InitializeWalletRequest {
 }
 
 message InitializeWalletResponse {
+  bool success = 1;
+}
+
+// ==================== Recharge Messages ====================
+
+message RechargeRequest {
+  string user_id = 1; // UUID
+  int64  amount  = 2; // 充值金额
+}
+
+message RechargeResponse {
+  int64 new_balance = 1; // 充值后的余额
 }

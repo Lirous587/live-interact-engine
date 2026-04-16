@@ -167,12 +167,10 @@ func registerGift(r *gin.RouterGroup) {
 	// 创建 mappers（业务适配层）
 	giftMapper := mapper.NewGiftMapper(giftClient)
 	walletMapper := mapper.NewWalletMapper(giftClient)
-	leaderboardMapper := mapper.NewLeaderboardMapper(giftClient)
 
 	// 创建 handlers
 	giftHandler := handler.NewGiftHandler(giftMapper)
 	walletHandler := handler.NewWalletHandler(walletMapper)
-	leaderboardHandler := handler.NewLeaderboardHandler(leaderboardMapper)
 
 	// 注册路由 - Gift 路由
 	gg := r.Group("/gift")
@@ -184,14 +182,10 @@ func registerGift(r *gin.RouterGroup) {
 	// 注册路由 - Wallet 路由
 	wg := r.Group("/wallet")
 	{
-		wg.GET("/:user_id/balance", authMiddleware.Validate(), walletHandler.GetWalletBalance)
+		wg.GET("/balance", authMiddleware.Validate(), walletHandler.GetWalletBalance)
+		wg.POST("/recharge", authMiddleware.Validate(), walletHandler.Recharge)
 	}
 
-	// 注册路由 - Leaderboard 路由
-	lg := r.Group("/leaderboard")
-	{
-		lg.GET("/:room_id", leaderboardHandler.GetLeaderboard)
-	}
 }
 
 func CloseClients() {

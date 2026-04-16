@@ -117,10 +117,14 @@ services:
       # Gift Service 地址
       - GIFT_SERVICE_ADDR=gift-service:9096
     depends_on:
-      - jaeger
-      - redis
-      - postgres
-      - gift-service
+      jaeger:
+        condition: service_started
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_started
+      gift-service:
+        condition: service_started
     networks:
       - live-interact
 
@@ -183,6 +187,10 @@ services:
       - POSTGRES_MIN_CONNS=5
       - POSTGRES_MAX_CONN_LIFETIME_SECONDS=300
       - POSTGRES_MAX_CONN_IDLE_TIME_SECONDS=60
+  
+      # ent配置
+      - ENT_MODE=dev
+
 
       # Redis 配置
       - REDIS_ADDR=redis:6379
@@ -195,10 +203,14 @@ services:
       # 链路追踪
       - JAEGER_ENDPOINT=jaeger:4318
     depends_on:
-      - jaeger
-      - postgres
-      - redis
-      - rabbitmq
+      jaeger:
+        condition: service_started
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
     networks:
       - live-interact
 

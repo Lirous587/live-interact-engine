@@ -103,19 +103,22 @@ func NewWalletHandler(walletMapper *mapper.WalletMapper) *WalletHandler {
 //	@Produce		json
 //	@Security		Bearer
 //	@Param			Authorization	header	string	true	"Bearer Token"
-//	@Param			user_id	path		string	true	"用户 ID (UUID)"
 //	@Success		200	{object}	mapper.WalletResp
 //	@Failure		400	{object}	map[string]interface{}
 //	@Failure		401	{object}	map[string]interface{}
 //	@Failure		404	{object}	map[string]interface{}
 //	@Failure		500	{object}	map[string]interface{}
-//	@Router			/v1/wallet/{user_id}/balance [get]
+//	@Router			/v1/wallet/balance [get]
 func (h *WalletHandler) GetWalletBalance(ctx *gin.Context) {
 	var req mapper.GetWalletBalanceReq
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		response.InvalidParams(ctx, err)
+
+	userID, ok := ctxutil.GetUserID(ctx)
+	if !ok || userID == "" {
+		response.InvalidParams(ctx, errors.New("user_id not found in auth context"))
 		return
 	}
+
+	req.UserID = userID
 
 	resp, err := h.walletMapper.GetWalletBalance(ctx.Request.Context(), &req)
 	if err != nil {
@@ -126,46 +129,37 @@ func (h *WalletHandler) GetWalletBalance(ctx *gin.Context) {
 	response.Success(ctx, resp)
 }
 
-// ==================== Leaderboard Handler ====================
-
-// LeaderboardHandler 排行榜业务处理器
-type LeaderboardHandler struct {
-	leaderboardMapper *mapper.LeaderboardMapper
-}
-
-// NewLeaderboardHandler 创建排行榜处理器
-func NewLeaderboardHandler(leaderboardMapper *mapper.LeaderboardMapper) *LeaderboardHandler {
-	return &LeaderboardHandler{
-		leaderboardMapper: leaderboardMapper,
-	}
-}
-
-// GetLeaderboard godoc
+// Recharge godoc
 //
-//	@Summary		获取房间排行榜
-//	@Description	获取指定房间的礼物赠送排行榜 (按累计送礼金额降序)
-//	@Tags			Leaderboard
+//	@Summary		充值
+//	@Description	用户充值钱包余额
+//	@Tags			Wallet
+//	@Accept			json
 //	@Produce		json
-//	@Param			room_id	path		string	true	"房间 ID (UUID)"
-//	@Param			top_n	query		integer	false	"返回前 N 名 (默认 100, 最大 1000)"	default(100)
-//	@Success		200	{object}	mapper.LeaderboardResp
+//	@Security		Bearer
+//	@Param			Authorization	header	string	true	"Bearer Token"
+//	@Param			body	body		mapper.RechargeReq	true	"请求体"
+//	@Success		200	{object}	mapper.RechargeResp
 //	@Failure		400	{object}	map[string]interface{}
+//	@Failure		401	{object}	map[string]interface{}
 //	@Failure		500	{object}	map[string]interface{}
-//	@Router			/v1/leaderboard/{room_id} [get]
-func (h *LeaderboardHandler) GetLeaderboard(ctx *gin.Context) {
-	var req mapper.GetLeaderboardReq
-	if err := ctx.ShouldBindUri(&req); err != nil {
+//	@Router			/v1/wallet/recharge [post]
+func (h *WalletHandler) Recharge(ctx *gin.Context) {
+	var req mapper.RechargeReq
+	if err := ctx.ShouldBindJSON(&req); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	// 从查询参数绑定 TopN
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		response.InvalidParams(ctx, err)
+	userID, ok := ctxutil.GetUserID(ctx)
+	if !ok || userID == "" {
+		response.InvalidParams(ctx, errors.New("user_id not found in auth context"))
 		return
 	}
 
-	resp, err := h.leaderboardMapper.GetLeaderboard(ctx.Request.Context(), &req)
+	req.SetUserID(userID)
+
+	resp, err := h.walletMapper.Recharge(ctx.Request.Context(), &req)
 	if err != nil {
 		response.Error(ctx, err)
 		return

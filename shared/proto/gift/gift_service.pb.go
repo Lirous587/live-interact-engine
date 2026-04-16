@@ -27,32 +27,21 @@ const file_gift_gift_service_proto_rawDesc = "" +
 	"\x17gift/gift_service.proto\x12\x04gift\x1a\x13gift/gift_api.proto2\x86\x01\n" +
 	"\vGiftService\x129\n" +
 	"\bSendGift\x12\x15.gift.SendGiftRequest\x1a\x16.gift.SendGiftResponse\x12<\n" +
-	"\tListGifts\x12\x16.gift.ListGiftsRequest\x1a\x17.gift.ListGiftsResponse2\xbf\x01\n" +
-	"\x11GiftRecordService\x12H\n" +
-	"\rGetGiftRecord\x12\x1a.gift.GetGiftRecordRequest\x1a\x1b.gift.GetGiftRecordResponse\x12`\n" +
-	"\x15ListGiftRecordsByRoom\x12\".gift.ListGiftRecordsByRoomRequest\x1a#.gift.ListGiftRecordsByRoomResponseB\x18Z\x16shared/proto/gift;giftb\x06proto3"
+	"\tListGifts\x12\x16.gift.ListGiftsRequest\x1a\x17.gift.ListGiftsResponseB\x18Z\x16shared/proto/gift;giftb\x06proto3"
 
 var file_gift_gift_service_proto_goTypes = []any{
-	(*SendGiftRequest)(nil),               // 0: gift.SendGiftRequest
-	(*ListGiftsRequest)(nil),              // 1: gift.ListGiftsRequest
-	(*GetGiftRecordRequest)(nil),          // 2: gift.GetGiftRecordRequest
-	(*ListGiftRecordsByRoomRequest)(nil),  // 3: gift.ListGiftRecordsByRoomRequest
-	(*SendGiftResponse)(nil),              // 4: gift.SendGiftResponse
-	(*ListGiftsResponse)(nil),             // 5: gift.ListGiftsResponse
-	(*GetGiftRecordResponse)(nil),         // 6: gift.GetGiftRecordResponse
-	(*ListGiftRecordsByRoomResponse)(nil), // 7: gift.ListGiftRecordsByRoomResponse
+	(*SendGiftRequest)(nil),   // 0: gift.SendGiftRequest
+	(*ListGiftsRequest)(nil),  // 1: gift.ListGiftsRequest
+	(*SendGiftResponse)(nil),  // 2: gift.SendGiftResponse
+	(*ListGiftsResponse)(nil), // 3: gift.ListGiftsResponse
 }
 var file_gift_gift_service_proto_depIdxs = []int32{
 	0, // 0: gift.GiftService.SendGift:input_type -> gift.SendGiftRequest
 	1, // 1: gift.GiftService.ListGifts:input_type -> gift.ListGiftsRequest
-	2, // 2: gift.GiftRecordService.GetGiftRecord:input_type -> gift.GetGiftRecordRequest
-	3, // 3: gift.GiftRecordService.ListGiftRecordsByRoom:input_type -> gift.ListGiftRecordsByRoomRequest
-	4, // 4: gift.GiftService.SendGift:output_type -> gift.SendGiftResponse
-	5, // 5: gift.GiftService.ListGifts:output_type -> gift.ListGiftsResponse
-	6, // 6: gift.GiftRecordService.GetGiftRecord:output_type -> gift.GetGiftRecordResponse
-	7, // 7: gift.GiftRecordService.ListGiftRecordsByRoom:output_type -> gift.ListGiftRecordsByRoomResponse
-	4, // [4:8] is the sub-list for method output_type
-	0, // [0:4] is the sub-list for method input_type
+	2, // 2: gift.GiftService.SendGift:output_type -> gift.SendGiftResponse
+	3, // 3: gift.GiftService.ListGifts:output_type -> gift.ListGiftsResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -72,7 +61,7 @@ func file_gift_gift_service_proto_init() {
 			NumEnums:      0,
 			NumMessages:   0,
 			NumExtensions: 0,
-			NumServices:   2,
+			NumServices:   1,
 		},
 		GoTypes:           file_gift_gift_service_proto_goTypes,
 		DependencyIndexes: file_gift_gift_service_proto_depIdxs,

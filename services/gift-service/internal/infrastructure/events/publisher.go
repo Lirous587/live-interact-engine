@@ -86,10 +86,10 @@ func NewPublisher(rabbitmqURL string) (*Publisher, error) {
 		return nil, err
 	}
 
-	// 声明主 Exchange (Fanout - 为了后续扩展)
+	// 声明主 Exchange
 	err = ch.ExchangeDeclare(
 		ExchangeName,
-		"fanout",
+		"direct",
 		true,
 		false,
 		false,
@@ -189,6 +189,54 @@ func (p *Publisher) PublishGiftSendSuccess(ctx context.Context, event *GiftSendS
 	}
 
 	zap.L().Error("failed to publish event after retries",
+		zap.Error(lastErr),
+		zap.String("user_id", event.UserID.String()),
+	)
+	return lastErr
+}
+
+// PublishWalletRecharge 发布钱包充值事件
+func (p *Publisher) PublishWalletRecharge(ctx context.Context, event *WalletRechargeEvent) error {
+	if event == nil {
+		return nil
+	}
+
+	// Marshal 为 JSON
+	body, err := json.Marshal(event)
+	if err != nil {
+		zap.L().Error("failed to marshal wallet recharge event", zap.Error(err))
+		return err
+	}
+
+	// 发送到 RabbitMQ（3次重试）
+	var lastErr error
+	for attempt := 0; attempt < 3; attempt++ {
+		err = p.channel.PublishWithContext(
+			ctx,
+			ExchangeName,
+			"wallet.recharge",
+			false, // mandatory
+			false, // immediate
+			amqp.Publishing{
+				ContentType:  "application/json",
+				Body:         body,
+				DeliveryMode: amqp.Persistent,
+				Timestamp:    time.Now(),
+			},
+		)
+		if err == nil {
+			zap.L().Info("wallet recharge event published",
+				zap.String("user_id", event.UserID.String()),
+				zap.Int64("amount", event.Amount),
+				zap.Int64("new_balance", event.NewBalance),
+			)
+			return nil
+		}
+		lastErr = err
+		time.Sleep(time.Duration(100*(attempt+1)) * time.Millisecond)
+	}
+
+	zap.L().Error("failed to publish wallet recharge event after retries",
 		zap.Error(lastErr),
 		zap.String("user_id", event.UserID.String()),
 	)

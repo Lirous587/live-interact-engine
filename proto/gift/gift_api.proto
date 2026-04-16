@@ -19,7 +19,7 @@ message SendGiftRequest {
 
 message SendGiftResponse {
   string user_id = 1;
-  int64  balance  = 2;
+  int64  balance = 2;
 }
 
 // ==================== GetWalletBalance Messages ====================
@@ -40,18 +40,6 @@ message ListGiftsRequest {
 
 message ListGiftsResponse {
   repeated Gift gifts = 1;
-}
-
-// ==================== GetLeaderboard Messages ====================
-
-message GetLeaderboardRequest {
-  string room_id = 1; // UUID
-  int32  top_n   = 2; // 返回 Top N，默认 100
-}
-
-message GetLeaderboardResponse {
-  repeated LeaderboardEntry entries = 1;
-  string                    room_id = 2; // UUID
 }
 
 // ==================== GetGiftRecord Messages ====================

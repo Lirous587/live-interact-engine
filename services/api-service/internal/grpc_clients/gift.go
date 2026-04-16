@@ -14,8 +14,6 @@ type GiftClient struct {
 	conn                *grpc.ClientConn
 	giftServiceClient   pb.GiftServiceClient
 	walletServiceClient pb.WalletServiceClient
-	leaderboardClient   pb.LeaderboardServiceClient
-	giftRecordClient    pb.GiftRecordServiceClient
 }
 
 // NewGiftClient 创建新的礼物服务客户端
@@ -37,15 +35,11 @@ func NewGiftClient(giftServiceURL string) (*GiftClient, error) {
 	// 创建 gRPC 客户端
 	giftServiceClient := pb.NewGiftServiceClient(conn)
 	walletServiceClient := pb.NewWalletServiceClient(conn)
-	leaderboardClient := pb.NewLeaderboardServiceClient(conn)
-	giftRecordClient := pb.NewGiftRecordServiceClient(conn)
 
 	return &GiftClient{
 		conn:                conn,
 		giftServiceClient:   giftServiceClient,
 		walletServiceClient: walletServiceClient,
-		leaderboardClient:   leaderboardClient,
-		giftRecordClient:    giftRecordClient,
 	}, nil
 }
 
@@ -88,44 +82,15 @@ func (c *GiftClient) GetWalletBalance(ctx context.Context, userID string) (*pb.W
 	return resp.Wallet, nil
 }
 
-// ==================== LeaderboardService 方法 ====================
-
-// GetLeaderboard 获取排行榜
-func (c *GiftClient) GetLeaderboard(ctx context.Context, roomID string, topN int32) (*pb.GetLeaderboardResponse, error) {
-	if topN <= 0 || topN > 1000 {
-		topN = 100
+// Recharge 充值
+func (c *GiftClient) Recharge(ctx context.Context, userID string, amount int64) (*pb.RechargeResponse, error) {
+	req := &pb.RechargeRequest{
+		UserId: userID,
+		Amount: amount,
 	}
-	req := &pb.GetLeaderboardRequest{
-		RoomId: roomID,
-		TopN:   topN,
-	}
-	return c.leaderboardClient.GetLeaderboard(ctx, req)
-}
-
-// ==================== GiftRecordService 方法 ====================
-
-// GetGiftRecord 根据幂等性key获取礼物记录
-func (c *GiftClient) GetGiftRecord(ctx context.Context, idempotencyKey string) (*pb.GiftRecord, error) {
-	req := &pb.GetGiftRecordRequest{
-		IdempotencyKey: idempotencyKey,
-	}
-	resp, err := c.giftRecordClient.GetGiftRecord(ctx, req)
+	resp, err := c.walletServiceClient.Recharge(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.GiftRecord, nil
-}
-
-// ListGiftRecordsByRoom 获取房间内的礼物记录
-func (c *GiftClient) ListGiftRecordsByRoom(ctx context.Context, roomID string, offset, limit int32) ([]*pb.GiftRecord, error) {
-	req := &pb.ListGiftRecordsByRoomRequest{
-		RoomId: roomID,
-		Offset: offset,
-		Limit:  limit,
-	}
-	resp, err := c.giftRecordClient.ListGiftRecordsByRoom(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-	return resp.GiftRecords, nil
+	return resp, nil
 }

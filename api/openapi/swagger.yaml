@@ -111,25 +111,6 @@ definitions:
       is_muted:
         type: boolean
     type: object
-  mapper.LeaderboardEntryResp:
-    properties:
-      rank:
-        type: integer
-      score:
-        description: 累计送礼金额
-        type: integer
-      user_id:
-        type: string
-    type: object
-  mapper.LeaderboardResp:
-    properties:
-      entries:
-        items:
-          $ref: '#/definitions/mapper.LeaderboardEntryResp'
-        type: array
-      room_id:
-        type: string
-    type: object
   mapper.ListGiftsResp:
     properties:
       gifts:
@@ -197,6 +178,18 @@ definitions:
     - duration
     - room_id
     - user_id
+    type: object
+  mapper.RechargeReq:
+    properties:
+      amount:
+        type: integer
+    required:
+    - amount
+    type: object
+  mapper.RechargeResp:
+    properties:
+      new_balance:
+        type: integer
     type: object
   mapper.RegisterReq:
     properties:
@@ -505,40 +498,6 @@ paths:
       summary: 发送礼物
       tags:
       - Gifts
-  /v1/leaderboard/{room_id}:
-    get:
-      description: 获取指定房间的礼物赠送排行榜 (按累计送礼金额降序)
-      parameters:
-      - description: 房间 ID (UUID)
-        in: path
-        name: room_id
-        required: true
-        type: string
-      - default: 100
-        description: 返回前 N 名 (默认 100, 最大 1000)
-        in: query
-        name: top_n
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/mapper.LeaderboardResp'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 获取房间排行榜
-      tags:
-      - Leaderboard
   /v1/room:
     post:
       consumes:
@@ -989,18 +948,13 @@ paths:
       summary: 用户注册
       tags:
       - User
-  /v1/wallet/{user_id}/balance:
+  /v1/wallet/balance:
     get:
       description: 获取指定用户的钱包余额（通常获取自己的钱包）
       parameters:
       - description: Bearer Token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: 用户 ID (UUID)
-        in: path
-        name: user_id
         required: true
         type: string
       produces:
@@ -1033,6 +987,50 @@ paths:
       security:
       - Bearer: []
       summary: 获取钱包余额
+      tags:
+      - Wallet
+  /v1/wallet/recharge:
+    post:
+      consumes:
+      - application/json
+      description: 用户充值钱包余额
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 请求体
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/mapper.RechargeReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mapper.RechargeResp'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - Bearer: []
+      summary: 充值
       tags:
       - Wallet
 swagger: "2.0"

@@ -38,15 +38,22 @@ type SendGiftResp struct {
 
 // GetWalletBalanceReq 获取钱包余额请求体
 type GetWalletBalanceReq struct {
-	UserID string `uri:"user_id" binding:"required,uuid_rfc4122"`
+	UserID string
 }
 
-// ==================== Leaderboard 请求体定义 ====================
+// RechargeReq 充值请求体
+type RechargeReq struct {
+	UserID string `json:"-"`
+	Amount int64  `json:"amount" binding:"required,gt=0"`
+}
 
-// GetLeaderboardReq 获取排行榜请求体
-type GetLeaderboardReq struct {
-	RoomID string `uri:"room_id" binding:"required,uuid_rfc4122"`
-	TopN   int32  `form:"top_n" binding:"omitempty,gte=1,lte=1000"`
+func (r *RechargeReq) SetUserID(id string) {
+	r.UserID = id
+}
+
+// RechargeResp 充值响应体
+type RechargeResp struct {
+	NewBalance int64 `json:"new_balance"`
 }
 
 // ==================== Gift 响应体定义 ====================
@@ -94,21 +101,6 @@ type WalletResp struct {
 	UpdatedAt     int64  `json:"updated_at"`
 }
 
-// ==================== Leaderboard 响应体定义 ====================
-
-// LeaderboardEntryResp 排行榜条目响应体
-type LeaderboardEntryResp struct {
-	Rank   int32  `json:"rank"`
-	UserID string `json:"user_id"`
-	Score  int64  `json:"score"` // 累计送礼金额
-}
-
-// LeaderboardResp 排行榜响应体
-type LeaderboardResp struct {
-	RoomID  string                  `json:"room_id"`
-	Entries []*LeaderboardEntryResp `json:"entries"`
-}
-
 // ==================== Mapper 类定义 ====================
 
 // GiftMapper 礼物业务适配层（gRPC 客户端 + 业务转换）
@@ -135,26 +127,10 @@ func NewWalletMapper(giftClient *client.GiftClient) *WalletMapper {
 	}
 }
 
-// LeaderboardMapper 排行榜业务适配层（gRPC 客户端 + 业务转换）
-type LeaderboardMapper struct {
-	giftClient *client.GiftClient
-}
-
-// NewLeaderboardMapper 创建排行榜 mapper
-func NewLeaderboardMapper(giftClient *client.GiftClient) *LeaderboardMapper {
-	return &LeaderboardMapper{
-		giftClient: giftClient,
-	}
-}
-
 // ==================== Gift 业务方法 ====================
 
 // SendGift 发送礼物
 func (m *GiftMapper) SendGift(ctx context.Context, req *SendGiftReq) (*SendGiftResp, error) {
-	if req == nil {
-		return nil, errors.New("request cannot be nil")
-	}
-
 	uuid, err := uuid.NewV7()
 	if err != nil {
 		return nil, err
@@ -206,14 +182,6 @@ func (m *GiftMapper) ListGifts(ctx context.Context) (*ListGiftsResp, error) {
 
 // GetWalletBalance 获取钱包余额
 func (m *WalletMapper) GetWalletBalance(ctx context.Context, req *GetWalletBalanceReq) (*WalletResp, error) {
-	if req == nil {
-		return nil, errors.New("request cannot be nil")
-	}
-
-	if req.UserID == "" {
-		return nil, errors.New("user_id is required")
-	}
-
 	// 调用 gRPC
 	pbWallet, err := m.giftClient.GetWalletBalance(ctx, req.UserID)
 	if err != nil {
@@ -234,47 +202,17 @@ func (m *WalletMapper) GetWalletBalance(ctx context.Context, req *GetWalletBalan
 	}, nil
 }
 
-// ==================== Leaderboard 业务方法 ====================
-
-// GetLeaderboard 获取排行榜
-func (m *LeaderboardMapper) GetLeaderboard(ctx context.Context, req *GetLeaderboardReq) (*LeaderboardResp, error) {
-	if req == nil {
-		return nil, errors.New("request cannot be nil")
-	}
-
-	if req.RoomID == "" {
-		return nil, errors.New("room_id is required")
-	}
-
-	// 默认返回 Top 100
-	topN := req.TopN
-	if topN <= 0 {
-		topN = 100
-	}
-
+// Recharge 充值
+func (m *WalletMapper) Recharge(ctx context.Context, req *RechargeReq) (*RechargeResp, error) {
 	// 调用 gRPC
-	pbResp, err := m.giftClient.GetLeaderboard(ctx, req.RoomID, topN)
+	pbResp, err := m.giftClient.Recharge(ctx, req.UserID, req.Amount)
 	if err != nil {
 		return nil, err
 	}
 
-	if pbResp == nil {
-		return nil, errors.New("leaderboard response is nil")
-	}
-
 	// 转换响应
-	entries := make([]*LeaderboardEntryResp, len(pbResp.Entries))
-	for i, pbEntry := range pbResp.Entries {
-		entries[i] = &LeaderboardEntryResp{
-			Rank:   pbEntry.Rank,
-			UserID: pbEntry.UserId,
-			Score:  pbEntry.Score,
-		}
-	}
-
-	return &LeaderboardResp{
-		RoomID:  pbResp.RoomId,
-		Entries: entries,
+	return &RechargeResp{
+		NewBalance: pbResp.NewBalance,
 	}, nil
 }
 

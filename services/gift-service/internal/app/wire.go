@@ -16,20 +16,17 @@ import (
 
 // Deps 包含所有依赖
 type Deps struct {
-	GiftRepo           domain.GiftRepository
-	WalletRepo         domain.WalletRepository
-	GiftRecordRepo     domain.GiftRecordRepository
-	GiftCache          domain.GiftCache
-	WalletCache        domain.WalletCache
-	GiftService        *service.GiftService
-	WalletService      *service.WalletService
-	GiftRecordService  domain.GiftRecordService
-	Publisher          *events.Publisher
-	Consumer           *events.Consumer
-	GiftHandler        *grpc.GiftHandler
-	GiftRecordHandler  *grpc.GiftRecordHandler
-	WalletHandler      *grpc.WalletHandler
-	LeaderboardHandler *grpc.LeaderboardHandler
+	GiftRepo              domain.GiftRepository
+	WalletRepo            domain.WalletRepository
+	WalletTransactionRepo domain.WalletTransactionRepository
+	GiftCache             domain.GiftCache
+	WalletCache           domain.WalletCache
+	GiftService           *service.GiftService
+	WalletService         *service.WalletService
+	Publisher             *events.Publisher
+	Consumer              *events.Consumer
+	GiftHandler           *grpc.GiftHandler
+	WalletHandler         *grpc.WalletHandler
 }
 
 // InitDependencies 初始化所有依赖
@@ -42,7 +39,7 @@ func InitDependencies(ctx context.Context) (*Deps, error) {
 
 	giftRepo := postgres.NewGiftRepository(entClient)
 	walletRepo := postgres.NewWalletRepository(entClient)
-	giftRecordRepo := postgres.NewGiftRecordRepository(entClient)
+	walletTransactionRepo := postgres.NewWalletTransactionRepository(entClient)
 
 	// ==================== 初始化 Caches ====================
 	redisClient, err := redis.NewClient()
@@ -57,7 +54,6 @@ func InitDependencies(ctx context.Context) (*Deps, error) {
 	// ==================== 初始化 Services ====================
 	giftService := service.NewGiftService(giftRepo, giftCache)
 	walletService := service.NewWalletService(walletRepo, walletCache, walletFilter)
-	giftRecordService := service.NewGiftRecordService(giftRecordRepo, giftRepo, walletService)
 
 	// ==================== 初始化 RabbitMQ ====================
 	rabbitmqURL := env.GetString("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/")
@@ -71,7 +67,7 @@ func InitDependencies(ctx context.Context) (*Deps, error) {
 	// Consumer
 	consumer, err := events.NewConsumer(
 		rabbitmqURL,
-		giftRecordRepo,
+		walletTransactionRepo,
 		walletRepo,
 		walletService,
 	)
@@ -81,26 +77,21 @@ func InitDependencies(ctx context.Context) (*Deps, error) {
 	}
 
 	// ==================== 初始化 gRPC Handlers ====================
-	giftHandler := grpc.NewGiftHandler(giftService, giftRecordService, walletService, publisher)
-	giftRecordHandler := grpc.NewGiftRecordHandler(giftRecordService)
-	walletHandler := grpc.NewWalletHandler(walletService)
-	leaderboardHandler := grpc.NewLeaderboardHandler()
+	giftHandler := grpc.NewGiftHandler(giftService, walletService, publisher)
+	walletHandler := grpc.NewWalletHandler(walletService, publisher)
 
 	return &Deps{
-		GiftRepo:           giftRepo,
-		WalletRepo:         walletRepo,
-		GiftRecordRepo:     giftRecordRepo,
-		GiftCache:          giftCache,
-		WalletCache:        walletCache,
-		GiftService:        giftService,
-		WalletService:      walletService,
-		GiftRecordService:  giftRecordService,
-		Publisher:          publisher,
-		Consumer:           consumer,
-		GiftHandler:        giftHandler,
-		GiftRecordHandler:  giftRecordHandler,
-		WalletHandler:      walletHandler,
-		LeaderboardHandler: leaderboardHandler,
+		GiftRepo:              giftRepo,
+		WalletRepo:            walletRepo,
+		WalletTransactionRepo: walletTransactionRepo,
+		GiftCache:             giftCache,
+		WalletCache:           walletCache,
+		GiftService:           giftService,
+		WalletService:         walletService,
+		Publisher:             publisher,
+		Consumer:              consumer,
+		GiftHandler:           giftHandler,
+		WalletHandler:         walletHandler,
 	}, nil
 }
 

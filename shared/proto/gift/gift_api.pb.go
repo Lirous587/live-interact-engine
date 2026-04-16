@@ -325,110 +325,6 @@ func (x *ListGiftsResponse) GetGifts() []*Gift {
 	return nil
 }
 
-type GetLeaderboardRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RoomId        string                 `protobuf:"bytes,1,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"` // UUID
-	TopN          int32                  `protobuf:"varint,2,opt,name=top_n,json=topN,proto3" json:"top_n,omitempty"`      // 返回 Top N，默认 100
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetLeaderboardRequest) Reset() {
-	*x = GetLeaderboardRequest{}
-	mi := &file_gift_gift_api_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetLeaderboardRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetLeaderboardRequest) ProtoMessage() {}
-
-func (x *GetLeaderboardRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gift_gift_api_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetLeaderboardRequest.ProtoReflect.Descriptor instead.
-func (*GetLeaderboardRequest) Descriptor() ([]byte, []int) {
-	return file_gift_gift_api_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *GetLeaderboardRequest) GetRoomId() string {
-	if x != nil {
-		return x.RoomId
-	}
-	return ""
-}
-
-func (x *GetLeaderboardRequest) GetTopN() int32 {
-	if x != nil {
-		return x.TopN
-	}
-	return 0
-}
-
-type GetLeaderboardResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Entries       []*LeaderboardEntry    `protobuf:"bytes,1,rep,name=entries,proto3" json:"entries,omitempty"`
-	RoomId        string                 `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"` // UUID
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetLeaderboardResponse) Reset() {
-	*x = GetLeaderboardResponse{}
-	mi := &file_gift_gift_api_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetLeaderboardResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetLeaderboardResponse) ProtoMessage() {}
-
-func (x *GetLeaderboardResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gift_gift_api_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetLeaderboardResponse.ProtoReflect.Descriptor instead.
-func (*GetLeaderboardResponse) Descriptor() ([]byte, []int) {
-	return file_gift_gift_api_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *GetLeaderboardResponse) GetEntries() []*LeaderboardEntry {
-	if x != nil {
-		return x.Entries
-	}
-	return nil
-}
-
-func (x *GetLeaderboardResponse) GetRoomId() string {
-	if x != nil {
-		return x.RoomId
-	}
-	return ""
-}
-
 type GetGiftRecordRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	IdempotencyKey string                 `protobuf:"bytes,1,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"` // UUID
@@ -438,7 +334,7 @@ type GetGiftRecordRequest struct {
 
 func (x *GetGiftRecordRequest) Reset() {
 	*x = GetGiftRecordRequest{}
-	mi := &file_gift_gift_api_proto_msgTypes[8]
+	mi := &file_gift_gift_api_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -450,7 +346,7 @@ func (x *GetGiftRecordRequest) String() string {
 func (*GetGiftRecordRequest) ProtoMessage() {}
 
 func (x *GetGiftRecordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gift_gift_api_proto_msgTypes[8]
+	mi := &file_gift_gift_api_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -463,7 +359,7 @@ func (x *GetGiftRecordRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGiftRecordRequest.ProtoReflect.Descriptor instead.
 func (*GetGiftRecordRequest) Descriptor() ([]byte, []int) {
-	return file_gift_gift_api_proto_rawDescGZIP(), []int{8}
+	return file_gift_gift_api_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetGiftRecordRequest) GetIdempotencyKey() string {
@@ -482,7 +378,7 @@ type GetGiftRecordResponse struct {
 
 func (x *GetGiftRecordResponse) Reset() {
 	*x = GetGiftRecordResponse{}
-	mi := &file_gift_gift_api_proto_msgTypes[9]
+	mi := &file_gift_gift_api_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -494,7 +390,7 @@ func (x *GetGiftRecordResponse) String() string {
 func (*GetGiftRecordResponse) ProtoMessage() {}
 
 func (x *GetGiftRecordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gift_gift_api_proto_msgTypes[9]
+	mi := &file_gift_gift_api_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -507,7 +403,7 @@ func (x *GetGiftRecordResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGiftRecordResponse.ProtoReflect.Descriptor instead.
 func (*GetGiftRecordResponse) Descriptor() ([]byte, []int) {
-	return file_gift_gift_api_proto_rawDescGZIP(), []int{9}
+	return file_gift_gift_api_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetGiftRecordResponse) GetGiftRecord() *GiftRecord {
@@ -528,7 +424,7 @@ type ListGiftRecordsByRoomRequest struct {
 
 func (x *ListGiftRecordsByRoomRequest) Reset() {
 	*x = ListGiftRecordsByRoomRequest{}
-	mi := &file_gift_gift_api_proto_msgTypes[10]
+	mi := &file_gift_gift_api_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -540,7 +436,7 @@ func (x *ListGiftRecordsByRoomRequest) String() string {
 func (*ListGiftRecordsByRoomRequest) ProtoMessage() {}
 
 func (x *ListGiftRecordsByRoomRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gift_gift_api_proto_msgTypes[10]
+	mi := &file_gift_gift_api_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -553,7 +449,7 @@ func (x *ListGiftRecordsByRoomRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListGiftRecordsByRoomRequest.ProtoReflect.Descriptor instead.
 func (*ListGiftRecordsByRoomRequest) Descriptor() ([]byte, []int) {
-	return file_gift_gift_api_proto_rawDescGZIP(), []int{10}
+	return file_gift_gift_api_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListGiftRecordsByRoomRequest) GetRoomId() string {
@@ -587,7 +483,7 @@ type ListGiftRecordsByRoomResponse struct {
 
 func (x *ListGiftRecordsByRoomResponse) Reset() {
 	*x = ListGiftRecordsByRoomResponse{}
-	mi := &file_gift_gift_api_proto_msgTypes[11]
+	mi := &file_gift_gift_api_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -599,7 +495,7 @@ func (x *ListGiftRecordsByRoomResponse) String() string {
 func (*ListGiftRecordsByRoomResponse) ProtoMessage() {}
 
 func (x *ListGiftRecordsByRoomResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gift_gift_api_proto_msgTypes[11]
+	mi := &file_gift_gift_api_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -612,7 +508,7 @@ func (x *ListGiftRecordsByRoomResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListGiftRecordsByRoomResponse.ProtoReflect.Descriptor instead.
 func (*ListGiftRecordsByRoomResponse) Descriptor() ([]byte, []int) {
-	return file_gift_gift_api_proto_rawDescGZIP(), []int{11}
+	return file_gift_gift_api_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ListGiftRecordsByRoomResponse) GetGiftRecords() []*GiftRecord {
@@ -651,13 +547,7 @@ const file_gift_gift_api_proto_rawDesc = "" +
 	"\x10ListGiftsRequest\"5\n" +
 	"\x11ListGiftsResponse\x12 \n" +
 	"\x05gifts\x18\x01 \x03(\v2\n" +
-	".gift.GiftR\x05gifts\"E\n" +
-	"\x15GetLeaderboardRequest\x12\x17\n" +
-	"\aroom_id\x18\x01 \x01(\tR\x06roomId\x12\x13\n" +
-	"\x05top_n\x18\x02 \x01(\x05R\x04topN\"c\n" +
-	"\x16GetLeaderboardResponse\x120\n" +
-	"\aentries\x18\x01 \x03(\v2\x16.gift.LeaderboardEntryR\aentries\x12\x17\n" +
-	"\aroom_id\x18\x02 \x01(\tR\x06roomId\"?\n" +
+	".gift.GiftR\x05gifts\"?\n" +
 	"\x14GetGiftRecordRequest\x12'\n" +
 	"\x0fidempotency_key\x18\x01 \x01(\tR\x0eidempotencyKey\"J\n" +
 	"\x15GetGiftRecordResponse\x121\n" +
@@ -683,7 +573,7 @@ func file_gift_gift_api_proto_rawDescGZIP() []byte {
 	return file_gift_gift_api_proto_rawDescData
 }
 
-var file_gift_gift_api_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_gift_gift_api_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_gift_gift_api_proto_goTypes = []any{
 	(*SendGiftRequest)(nil),               // 0: gift.SendGiftRequest
 	(*SendGiftResponse)(nil),              // 1: gift.SendGiftResponse
@@ -691,28 +581,24 @@ var file_gift_gift_api_proto_goTypes = []any{
 	(*GetWalletBalanceResponse)(nil),      // 3: gift.GetWalletBalanceResponse
 	(*ListGiftsRequest)(nil),              // 4: gift.ListGiftsRequest
 	(*ListGiftsResponse)(nil),             // 5: gift.ListGiftsResponse
-	(*GetLeaderboardRequest)(nil),         // 6: gift.GetLeaderboardRequest
-	(*GetLeaderboardResponse)(nil),        // 7: gift.GetLeaderboardResponse
-	(*GetGiftRecordRequest)(nil),          // 8: gift.GetGiftRecordRequest
-	(*GetGiftRecordResponse)(nil),         // 9: gift.GetGiftRecordResponse
-	(*ListGiftRecordsByRoomRequest)(nil),  // 10: gift.ListGiftRecordsByRoomRequest
-	(*ListGiftRecordsByRoomResponse)(nil), // 11: gift.ListGiftRecordsByRoomResponse
-	(*Wallet)(nil),                        // 12: gift.Wallet
-	(*Gift)(nil),                          // 13: gift.Gift
-	(*LeaderboardEntry)(nil),              // 14: gift.LeaderboardEntry
-	(*GiftRecord)(nil),                    // 15: gift.GiftRecord
+	(*GetGiftRecordRequest)(nil),          // 6: gift.GetGiftRecordRequest
+	(*GetGiftRecordResponse)(nil),         // 7: gift.GetGiftRecordResponse
+	(*ListGiftRecordsByRoomRequest)(nil),  // 8: gift.ListGiftRecordsByRoomRequest
+	(*ListGiftRecordsByRoomResponse)(nil), // 9: gift.ListGiftRecordsByRoomResponse
+	(*Wallet)(nil),                        // 10: gift.Wallet
+	(*Gift)(nil),                          // 11: gift.Gift
+	(*GiftRecord)(nil),                    // 12: gift.GiftRecord
 }
 var file_gift_gift_api_proto_depIdxs = []int32{
-	12, // 0: gift.GetWalletBalanceResponse.wallet:type_name -> gift.Wallet
-	13, // 1: gift.ListGiftsResponse.gifts:type_name -> gift.Gift
-	14, // 2: gift.GetLeaderboardResponse.entries:type_name -> gift.LeaderboardEntry
-	15, // 3: gift.GetGiftRecordResponse.gift_record:type_name -> gift.GiftRecord
-	15, // 4: gift.ListGiftRecordsByRoomResponse.gift_records:type_name -> gift.GiftRecord
-	5,  // [5:5] is the sub-list for method output_type
-	5,  // [5:5] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	10, // 0: gift.GetWalletBalanceResponse.wallet:type_name -> gift.Wallet
+	11, // 1: gift.ListGiftsResponse.gifts:type_name -> gift.Gift
+	12, // 2: gift.GetGiftRecordResponse.gift_record:type_name -> gift.GiftRecord
+	12, // 3: gift.ListGiftRecordsByRoomResponse.gift_records:type_name -> gift.GiftRecord
+	4,  // [4:4] is the sub-list for method output_type
+	4,  // [4:4] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_gift_gift_api_proto_init() }
@@ -727,7 +613,7 @@ func file_gift_gift_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_gift_gift_api_proto_rawDesc), len(file_gift_gift_api_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

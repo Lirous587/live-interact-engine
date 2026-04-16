@@ -2,27 +2,33 @@ package grpc
 
 import (
 	"context"
+	"time"
 
 	"live-interact-engine/services/gift-service/internal/adapter"
-	"live-interact-engine/services/gift-service/internal/service"
+	"live-interact-engine/services/gift-service/internal/domain"
+	"live-interact-engine/services/gift-service/internal/infrastructure/events"
+	"live-interact-engine/services/gift-service/pkg/types"
 	pb "live-interact-engine/shared/proto/gift"
 	"live-interact-engine/shared/svcerr"
 
 	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/zap"
 )
 
 // ==================== WalletService Handler ====================
 
 type WalletHandler struct {
 	pb.UnimplementedWalletServiceServer
-	walletService *service.WalletService
+	walletService domain.WalletService
+	publisher     *events.Publisher
 }
 
 // NewWalletHandler 创建 WalletHandler 实例
-func NewWalletHandler(walletService *service.WalletService) *WalletHandler {
+func NewWalletHandler(walletService domain.WalletService, publisher *events.Publisher) *WalletHandler {
 	return &WalletHandler{
 		walletService: walletService,
+		publisher:     publisher,
 	}
 }
 
@@ -65,4 +71,51 @@ func (h *WalletHandler) InitializeWallet(ctx context.Context, req *pb.Initialize
 	}
 
 	return &pb.InitializeWalletResponse{}, nil
+}
+
+// Recharge 充值钱包
+func (h *WalletHandler) Recharge(ctx context.Context, req *pb.RechargeRequest) (*pb.RechargeResponse, error) {
+	span := trace.SpanFromContext(ctx)
+
+	// 解析 UUID
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	idempotencyKey, err := uuid.NewV7()
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	// 参数验证
+	if req.Amount <= 0 {
+		return nil, svcerr.MapServiceErrorToGRPC(types.ErrInvalidAmount, span)
+	}
+
+	// 执行充值
+	newBalance, err := h.walletService.IncrementBalance(ctx, userID, req.Amount, idempotencyKey)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	// 异步发布充值事件
+	go func() {
+		event := &events.WalletRechargeEvent{
+			UserID:         userID,
+			Amount:         req.Amount,
+			IdempotencyKey: idempotencyKey,
+			NewBalance:     newBalance,
+			Timestamp:      time.Now().Unix(),
+		}
+		if err := h.publisher.PublishWalletRecharge(context.Background(), event); err != nil {
+			zap.L().Error("failed to publish recharge event",
+				zap.String("user_id", userID.String()),
+				zap.Error(err))
+		}
+	}()
+
+	return &pb.RechargeResponse{
+		NewBalance: newBalance,
+	}, nil
 }

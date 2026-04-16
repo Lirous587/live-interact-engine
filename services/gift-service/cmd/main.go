@@ -67,9 +67,7 @@ func main() {
 
 	// 注册服务
 	pb.RegisterGiftServiceServer(grpcServer, deps.GiftHandler)
-	pb.RegisterGiftRecordServiceServer(grpcServer, deps.GiftRecordHandler)
 	pb.RegisterWalletServiceServer(grpcServer, deps.WalletHandler)
-	pb.RegisterLeaderboardServiceServer(grpcServer, deps.LeaderboardHandler)
 
 	log.Printf("Gift service started, listening on %s", listener.Addr())
 

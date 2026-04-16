@@ -2,11 +2,13 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
 	"live-interact-engine/services/gift-service/internal/domain"
+	"live-interact-engine/services/gift-service/pkg/types"
 )
 
 type WalletService struct {
@@ -40,9 +42,6 @@ func (s *WalletService) GetWallet(ctx context.Context, userID uuid.UUID) (*domai
 	if err != nil {
 		return nil, err
 	}
-	if wallet == nil {
-		return nil, nil
-	}
 
 	// 用缓存中的余额覆盖数据库的余额（因为Redis是实时的）
 	wallet.Balance = cachedBalance
@@ -54,24 +53,26 @@ func (s *WalletService) DeductBalance(ctx context.Context, userID uuid.UUID, amo
 	// 检查过滤器，如果未初始化则从 DB 加载
 	if !s.walletFilter.Exists(ctx, userID) {
 		wallet, err := s.walletRepo.GetWallet(ctx, userID)
-		if err != nil {
+		// 存在err且不为types.ErrWalletNotFound
+		if err != nil && !errors.Is(err, types.ErrWalletNotFound) {
 			return 0, err
 		}
 
-		// 如果钱包不存在，创建钱包（托底工作）
-		if wallet == nil {
-			newWallet := &domain.Wallet{
-				UserID:  userID,
-				Balance: 0,
-			}
-			if err := s.walletRepo.SaveWallet(ctx, newWallet); err != nil {
-				zap.L().Error("failed to create wallet for user",
-					zap.String("user_id", userID.String()),
-					zap.Error(err))
-				return 0, err
-			}
-			wallet = newWallet
+		// 钱包不存在，创建钱包
+		newWallet := &domain.Wallet{
+			UserID:        userID,
+			Balance:       0,
+			VersionNumber: 0,
 		}
+
+		if err := s.walletRepo.CreateWallet(ctx, newWallet); err != nil {
+			zap.L().Error("failed to create wallet for user",
+				zap.String("user_id", userID.String()),
+				zap.Error(err))
+			return 0, err
+		}
+
+		wallet = newWallet
 
 		balance := wallet.Balance
 
@@ -94,24 +95,24 @@ func (s *WalletService) IncrementBalance(ctx context.Context, userID uuid.UUID, 
 	// 检查过滤器，如果未初始化则从 DB 加载
 	if !s.walletFilter.Exists(ctx, userID) {
 		wallet, err := s.walletRepo.GetWallet(ctx, userID)
-		if err != nil {
+		// 存在err且不为types.ErrWalletNotFound
+		if err != nil && !errors.Is(err, types.ErrWalletNotFound) {
 			return 0, err
 		}
 
 		// 如果钱包不存在，创建钱包（托底工作）
-		if wallet == nil {
-			newWallet := &domain.Wallet{
-				UserID:  userID,
-				Balance: 0,
-			}
-			if err := s.walletRepo.SaveWallet(ctx, newWallet); err != nil {
-				zap.L().Error("failed to create wallet for user",
-					zap.String("user_id", userID.String()),
-					zap.Error(err))
-				return 0, err
-			}
-			wallet = newWallet
+		newWallet := &domain.Wallet{
+			UserID:        userID,
+			Balance:       0,
+			VersionNumber: 0,
 		}
+		if err := s.walletRepo.CreateWallet(ctx, newWallet); err != nil {
+			zap.L().Error("failed to create wallet for user",
+				zap.String("user_id", userID.String()),
+				zap.Error(err))
+			return 0, err
+		}
+		wallet = newWallet
 
 		balance := wallet.Balance
 
@@ -131,17 +132,18 @@ func (s *WalletService) IncrementBalance(ctx context.Context, userID uuid.UUID, 
 
 // InitializeWallet 初始化新用户的钱包（从 user-service 调用）
 func (s *WalletService) InitializeWallet(ctx context.Context, userID uuid.UUID) error {
-	// 1. 创建钱包记录到数据库（初始余额为 0）
+	// 创建钱包记录到数据库（初始余额为 0）
 	wallet := &domain.Wallet{
-		UserID:  userID,
-		Balance: 0,
+		UserID:        userID,
+		Balance:       0,
+		VersionNumber: 0,
 	}
 
-	if err := s.walletRepo.SaveWallet(ctx, wallet); err != nil {
+	if err := s.walletRepo.CreateWallet(ctx, wallet); err != nil {
 		return err
 	}
 
-	// 2. 写入 Redis 缓存
+	// 写入 Redis 缓存
 	if err := s.walletCache.SetBalance(ctx, userID, 0); err != nil {
 		zap.L().Warn("failed to set wallet balance to cache",
 			zap.String("user_id", userID.String()),
@@ -149,7 +151,7 @@ func (s *WalletService) InitializeWallet(ctx context.Context, userID uuid.UUID) 
 		// 不返回错误，因为 DB 已经保存了
 	}
 
-	// 3. 标记为已初始化
+	// 标记为已初始化
 	if err := s.walletFilter.Add(ctx, userID); err != nil {
 		zap.L().Warn("failed to add wallet filter",
 			zap.String("user_id", userID.String()),

@@ -19,24 +19,21 @@ import (
 
 type GiftHandler struct {
 	pb.UnimplementedGiftServiceServer
-	giftService       domain.GiftService
-	giftRecordService domain.GiftRecordService
-	walletService     domain.WalletService
-	publisher         *events.Publisher
+	giftService   domain.GiftService
+	walletService domain.WalletService
+	publisher     *events.Publisher
 }
 
 // NewGiftHandler 创建 GiftHandler 实例
 func NewGiftHandler(
 	giftService *service.GiftService,
-	giftRecordService domain.GiftRecordService,
 	walletService domain.WalletService,
 	publisher *events.Publisher,
 ) *GiftHandler {
 	return &GiftHandler{
-		giftService:       giftService,
-		giftRecordService: giftRecordService,
-		walletService:     walletService,
-		publisher:         publisher,
+		giftService:   giftService,
+		walletService: walletService,
+		publisher:     publisher,
 	}
 }
 
@@ -130,76 +127,5 @@ func (h *GiftHandler) ListGifts(ctx context.Context, req *pb.ListGiftsRequest) (
 
 	return &pb.ListGiftsResponse{
 		Gifts: pbGifts,
-	}, nil
-}
-
-// ==================== GiftRecordService Handler ====================
-
-type GiftRecordHandler struct {
-	pb.UnimplementedGiftRecordServiceServer
-	giftRecordService domain.GiftRecordService
-}
-
-// NewGiftRecordHandler 创建 GiftRecordHandler 实例
-func NewGiftRecordHandler(giftRecordService domain.GiftRecordService) *GiftRecordHandler {
-	return &GiftRecordHandler{
-		giftRecordService: giftRecordService,
-	}
-}
-
-// GetGiftRecord 根据幂等性 key 查询礼物记录
-func (h *GiftRecordHandler) GetGiftRecord(ctx context.Context, req *pb.GetGiftRecordRequest) (*pb.GetGiftRecordResponse, error) {
-	span := trace.SpanFromContext(ctx)
-
-	idempotencyKey, err := uuid.Parse(req.IdempotencyKey)
-	if err != nil {
-		return nil, svcerr.MapServiceErrorToGRPC(err, span)
-	}
-
-	giftRecord, err := h.giftRecordService.GetGiftRecordByKey(ctx, idempotencyKey)
-	if err != nil {
-		return nil, svcerr.MapServiceErrorToGRPC(err, span)
-	}
-
-	if giftRecord == nil {
-		return &pb.GetGiftRecordResponse{
-			GiftRecord: nil,
-		}, nil
-	}
-
-	return &pb.GetGiftRecordResponse{
-		GiftRecord: adapter.GiftRecordToDomainPB(giftRecord),
-	}, nil
-}
-
-// ListGiftRecordsByRoom 查询房间内的礼物流水（支持分页）
-func (h *GiftRecordHandler) ListGiftRecordsByRoom(ctx context.Context, req *pb.ListGiftRecordsByRoomRequest) (*pb.ListGiftRecordsByRoomResponse, error) {
-	span := trace.SpanFromContext(ctx)
-
-	roomID, err := uuid.Parse(req.RoomId)
-	if err != nil {
-		return nil, svcerr.MapServiceErrorToGRPC(err, span)
-	}
-
-	// 分页参数
-	offset := int(req.Offset)
-	limit := int(req.Limit)
-	if limit <= 0 || limit > 1000 {
-		limit = 100 // 默认每页 100 条
-	}
-
-	giftRecords, err := h.giftRecordService.ListGiftRecordsByRoom(ctx, roomID, offset, limit)
-	if err != nil {
-		return nil, svcerr.MapServiceErrorToGRPC(err, span)
-	}
-
-	pbRecords := make([]*pb.GiftRecord, len(giftRecords))
-	for i, record := range giftRecords {
-		pbRecords[i] = adapter.GiftRecordToDomainPB(record)
-	}
-
-	return &pb.ListGiftRecordsByRoomResponse{
-		GiftRecords: pbRecords,
-		Total:       int32(len(pbRecords)),
 	}, nil
 }

@@ -247,56 +247,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/leaderboard/{room_id}": {
-            "get": {
-                "description": "获取指定房间的礼物赠送排行榜 (按累计送礼金额降序)",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Leaderboard"
-                ],
-                "summary": "获取房间排行榜",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "房间 ID (UUID)",
-                        "name": "room_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "default": 100,
-                        "description": "返回前 N 名 (默认 100, 最大 1000)",
-                        "name": "top_n",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.LeaderboardResp"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
         "/v1/room": {
             "post": {
                 "description": "用户创建一个新房间",
@@ -965,7 +915,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/wallet/{user_id}/balance": {
+        "/v1/wallet/balance": {
             "get": {
                 "security": [
                     {
@@ -986,13 +936,6 @@ const docTemplate = `{
                         "description": "Bearer Token",
                         "name": "Authorization",
                         "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "用户 ID (UUID)",
-                        "name": "user_id",
-                        "in": "path",
                         "required": true
                     }
                 ],
@@ -1019,6 +962,73 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/wallet/recharge": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "用户充值钱包余额",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "充值",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "请求体",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mapper.RechargeReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.RechargeResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -1202,35 +1212,6 @@ const docTemplate = `{
                 }
             }
         },
-        "mapper.LeaderboardEntryResp": {
-            "type": "object",
-            "properties": {
-                "rank": {
-                    "type": "integer"
-                },
-                "score": {
-                    "description": "累计送礼金额",
-                    "type": "integer"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "mapper.LeaderboardResp": {
-            "type": "object",
-            "properties": {
-                "entries": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/mapper.LeaderboardEntryResp"
-                    }
-                },
-                "room_id": {
-                    "type": "string"
-                }
-            }
-        },
         "mapper.ListGiftsResp": {
             "type": "object",
             "properties": {
@@ -1329,6 +1310,25 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "mapper.RechargeReq": {
+            "type": "object",
+            "required": [
+                "amount"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "mapper.RechargeResp": {
+            "type": "object",
+            "properties": {
+                "new_balance": {
+                    "type": "integer"
                 }
             }
         },

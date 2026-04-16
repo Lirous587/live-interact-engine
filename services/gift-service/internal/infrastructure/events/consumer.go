@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"strings"
+	"time"
 
+	"github.com/google/uuid"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"go.uber.org/zap"
 
@@ -12,17 +14,17 @@ import (
 )
 
 type Consumer struct {
-	conn           *amqp.Connection
-	channel        *amqp.Channel
-	giftRecordRepo domain.GiftRecordRepository
-	walletRepo     domain.WalletRepository
-	walletService  domain.WalletService
+	conn                   *amqp.Connection
+	channel                *amqp.Channel
+	walletTransactionRepo  domain.WalletTransactionRepository
+	walletRepo             domain.WalletRepository
+	walletService          domain.WalletService
 }
 
 // NewConsumer 创建消费者
 func NewConsumer(
 	rabbitmqURL string,
-	giftRecordRepo domain.GiftRecordRepository,
+	walletTransactionRepo domain.WalletTransactionRepository,
 	walletRepo domain.WalletRepository,
 	walletService domain.WalletService,
 ) (*Consumer, error) {
@@ -49,18 +51,47 @@ func NewConsumer(
 	}
 
 	return &Consumer{
-		conn:           conn,
-		channel:        ch,
-		giftRecordRepo: giftRecordRepo,
-		walletRepo:     walletRepo,
-		walletService:  walletService,
+		conn:                  conn,
+		channel:               ch,
+		walletTransactionRepo: walletTransactionRepo,
+		walletRepo:            walletRepo,
+		walletService:         walletService,
 	}, nil
 }
 
 // Start 启动消费者（阻塞）
 func (c *Consumer) Start(ctx context.Context) error {
-	// 从队列获取消息
-	msgs, err := c.channel.Consume(
+	// 1. 声明并绑定礼物队列
+	_, err := c.channel.QueueDeclare(
+		QueueName,
+		true,  // durable
+		false, // auto-delete
+		false, // exclusive
+		false, // no-wait
+		amqp.Table{
+			"x-dead-letter-exchange": "gift-dlx",
+		},
+	)
+	if err != nil {
+		zap.L().Error("failed to declare gift queue", zap.Error(err))
+		return err
+	}
+
+	// 绑定礼物队列到Exchange（仅订阅 gift.send.success 消息）
+	err = c.channel.QueueBind(
+		QueueName,
+		"gift.send.success",
+		ExchangeName,
+		false,
+		nil,
+	)
+	if err != nil {
+		zap.L().Error("failed to bind gift queue", zap.Error(err))
+		return err
+	}
+
+	// 2. 消费礼物发送事件
+	giftMsgs, err := c.channel.Consume(
 		QueueName, // 队列名
 		"",        // consumer tag（空表示自动生成）
 		false,     // auto-ack（必须 false，手动 ack）
@@ -70,120 +101,284 @@ func (c *Consumer) Start(ctx context.Context) error {
 		nil,       // args
 	)
 	if err != nil {
-		zap.L().Error("failed to consume from queue", zap.Error(err))
+		zap.L().Error("failed to consume from gift queue", zap.Error(err))
 		return err
 	}
 
 	zap.L().Info("gift consumer started, waiting for messages...")
 
+	// 声明充值队列
+	_, err = c.channel.QueueDeclare(
+		"wallet.recharge.queue",
+		true,  // durable
+		false, // auto-delete
+		false, // exclusive
+		false, // no-wait
+		nil,   // args
+	)
+	if err != nil {
+		zap.L().Error("failed to declare wallet recharge queue", zap.Error(err))
+		return err
+	}
+
+	// 绑定充值队列到Exchange
+	err = c.channel.QueueBind(
+		"wallet.recharge.queue",
+		"wallet.recharge",
+		ExchangeName,
+		false,
+		nil,
+	)
+	if err != nil {
+		zap.L().Error("failed to bind wallet recharge queue", zap.Error(err))
+		return err
+	}
+
+	// 消费充值事件
+	rechargeMsgs, err := c.channel.Consume(
+		"wallet.recharge.queue",
+		"",
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+	if err != nil {
+		zap.L().Error("failed to consume from wallet recharge queue", zap.Error(err))
+		return err
+	}
+
+	zap.L().Info("wallet recharge consumer started, waiting for messages...")
+
+	// 并发处理两个队列的消息
 	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case msg, ok := <-msgs:
+		case msg, ok := <-giftMsgs:
 			if !ok {
-				zap.L().Info("message channel closed")
+				zap.L().Info("gift message channel closed")
 				return nil
 			}
+			c.handleGiftSendSuccessEvent(ctx, &msg)
 
-			// 处理消息
-			c.handleMessage(ctx, &msg)
+		case msg, ok := <-rechargeMsgs:
+			if !ok {
+				zap.L().Info("wallet recharge message channel closed")
+				return nil
+			}
+			c.handleWalletRechargeEvent(ctx, &msg)
 		}
 	}
 }
 
-// handleMessage 处理单条消息
-func (c *Consumer) handleMessage(ctx context.Context, msg *amqp.Delivery) {
-	// 解析事件
+// handleGiftSendSuccessEvent 处理礼物发送成功事件
+func (c *Consumer) handleGiftSendSuccessEvent(ctx context.Context, msg *amqp.Delivery) {
 	var event GiftSendSuccessEvent
 	err := json.Unmarshal(msg.Body, &event)
 	if err != nil {
 		zap.L().Error("failed to unmarshal event",
 			zap.Error(err),
 			zap.String("body", string(msg.Body)))
-		// 解析失败，NACK（会重新入队，最终进死信队列）
 		msg.Nack(false, false)
 		return
 	}
 
-	// 1. 插入 GiftRecord（可能有唯一约束冲突，正常）
-	giftRecord := &domain.GiftRecord{
-		IdempotencyKey: event.IdempotencyKey,
-		UserID:         event.UserID,
-		AnchorID:       event.AnchorID,
-		RoomID:         event.RoomID,
-		GiftID:         event.GiftID,
-		Amount:         event.Amount,
-		Status:         domain.GiftRecordStatusSuccess,
+	// 获取钱包信息
+	wallet, err := c.walletRepo.GetWallet(ctx, event.AnchorID)
+	if err != nil {
+		zap.L().Error("failed to get wallet", zap.Error(err))
+		msg.Nack(false, true)
+		return
 	}
 
-	err = c.giftRecordRepo.SaveGiftRecord(ctx, giftRecord)
-	if err != nil {
-		// 检查是否是唯一约束冲突（表示已处理过）
-		if c.isUniqueConstraintError(err) {
-			zap.L().Warn("gift record already exists (idempotent)",
-				zap.String("idempotency_key", event.IdempotencyKey.String()),
-				zap.String("user_id", event.UserID.String()))
-			// 已处理过，ACK（不再处理）
-			msg.Ack(false)
+	transaction := &domain.WalletTransaction{
+		IdempotencyKey: event.IdempotencyKey,
+		Type:           domain.WalletTransactionTypeGiftSend,
+		PayerID:        event.UserID,
+		PayeeID:        event.AnchorID,
+		Amount:         event.Amount,
+		RoomID:         event.RoomID,
+		GiftID:         event.GiftID,
+		Status:         "success",
+	}
+
+	// 事务内执行：保存交易记录 + 更新钱包
+	updated := false
+	maxAttempts := 10
+	for attempt := 0; attempt < maxAttempts; attempt++ {
+		tx, err := c.walletRepo.Tx(ctx)
+		if err != nil {
+			zap.L().Error("failed to begin transaction", zap.Error(err))
+			msg.Nack(false, true)
 			return
 		}
 
-		// 其他错误，NACK（重新入队）
-		zap.L().Error("failed to save gift record",
-			zap.Error(err),
-			zap.String("idempotency_key", event.IdempotencyKey.String()))
-		msg.Nack(false, true) // requeue=true，重新入队
-		return
-	}
-
-	// 2. 更新 Wallet 余额（主播的余额增加）
-	wallet, err := c.walletRepo.GetWallet(ctx, event.AnchorID)
-	if err != nil {
-		zap.L().Error("failed to get anchor wallet",
-			zap.Error(err),
-			zap.String("anchor_id", event.AnchorID.String()))
-		msg.Nack(false, true)
-		return
-	}
-
-	if wallet == nil {
-		// 主播钱包不存在，创建一个
-		wallet = &domain.Wallet{
-			UserID:        event.AnchorID,
-			Balance:       event.Amount,
-			VersionNumber: 1,
+		// 保存交易记录
+		err = c.walletTransactionRepo.SaveWalletTransactionTx(ctx, tx, transaction)
+		if err != nil {
+			tx.Rollback()
+			if c.isUniqueConstraintError(err) {
+				// 已处理过，ACK
+				msg.Ack(false)
+				zap.L().Warn("wallet transaction already exists (idempotent)",
+					zap.String("idempotency_key", event.IdempotencyKey.String()))
+				return
+			}
+			zap.L().Error("failed to save wallet transaction", zap.Error(err))
+			msg.Nack(false, true)
+			return
 		}
-	} else {
+
+		// 更新钱包余额
 		wallet.Balance += event.Amount
 		wallet.VersionNumber++
+		err = c.walletRepo.UpdateWalletTx(ctx, tx, wallet)
+		if err != nil {
+			tx.Rollback()
+			if strings.Contains(err.Error(), "Version conflict") {
+				if attempt < maxAttempts-1 {
+					delayMs := 50 * (1 << uint(attempt))
+					if delayMs > 5000 {
+						delayMs = 5000
+					}
+					zap.L().Warn("version conflict, retrying",
+						zap.String("anchor_id", event.AnchorID.String()),
+						zap.Int("attempt", attempt+1))
+					time.Sleep(time.Duration(delayMs) * time.Millisecond)
+				}
+				continue
+			}
+			zap.L().Error("failed to update wallet", zap.Error(err))
+			msg.Nack(false, true)
+			return
+		}
+
+		// 提交事务
+		if err := tx.Commit(); err != nil {
+			zap.L().Error("failed to commit transaction", zap.Error(err))
+			msg.Nack(false, true)
+			return
+		}
+		updated = true
+		break
 	}
 
-	err = c.walletRepo.SaveWallet(ctx, wallet)
+	if !updated {
+		zap.L().Error("failed to update wallet after retries")
+		msg.Nack(false, false)
+		return
+	}
+
+	// 更新缓存
+	c.walletService.IncrementBalance(ctx, event.AnchorID, event.Amount, event.IdempotencyKey)
+
+	msg.Ack(false)
+	zap.L().Info("gift event processed successfully",
+		zap.String("anchor_id", event.AnchorID.String()),
+		zap.Int64("amount", event.Amount))
+}
+
+// handleWalletRechargeEvent 处理钱包充值事件
+func (c *Consumer) handleWalletRechargeEvent(ctx context.Context, msg *amqp.Delivery) {
+	var event WalletRechargeEvent
+	err := json.Unmarshal(msg.Body, &event)
 	if err != nil {
-		zap.L().Error("failed to save anchor wallet",
+		zap.L().Error("failed to unmarshal wallet recharge event",
 			zap.Error(err),
-			zap.String("anchor_id", event.AnchorID.String()))
+			zap.String("body", string(msg.Body)))
+		msg.Nack(false, false)
+		return
+	}
+
+	// 获取钱包信息
+	wallet, err := c.walletRepo.GetWallet(ctx, event.UserID)
+	if err != nil {
+		zap.L().Error("failed to get wallet", zap.Error(err))
 		msg.Nack(false, true)
 		return
 	}
 
-	// 3. 更新缓存（Redis + Filter）
-	_, err = c.walletService.IncrementBalance(ctx, event.AnchorID, event.Amount, event.IdempotencyKey)
-	if err != nil {
-		zap.L().Warn("failed to increment cache balance (non-critical)",
-			zap.Error(err),
-			zap.String("anchor_id", event.AnchorID.String()))
-		// 缓存更新失败不影响，因为有 DB 作为真实来源
-		// 继续 ACK
+	transaction := &domain.WalletTransaction{
+		IdempotencyKey: event.IdempotencyKey,
+		Type:           domain.WalletTransactionTypeRecharge,
+		PayerID:        event.UserID,
+		PayeeID:        uuid.Nil,
+		Amount:         event.Amount,
+		Status:         "success",
 	}
 
-	// 4. ACK（表示成功处理）
-	msg.Ack(false)
+	// 事务内执行：保存交易记录 + 更新钱包
+	updated := false
+	maxAttempts := 10
+	for attempt := 0; attempt < maxAttempts; attempt++ {
+		tx, err := c.walletRepo.Tx(ctx)
+		if err != nil {
+			zap.L().Error("failed to begin transaction", zap.Error(err))
+			msg.Nack(false, true)
+			return
+		}
 
-	zap.L().Info("gift event processed successfully",
+		// 保存交易记录
+		err = c.walletTransactionRepo.SaveWalletTransactionTx(ctx, tx, transaction)
+		if err != nil {
+			tx.Rollback()
+			if c.isUniqueConstraintError(err) {
+				// 已处理过，ACK
+				msg.Ack(false)
+				zap.L().Warn("wallet transaction already exists (idempotent)",
+					zap.String("idempotency_key", event.IdempotencyKey.String()))
+				return
+			}
+			zap.L().Error("failed to save wallet transaction", zap.Error(err))
+			msg.Nack(false, true)
+			return
+		}
+
+		// 更新钱包余额
+		wallet.Balance += event.Amount
+		wallet.VersionNumber++
+		err = c.walletRepo.UpdateWalletTx(ctx, tx, wallet)
+		if err != nil {
+			tx.Rollback()
+			if strings.Contains(err.Error(), "Version conflict") {
+				if attempt < maxAttempts-1 {
+					delayMs := 50 * (1 << uint(attempt))
+					if delayMs > 5000 {
+						delayMs = 5000
+					}
+					zap.L().Warn("version conflict, retrying",
+						zap.String("user_id", event.UserID.String()),
+						zap.Int("attempt", attempt+1))
+					time.Sleep(time.Duration(delayMs) * time.Millisecond)
+				}
+				continue
+			}
+			zap.L().Error("failed to update wallet", zap.Error(err))
+			msg.Nack(false, true)
+			return
+		}
+
+		// 提交事务
+		if err := tx.Commit(); err != nil {
+			zap.L().Error("failed to commit transaction", zap.Error(err))
+			msg.Nack(false, true)
+			return
+		}
+		updated = true
+		break
+	}
+
+	if !updated {
+		zap.L().Error("failed to update wallet after retries")
+		msg.Nack(false, false)
+		return
+	}
+
+	msg.Ack(false)
+	zap.L().Info("wallet recharge event processed successfully",
 		zap.String("user_id", event.UserID.String()),
-		zap.String("anchor_id", event.AnchorID.String()),
 		zap.Int64("amount", event.Amount))
 }
 

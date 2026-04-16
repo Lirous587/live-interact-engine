@@ -54,9 +54,3 @@ message GiftRecord {
   int64            created_at      = 8;
   int64            updated_at      = 9;
 }
-
-message LeaderboardEntry {
-  string user_id = 1; // UUID
-  int64  score   = 2; // 累计送礼金额
-  int32  rank    = 3;
-}

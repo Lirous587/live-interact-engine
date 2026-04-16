@@ -12,8 +12,8 @@ import (
 	"live-interact-engine/services/gift-service/ent/migrate"
 
 	"live-interact-engine/services/gift-service/ent/gift"
-	"live-interact-engine/services/gift-service/ent/giftrecord"
 	"live-interact-engine/services/gift-service/ent/wallet"
+	"live-interact-engine/services/gift-service/ent/wallettransaction"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
@@ -28,10 +28,10 @@ type Client struct {
 	Schema *migrate.Schema
 	// Gift is the client for interacting with the Gift builders.
 	Gift *GiftClient
-	// GiftRecord is the client for interacting with the GiftRecord builders.
-	GiftRecord *GiftRecordClient
 	// Wallet is the client for interacting with the Wallet builders.
 	Wallet *WalletClient
+	// WalletTransaction is the client for interacting with the WalletTransaction builders.
+	WalletTransaction *WalletTransactionClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -44,8 +44,8 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Gift = NewGiftClient(c.config)
-	c.GiftRecord = NewGiftRecordClient(c.config)
 	c.Wallet = NewWalletClient(c.config)
+	c.WalletTransaction = NewWalletTransactionClient(c.config)
 }
 
 type (
@@ -136,11 +136,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:        ctx,
-		config:     cfg,
-		Gift:       NewGiftClient(cfg),
-		GiftRecord: NewGiftRecordClient(cfg),
-		Wallet:     NewWalletClient(cfg),
+		ctx:               ctx,
+		config:            cfg,
+		Gift:              NewGiftClient(cfg),
+		Wallet:            NewWalletClient(cfg),
+		WalletTransaction: NewWalletTransactionClient(cfg),
 	}, nil
 }
 
@@ -158,11 +158,11 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:        ctx,
-		config:     cfg,
-		Gift:       NewGiftClient(cfg),
-		GiftRecord: NewGiftRecordClient(cfg),
-		Wallet:     NewWalletClient(cfg),
+		ctx:               ctx,
+		config:            cfg,
+		Gift:              NewGiftClient(cfg),
+		Wallet:            NewWalletClient(cfg),
+		WalletTransaction: NewWalletTransactionClient(cfg),
 	}, nil
 }
 
@@ -192,16 +192,16 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Gift.Use(hooks...)
-	c.GiftRecord.Use(hooks...)
 	c.Wallet.Use(hooks...)
+	c.WalletTransaction.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.Gift.Intercept(interceptors...)
-	c.GiftRecord.Intercept(interceptors...)
 	c.Wallet.Intercept(interceptors...)
+	c.WalletTransaction.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -209,10 +209,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *GiftMutation:
 		return c.Gift.mutate(ctx, m)
-	case *GiftRecordMutation:
-		return c.GiftRecord.mutate(ctx, m)
 	case *WalletMutation:
 		return c.Wallet.mutate(ctx, m)
+	case *WalletTransactionMutation:
+		return c.WalletTransaction.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -351,139 +351,6 @@ func (c *GiftClient) mutate(ctx context.Context, m *GiftMutation) (Value, error)
 	}
 }
 
-// GiftRecordClient is a client for the GiftRecord schema.
-type GiftRecordClient struct {
-	config
-}
-
-// NewGiftRecordClient returns a client for the GiftRecord from the given config.
-func NewGiftRecordClient(c config) *GiftRecordClient {
-	return &GiftRecordClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `giftrecord.Hooks(f(g(h())))`.
-func (c *GiftRecordClient) Use(hooks ...Hook) {
-	c.hooks.GiftRecord = append(c.hooks.GiftRecord, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `giftrecord.Intercept(f(g(h())))`.
-func (c *GiftRecordClient) Intercept(interceptors ...Interceptor) {
-	c.inters.GiftRecord = append(c.inters.GiftRecord, interceptors...)
-}
-
-// Create returns a builder for creating a GiftRecord entity.
-func (c *GiftRecordClient) Create() *GiftRecordCreate {
-	mutation := newGiftRecordMutation(c.config, OpCreate)
-	return &GiftRecordCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of GiftRecord entities.
-func (c *GiftRecordClient) CreateBulk(builders ...*GiftRecordCreate) *GiftRecordCreateBulk {
-	return &GiftRecordCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *GiftRecordClient) MapCreateBulk(slice any, setFunc func(*GiftRecordCreate, int)) *GiftRecordCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &GiftRecordCreateBulk{err: fmt.Errorf("calling to GiftRecordClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*GiftRecordCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &GiftRecordCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for GiftRecord.
-func (c *GiftRecordClient) Update() *GiftRecordUpdate {
-	mutation := newGiftRecordMutation(c.config, OpUpdate)
-	return &GiftRecordUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *GiftRecordClient) UpdateOne(_m *GiftRecord) *GiftRecordUpdateOne {
-	mutation := newGiftRecordMutation(c.config, OpUpdateOne, withGiftRecord(_m))
-	return &GiftRecordUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *GiftRecordClient) UpdateOneID(id int) *GiftRecordUpdateOne {
-	mutation := newGiftRecordMutation(c.config, OpUpdateOne, withGiftRecordID(id))
-	return &GiftRecordUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for GiftRecord.
-func (c *GiftRecordClient) Delete() *GiftRecordDelete {
-	mutation := newGiftRecordMutation(c.config, OpDelete)
-	return &GiftRecordDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *GiftRecordClient) DeleteOne(_m *GiftRecord) *GiftRecordDeleteOne {
-	return c.DeleteOneID(_m.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *GiftRecordClient) DeleteOneID(id int) *GiftRecordDeleteOne {
-	builder := c.Delete().Where(giftrecord.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &GiftRecordDeleteOne{builder}
-}
-
-// Query returns a query builder for GiftRecord.
-func (c *GiftRecordClient) Query() *GiftRecordQuery {
-	return &GiftRecordQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeGiftRecord},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a GiftRecord entity by its id.
-func (c *GiftRecordClient) Get(ctx context.Context, id int) (*GiftRecord, error) {
-	return c.Query().Where(giftrecord.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *GiftRecordClient) GetX(ctx context.Context, id int) *GiftRecord {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *GiftRecordClient) Hooks() []Hook {
-	return c.hooks.GiftRecord
-}
-
-// Interceptors returns the client interceptors.
-func (c *GiftRecordClient) Interceptors() []Interceptor {
-	return c.inters.GiftRecord
-}
-
-func (c *GiftRecordClient) mutate(ctx context.Context, m *GiftRecordMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&GiftRecordCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&GiftRecordUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&GiftRecordUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&GiftRecordDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown GiftRecord mutation op: %q", m.Op())
-	}
-}
-
 // WalletClient is a client for the Wallet schema.
 type WalletClient struct {
 	config
@@ -617,12 +484,145 @@ func (c *WalletClient) mutate(ctx context.Context, m *WalletMutation) (Value, er
 	}
 }
 
+// WalletTransactionClient is a client for the WalletTransaction schema.
+type WalletTransactionClient struct {
+	config
+}
+
+// NewWalletTransactionClient returns a client for the WalletTransaction from the given config.
+func NewWalletTransactionClient(c config) *WalletTransactionClient {
+	return &WalletTransactionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `wallettransaction.Hooks(f(g(h())))`.
+func (c *WalletTransactionClient) Use(hooks ...Hook) {
+	c.hooks.WalletTransaction = append(c.hooks.WalletTransaction, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `wallettransaction.Intercept(f(g(h())))`.
+func (c *WalletTransactionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.WalletTransaction = append(c.inters.WalletTransaction, interceptors...)
+}
+
+// Create returns a builder for creating a WalletTransaction entity.
+func (c *WalletTransactionClient) Create() *WalletTransactionCreate {
+	mutation := newWalletTransactionMutation(c.config, OpCreate)
+	return &WalletTransactionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of WalletTransaction entities.
+func (c *WalletTransactionClient) CreateBulk(builders ...*WalletTransactionCreate) *WalletTransactionCreateBulk {
+	return &WalletTransactionCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *WalletTransactionClient) MapCreateBulk(slice any, setFunc func(*WalletTransactionCreate, int)) *WalletTransactionCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &WalletTransactionCreateBulk{err: fmt.Errorf("calling to WalletTransactionClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*WalletTransactionCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &WalletTransactionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for WalletTransaction.
+func (c *WalletTransactionClient) Update() *WalletTransactionUpdate {
+	mutation := newWalletTransactionMutation(c.config, OpUpdate)
+	return &WalletTransactionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *WalletTransactionClient) UpdateOne(_m *WalletTransaction) *WalletTransactionUpdateOne {
+	mutation := newWalletTransactionMutation(c.config, OpUpdateOne, withWalletTransaction(_m))
+	return &WalletTransactionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *WalletTransactionClient) UpdateOneID(id int) *WalletTransactionUpdateOne {
+	mutation := newWalletTransactionMutation(c.config, OpUpdateOne, withWalletTransactionID(id))
+	return &WalletTransactionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for WalletTransaction.
+func (c *WalletTransactionClient) Delete() *WalletTransactionDelete {
+	mutation := newWalletTransactionMutation(c.config, OpDelete)
+	return &WalletTransactionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *WalletTransactionClient) DeleteOne(_m *WalletTransaction) *WalletTransactionDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *WalletTransactionClient) DeleteOneID(id int) *WalletTransactionDeleteOne {
+	builder := c.Delete().Where(wallettransaction.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &WalletTransactionDeleteOne{builder}
+}
+
+// Query returns a query builder for WalletTransaction.
+func (c *WalletTransactionClient) Query() *WalletTransactionQuery {
+	return &WalletTransactionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeWalletTransaction},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a WalletTransaction entity by its id.
+func (c *WalletTransactionClient) Get(ctx context.Context, id int) (*WalletTransaction, error) {
+	return c.Query().Where(wallettransaction.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *WalletTransactionClient) GetX(ctx context.Context, id int) *WalletTransaction {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *WalletTransactionClient) Hooks() []Hook {
+	return c.hooks.WalletTransaction
+}
+
+// Interceptors returns the client interceptors.
+func (c *WalletTransactionClient) Interceptors() []Interceptor {
+	return c.inters.WalletTransaction
+}
+
+func (c *WalletTransactionClient) mutate(ctx context.Context, m *WalletTransactionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&WalletTransactionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&WalletTransactionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&WalletTransactionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&WalletTransactionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown WalletTransaction mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Gift, GiftRecord, Wallet []ent.Hook
+		Gift, Wallet, WalletTransaction []ent.Hook
 	}
 	inters struct {
-		Gift, GiftRecord, Wallet []ent.Interceptor
+		Gift, Wallet, WalletTransaction []ent.Interceptor
 	}
 )

@@ -4,9 +4,9 @@ package ent
 
 import (
 	"live-interact-engine/services/gift-service/ent/gift"
-	"live-interact-engine/services/gift-service/ent/giftrecord"
 	"live-interact-engine/services/gift-service/ent/schema"
 	"live-interact-engine/services/gift-service/ent/wallet"
+	"live-interact-engine/services/gift-service/ent/wallettransaction"
 	"time"
 
 	"github.com/google/uuid"
@@ -67,22 +67,6 @@ func init() {
 	giftDescID := giftFields[0].Descriptor()
 	// gift.DefaultID holds the default value on creation for the id field.
 	gift.DefaultID = giftDescID.Default.(func() uuid.UUID)
-	giftrecordFields := schema.GiftRecord{}.Fields()
-	_ = giftrecordFields
-	// giftrecordDescAmount is the schema descriptor for amount field.
-	giftrecordDescAmount := giftrecordFields[5].Descriptor()
-	// giftrecord.AmountValidator is a validator for the "amount" field. It is called by the builders before save.
-	giftrecord.AmountValidator = giftrecordDescAmount.Validators[0].(func(int64) error)
-	// giftrecordDescCreatedAt is the schema descriptor for created_at field.
-	giftrecordDescCreatedAt := giftrecordFields[7].Descriptor()
-	// giftrecord.DefaultCreatedAt holds the default value on creation for the created_at field.
-	giftrecord.DefaultCreatedAt = giftrecordDescCreatedAt.Default.(func() time.Time)
-	// giftrecordDescUpdatedAt is the schema descriptor for updated_at field.
-	giftrecordDescUpdatedAt := giftrecordFields[8].Descriptor()
-	// giftrecord.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	giftrecord.DefaultUpdatedAt = giftrecordDescUpdatedAt.Default.(func() time.Time)
-	// giftrecord.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	giftrecord.UpdateDefaultUpdatedAt = giftrecordDescUpdatedAt.UpdateDefault.(func() time.Time)
 	walletFields := schema.Wallet{}.Fields()
 	_ = walletFields
 	// walletDescBalance is the schema descriptor for balance field.
@@ -103,4 +87,20 @@ func init() {
 	wallet.DefaultUpdatedAt = walletDescUpdatedAt.Default.(func() time.Time)
 	// wallet.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	wallet.UpdateDefaultUpdatedAt = walletDescUpdatedAt.UpdateDefault.(func() time.Time)
+	wallettransactionFields := schema.WalletTransaction{}.Fields()
+	_ = wallettransactionFields
+	// wallettransactionDescStatus is the schema descriptor for status field.
+	wallettransactionDescStatus := wallettransactionFields[7].Descriptor()
+	// wallettransaction.DefaultStatus holds the default value on creation for the status field.
+	wallettransaction.DefaultStatus = wallettransactionDescStatus.Default.(string)
+	// wallettransactionDescCreatedAt is the schema descriptor for created_at field.
+	wallettransactionDescCreatedAt := wallettransactionFields[8].Descriptor()
+	// wallettransaction.DefaultCreatedAt holds the default value on creation for the created_at field.
+	wallettransaction.DefaultCreatedAt = wallettransactionDescCreatedAt.Default.(func() time.Time)
+	// wallettransactionDescUpdatedAt is the schema descriptor for updated_at field.
+	wallettransactionDescUpdatedAt := wallettransactionFields[9].Descriptor()
+	// wallettransaction.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	wallettransaction.DefaultUpdatedAt = wallettransactionDescUpdatedAt.Default.(func() time.Time)
+	// wallettransaction.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	wallettransaction.UpdateDefaultUpdatedAt = wallettransactionDescUpdatedAt.UpdateDefault.(func() time.Time)
 }

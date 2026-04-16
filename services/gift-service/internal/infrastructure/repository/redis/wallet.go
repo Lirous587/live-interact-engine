@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -113,10 +114,10 @@ func (c *walletCache) DeductByLua(ctx context.Context, userID uuid.UUID, amount 
 		return 0, err
 	}
 
-	// 解析返回值
+	// 解析返回值（安全的类型转换）
 	results := result.([]interface{})
-	code := int64(results[0].(int64))
-	newBalance := int64(results[1].(int64))
+	code := toInt64(results[0])
+	newBalance := toInt64(results[1])
 
 	switch code {
 	case 1:
@@ -140,9 +141,10 @@ func (c *walletCache) IncrementByLua(ctx context.Context, userID uuid.UUID, amou
 		return 0, err
 	}
 
+	// 解析返回值（安全的类型转换）
 	results := result.([]interface{})
-	code := int64(results[0].(int64))
-	newBalance := int64(results[1].(int64))
+	code := toInt64(results[0])
+	newBalance := toInt64(results[1])
 
 	switch code {
 	case 1:
@@ -158,4 +160,24 @@ func (c *walletCache) IncrementByLua(ctx context.Context, userID uuid.UUID, amou
 func (c *walletCache) DeleteBalance(ctx context.Context, userID uuid.UUID) error {
 	key := c.prefix + userID.String()
 	return c.client.Del(ctx, key).Err()
+}
+
+// toInt64 将 interface{} 安全转换为 int64（处理 int64、string 等多种类型）
+func toInt64(v interface{}) int64 {
+	switch val := v.(type) {
+	case int64:
+		return val
+	case int:
+		return int64(val)
+	case float64:
+		return int64(val)
+	case string:
+		// 尝试从字符串解析
+		if i, err := strconv.ParseInt(val, 10, 64); err == nil {
+			return i
+		}
+		return 0
+	default:
+		return 0
+	}
 }

@@ -7,6 +7,12 @@ import (
 	"github.com/google/uuid"
 )
 
+// Tx 事务接口
+type Tx interface {
+	Commit() error
+	Rollback() error
+}
+
 // Wallet 用户钱包领域模型
 type Wallet struct {
 	UserID        uuid.UUID
@@ -48,14 +54,26 @@ type WalletService interface {
 	GetWallet(ctx context.Context, userID uuid.UUID) (*Wallet, error)
 	DeductBalance(ctx context.Context, userID uuid.UUID, amount int64, idempotencyKey uuid.UUID) (int64, error)
 	IncrementBalance(ctx context.Context, userID uuid.UUID, amount int64, idempotencyKey uuid.UUID) (int64, error)
+	InitializeWallet(ctx context.Context, userID uuid.UUID) error
 }
 
 type WalletRepository interface {
-	SaveWallet(ctx context.Context, wallet *Wallet) error
+	// CreateWallet 创建新钱包（用户注册时）
+	CreateWallet(ctx context.Context, wallet *Wallet) error
+
+	// UpdateWallet 更新钱包余额（Consumer 调用，带乐观锁）
+	// 返回 ErrVersionConflict 如果版本不符
+	UpdateWallet(ctx context.Context, wallet *Wallet) error
 
 	GetWallet(ctx context.Context, userID uuid.UUID) (*Wallet, error)
 
 	DeleteWallet(ctx context.Context, userID uuid.UUID) error
+
+	// Tx 开启事务
+	Tx(ctx context.Context) (Tx, error)
+
+	// UpdateWalletTx 在事务内更新钱包（带乐观锁）
+	UpdateWalletTx(ctx context.Context, tx Tx, wallet *Wallet) error
 }
 
 // WalletCache 钱包缓存接口

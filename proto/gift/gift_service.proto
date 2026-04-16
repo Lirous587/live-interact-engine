@@ -12,11 +12,3 @@ service GiftService {
   // 获取全量礼物列表
   rpc ListGifts(ListGiftsRequest) returns (ListGiftsResponse);
 }
-
-// ==================== Internal Service（内部调用）====================
-service GiftRecordService {
-  // 根据幂等性 key 查询礼物记录
-  rpc GetGiftRecord(GetGiftRecordRequest) returns (GetGiftRecordResponse);
-  // 查询房间内的礼物流水（支持分页）
-  rpc ListGiftRecordsByRoom(ListGiftRecordsByRoomRequest) returns (ListGiftRecordsByRoomResponse);
-}

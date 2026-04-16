@@ -7,8 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"live-interact-engine/services/gift-service/ent/gift"
-	"live-interact-engine/services/gift-service/ent/giftrecord"
 	"live-interact-engine/services/gift-service/ent/wallet"
+	"live-interact-engine/services/gift-service/ent/wallettransaction"
 	"reflect"
 	"sync"
 
@@ -75,9 +75,9 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			gift.Table:       gift.ValidColumn,
-			giftrecord.Table: giftrecord.ValidColumn,
-			wallet.Table:     wallet.ValidColumn,
+			gift.Table:              gift.ValidColumn,
+			wallet.Table:            wallet.ValidColumn,
+			wallettransaction.Table: wallettransaction.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)
