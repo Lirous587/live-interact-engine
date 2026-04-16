@@ -82,3 +82,5 @@ spec:
       targetPort: 6832
       protocol: UDP
     - name: grpc
+      port: 14250
+      targetPort: 14250
