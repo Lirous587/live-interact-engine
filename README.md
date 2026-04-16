@@ -111,30 +111,28 @@
 
 ```
 live-interact-engine/
-├── services/                  # 微服务目录
-│   ├── api-service/          # HTTP 网关
-│   ├── user-service/         # 用户服务
-│   ├── room-service/         # 房间服务
-│   ├── gift-service/         # 打赏/钱包服务
-│   └── danmaku-service/      # 弹幕服务
-│
-├── shared/                    # 共享库
-│   ├── logger/               # 日志工具
-│   ├── jwt/                  # JWT 认证
-│   ├── crypto/               # 加密工具
-│   ├── svcerr/               # 错误处理
-│   ├── env/                  # 环境变量
-│   ├── telemetry/            # 链路追踪、指标
-│   └── proto/                # gRPC Protocol Buffer
-│
-├── infra/                     # 基础设施配置
-│   ├── postgres/             # 数据库初始化脚本
-│   ├── development/          # 开发环境配置
-│   └── production/           # 生产环境配置
-│
-├── proto/                     # Protocol Buffer 定义
-├── docs/                      # 文档
+├── api/                       # API 文档
 ├── build/                     # 编译产物
+├── docs/                      # 文档
+├── infra/                     # 基础设施配置
+│   ├── development/           # 开发环境配置
+│   ├── postgres/              # 数据库初始化脚本
+│   └── production/            # 生产环境配置
+├── proto/                     # Protocol Buffer 定义
+├── services/                  # 微服务目录
+│   ├── api-service/           # HTTP 网关
+│   ├── danmaku-service/       # 弹幕服务
+│   ├── gift-service/          # 打赏/钱包服务
+│   ├── room-service/          # 房间服务
+│   └── user-service/          # 用户服务
+├── shared/                    # 共享库
+│   ├── crypto/                # 加密工具
+│   ├── env/                   # 环境变量
+│   ├── jwt/                   # JWT 认证
+│   ├── logger/                # 日志工具
+│   ├── proto/                 # gRPC Protocol Buffer
+│   ├── svcerr/                # 错误处理
+│   └── telemetry/             # 链路追踪、指标
 ├── docker-compose.yml         # 本地开发环境
 ├── Dockerfile*                # 服务容器镜像
 └── Makefile                   # 构建脚本
@@ -318,3 +316,5 @@ make test-integration
 ## 许可证
 
 MIT License
+
+Copyright (c) 2026 lirous587
