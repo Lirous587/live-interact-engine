@@ -1,0 +1,54 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-service-pdb
+  namespace: live-interact
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: api-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: gift-service-pdb
+  namespace: live-interact
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: gift-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: user-service-pdb
+  namespace: live-interact
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: user-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: room-service-pdb
+  namespace: live-interact
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: room-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: danmaku-service-pdb
+  namespace: live-interact
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: danmaku-service

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gift-service
+  labels:
+    app: gift-service
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gift-service
+  template:
+    metadata:
+      labels:
+        app: gift-service
+    spec:
+      containers:
+        - name: gift-service
+          image: live-interact/gift-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: grpc
+              containerPort: 9096
+          env:
+            - name: LOG_LEVEL
+              value: "debug"
+            - name: ENV
+              value: "development"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            exec:
+              command: ["grpc_health_probe", "-addr=:9096"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command: ["grpc_health_probe", "-addr=:9096"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gift-service
+spec:
+  type: ClusterIP
+  selector:
+    app: gift-service
+  ports:
+    - name: grpc
+      port: 9096
+      targetPort: 9096

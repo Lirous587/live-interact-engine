@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: live-interact
+data:
+  # Service endpoints
+  USER_SERVICE_HOST: "user-service"
+  USER_SERVICE_PORT: "9094"
+
+  ROOM_SERVICE_HOST: "room-service"
+  ROOM_SERVICE_PORT: "9095"
+
+  GIFT_SERVICE_HOST: "gift-service"
+  GIFT_SERVICE_PORT: "9096"
+
+  DANMAKU_SERVICE_HOST: "danmaku-service"
+  DANMAKU_SERVICE_PORT: "9093"
+
+  # RabbitMQ
+  RABBITMQ_HOST: "rabbitmq"
+  RABBITMQ_PORT: "5672"
+
+  # Redis
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+
+  # PostgreSQL
+  POSTGRES_HOST: "postgres"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "live_interact"
+
+  # Jaeger
+  JAEGER_AGENT_HOST: "jaeger"
+  JAEGER_AGENT_PORT: "6831"
+
+  # Logging
+  LOG_LEVEL: "info"
+  LOG_FORMAT: "json"
+
+  # Environment
+  ENV: "production"

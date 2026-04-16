@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gift-service
+  namespace: live-interact
+  labels:
+    app: gift-service
+    version: v1
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: gift-service
+  template:
+    metadata:
+      labels:
+        app: gift-service
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - gift-service
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: gift-service
+          image: live-interact/gift-service:latest
+          imagePullPolicy: Always
+          ports:
+            - name: grpc
+              containerPort: 9096
+          env:
+            - name: LOG_LEVEL
+              value: "info"
+            - name: ENV
+              value: "production"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          livenessProbe:
+            exec:
+              command: ["grpc_health_probe", "-addr=:9096"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command: ["grpc_health_probe", "-addr=:9096"]
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 2
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gift-service
+  namespace: live-interact
+spec:
+  type: ClusterIP
+  selector:
+    app: gift-service
+  ports:
+    - name: grpc
+      port: 9096
+      targetPort: 9096
