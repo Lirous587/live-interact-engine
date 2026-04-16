@@ -58,10 +58,22 @@ func (s *WalletService) DeductBalance(ctx context.Context, userID uuid.UUID, amo
 			return 0, err
 		}
 
-		balance := int64(0)
-		if wallet != nil {
-			balance = wallet.Balance
+		// 如果钱包不存在，创建钱包（托底工作）
+		if wallet == nil {
+			newWallet := &domain.Wallet{
+				UserID:  userID,
+				Balance: 0,
+			}
+			if err := s.walletRepo.SaveWallet(ctx, newWallet); err != nil {
+				zap.L().Error("failed to create wallet for user",
+					zap.String("user_id", userID.String()),
+					zap.Error(err))
+				return 0, err
+			}
+			wallet = newWallet
 		}
+
+		balance := wallet.Balance
 
 		// 写入 Redis 缓存
 		if err := s.walletCache.SetBalance(ctx, userID, balance); err != nil {
@@ -86,10 +98,22 @@ func (s *WalletService) IncrementBalance(ctx context.Context, userID uuid.UUID, 
 			return 0, err
 		}
 
-		balance := int64(0)
-		if wallet != nil {
-			balance = wallet.Balance
+		// 如果钱包不存在，创建钱包（托底工作）
+		if wallet == nil {
+			newWallet := &domain.Wallet{
+				UserID:  userID,
+				Balance: 0,
+			}
+			if err := s.walletRepo.SaveWallet(ctx, newWallet); err != nil {
+				zap.L().Error("failed to create wallet for user",
+					zap.String("user_id", userID.String()),
+					zap.Error(err))
+				return 0, err
+			}
+			wallet = newWallet
 		}
+
+		balance := wallet.Balance
 
 		// 写入 Redis 缓存
 		if err := s.walletCache.SetBalance(ctx, userID, balance); err != nil {
