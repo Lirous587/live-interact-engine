@@ -75,4 +75,11 @@ func main() {
 	// 优雅关闭
 	grpcServer.GracefulStop()
 	log.Println("gRPC 服务已关闭")
+
+	// 关闭 gift-service gRPC 连接
+	if err := handlers.GiftServiceClient.Close(); err != nil {
+		log.Printf("关闭 gift-service 连接失败: %v", err)
+	} else {
+		log.Println("gift-service 连接已关闭")
+	}
 }

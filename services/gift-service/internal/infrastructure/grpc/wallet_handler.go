@@ -50,3 +50,19 @@ func (h *WalletHandler) GetWalletBalance(ctx context.Context, req *pb.GetWalletB
 		Wallet: adapter.WalletToDomainPB(wallet),
 	}, nil
 }
+
+// InitializeWallet 初始化用户钱包（在用户注册时调用）
+func (h *WalletHandler) InitializeWallet(ctx context.Context, req *pb.InitializeWalletRequest) (*pb.InitializeWalletResponse, error) {
+	span := trace.SpanFromContext(ctx)
+
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	if err := h.walletService.InitializeWallet(ctx, userID); err != nil {
+		return nil, svcerr.MapServiceErrorToGRPC(err, span)
+	}
+
+	return &pb.InitializeWalletResponse{}, nil
+}

@@ -113,10 +113,14 @@ services:
 
       # 链路追踪
       - JAEGER_ENDPOINT=jaeger:4318
+
+      # Gift Service 地址
+      - GIFT_SERVICE_ADDR=gift-service:9096
     depends_on:
       - jaeger
       - redis
       - postgres
+      - gift-service
     networks:
       - live-interact
 

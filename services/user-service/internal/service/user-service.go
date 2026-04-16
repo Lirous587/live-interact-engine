@@ -7,20 +7,24 @@ import (
 	"live-interact-engine/services/user-service/internal/domain"
 	"live-interact-engine/services/user-service/pkg/types"
 	"live-interact-engine/shared/crypto"
+	pb "live-interact-engine/shared/proto/gift"
 
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type UserService struct {
-	userRepo     domain.UserRepository
-	passwordMgr  *crypto.PasswordManager
-	tokenService domain.TokenService
+	userRepo            domain.UserRepository
+	passwordMgr         *crypto.PasswordManager
+	tokenService        domain.TokenService
+	giftWalletClient    pb.WalletServiceClient
 }
 
-func NewUserService(userRepo domain.UserRepository) (domain.UserService, error) {
+func NewUserService(userRepo domain.UserRepository, giftWalletClient pb.WalletServiceClient) (domain.UserService, error) {
 	return &UserService{
-		userRepo:    userRepo,
-		passwordMgr: crypto.NewPasswordManager(12),
+		userRepo:            userRepo,
+		passwordMgr:         crypto.NewPasswordManager(12),
+		giftWalletClient:    giftWalletClient,
 	}, nil
 }
 
@@ -81,6 +85,18 @@ func (s *UserService) Register(ctx context.Context, username, email, password st
 	// 4. 保存用户到数据库
 	if err := s.userRepo.SaveUser(ctx, user); err != nil {
 		return nil, err
+	}
+
+	// 5. 初始化钱包（调用 gift-service gRPC）
+	initWalletReq := &pb.InitializeWalletRequest{
+		UserId: userID.String(),
+	}
+	_, err = s.giftWalletClient.InitializeWallet(ctx, initWalletReq)
+	if err != nil {
+		// 钱包初始化失败，记录错误但不阻止用户注册
+		zap.L().Error("failed to initialize wallet for user",
+			zap.String("user_id", userID.String()),
+			zap.Error(err))
 	}
 
 	return user, nil

@@ -104,3 +104,34 @@ func (s *WalletService) IncrementBalance(ctx context.Context, userID uuid.UUID, 
 
 	return s.walletCache.IncrementByLua(ctx, userID, amount, idempotencyKey)
 }
+
+// InitializeWallet 初始化新用户的钱包（从 user-service 调用）
+func (s *WalletService) InitializeWallet(ctx context.Context, userID uuid.UUID) error {
+	// 1. 创建钱包记录到数据库（初始余额为 0）
+	wallet := &domain.Wallet{
+		UserID:  userID,
+		Balance: 0,
+	}
+
+	if err := s.walletRepo.SaveWallet(ctx, wallet); err != nil {
+		return err
+	}
+
+	// 2. 写入 Redis 缓存
+	if err := s.walletCache.SetBalance(ctx, userID, 0); err != nil {
+		zap.L().Warn("failed to set wallet balance to cache",
+			zap.String("user_id", userID.String()),
+			zap.Error(err))
+		// 不返回错误，因为 DB 已经保存了
+	}
+
+	// 3. 标记为已初始化
+	if err := s.walletFilter.Add(ctx, userID); err != nil {
+		zap.L().Warn("failed to add wallet filter",
+			zap.String("user_id", userID.String()),
+			zap.Error(err))
+		// 不返回错误
+	}
+
+	return nil
+}

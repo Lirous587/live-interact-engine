@@ -10,9 +10,21 @@ service WalletService {
   // 查询钱包余额
   rpc GetWalletBalance(GetWalletBalanceRequest) returns (GetWalletBalanceResponse);
 
+  // 初始化用户钱包（在用户注册时调用）
+  rpc InitializeWallet(InitializeWalletRequest) returns (InitializeWalletResponse);
+
   // 充值（未来扩展）
   // rpc Recharge(RechargeRequest) returns (RechargeResponse);
 
   // 提现（未来扩展）
   // rpc Withdraw(WithdrawRequest) returns (WithdrawResponse);
+}
+
+// ==================== InitializeWallet Messages ====================
+
+message InitializeWalletRequest {
+  string user_id = 1; // UUID
+}
+
+message InitializeWalletResponse {
 }

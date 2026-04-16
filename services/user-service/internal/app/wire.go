@@ -8,6 +8,8 @@ import (
 	"live-interact-engine/services/user-service/internal/infrastructure/repository/redis"
 	"live-interact-engine/services/user-service/internal/service"
 	"log"
+
+	"google.golang.org/grpc"
 )
 
 // Services 包含所有业务服务
@@ -18,13 +20,22 @@ type Services struct {
 
 // Handlers 包含所有 gRPC handlers
 type Handlers struct {
-	UserHandler  *grpc_handler.UserHandler
-	TokenHandler *grpc_handler.TokenHandler
+	UserHandler       *grpc_handler.UserHandler
+	TokenHandler      *grpc_handler.TokenHandler
+	GiftServiceClient *grpc.ClientConn // gift-service gRPC 连接，用于优雅关闭
 }
 
 // InitDependencies 初始化所有依赖
 func InitDependencies() (*Handlers, error) {
 	ctx := context.Background()
+
+	// ==================== 初始化 gRPC 客户端 ====================
+
+	// 初始化 gift-service gRPC client
+	giftWalletClient, giftClientConn, err := InitGiftServiceClient()
+	if err != nil {
+		log.Fatalf("初始化 gift-service 客户端失败: %v", err)
+	}
 
 	// ==================== 初始化 Repositories ====================
 
@@ -50,8 +61,8 @@ func InitDependencies() (*Handlers, error) {
 
 	// ==================== 初始化 Services ====================
 
-	// 先初始化 UserService（不需要 tokenService）
-	userService, err := service.NewUserService(userRepo)
+	// 先初始化 UserService（带 giftWalletClient）
+	userService, err := service.NewUserService(userRepo, giftWalletClient)
 	if err != nil {
 		log.Fatalf("初始化 UserService 失败: %v", err)
 	}
@@ -73,7 +84,8 @@ func InitDependencies() (*Handlers, error) {
 	tokenHandler := grpc_handler.NewTokenHandler(tokenService)
 
 	return &Handlers{
-		UserHandler:  userHandler,
-		TokenHandler: tokenHandler,
+		UserHandler:       userHandler,
+		TokenHandler:      tokenHandler,
+		GiftServiceClient: giftClientConn,
 	}, nil
 }
