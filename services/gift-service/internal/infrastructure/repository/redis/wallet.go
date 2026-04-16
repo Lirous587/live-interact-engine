@@ -8,6 +8,7 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"live-interact-engine/services/gift-service/internal/domain"
+	"live-interact-engine/services/gift-service/pkg/types"
 )
 
 // walletCache Redis 钱包缓存实现
@@ -121,9 +122,9 @@ func (c *walletCache) DeductByLua(ctx context.Context, userID uuid.UUID, amount 
 	case 1:
 		return newBalance, nil // 扣款成功
 	case 0:
-		return newBalance, domain.ErrInvalidAmount // 幂等防重，已处理过
+		return newBalance, types.ErrInvalidAmount // 幂等防重，已处理过
 	case -1:
-		return newBalance, domain.ErrInsufficientBalance // 余额不足
+		return newBalance, types.ErrInsufficientBalance // 余额不足
 	default:
 		return 0, fmt.Errorf("unknown error code: %d", code)
 	}
@@ -147,13 +148,13 @@ func (c *walletCache) IncrementByLua(ctx context.Context, userID uuid.UUID, amou
 	case 1:
 		return newBalance, nil // 增加成功
 	case 0:
-		return newBalance, domain.ErrInvalidAmount // 幂等防重
+		return newBalance, types.ErrInvalidAmount // 幂等防重
 	default:
 		return 0, fmt.Errorf("unknown error code: %d", code)
 	}
 }
 
-// DeleteBalance 删除余额缓存（测试用）
+// DeleteBalance 删除余额缓存
 func (c *walletCache) DeleteBalance(ctx context.Context, userID uuid.UUID) error {
 	key := c.prefix + userID.String()
 	return c.client.Del(ctx, key).Err()

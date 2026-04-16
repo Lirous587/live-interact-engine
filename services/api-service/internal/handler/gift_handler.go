@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"errors"
 	"live-interact-engine/services/api-service/internal/adapter/mapper"
+	"live-interact-engine/services/api-service/internal/utils/ctxutil"
 	"live-interact-engine/services/api-service/internal/utils/response"
 
 	"github.com/gin-gonic/gin"
@@ -42,6 +44,14 @@ func (h *GiftHandler) SendGift(ctx *gin.Context) {
 		response.InvalidParams(ctx, err)
 		return
 	}
+
+	userID, ok := ctxutil.GetUserID(ctx)
+	if !ok || userID == "" {
+		response.InvalidParams(ctx, errors.New("user_id not found in auth context"))
+		return
+	}
+
+	req.SetUserID(userID)
 
 	resp, err := h.giftMapper.SendGift(ctx.Request.Context(), &req)
 	if err != nil {

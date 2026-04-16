@@ -44,24 +44,24 @@ func (w *Wallet) Recharge(amount int64) error {
 	return nil
 }
 
-// WalletRepository 钱包仓储接口
+type WalletService interface {
+	GetWallet(ctx context.Context, userID uuid.UUID) (*Wallet, error)
+	DeductBalance(ctx context.Context, userID uuid.UUID, amount int64, idempotencyKey uuid.UUID) (int64, error)
+	IncrementBalance(ctx context.Context, userID uuid.UUID, amount int64, idempotencyKey uuid.UUID) (int64, error)
+}
+
 type WalletRepository interface {
-	// SaveWallet 保存或更新钱包
 	SaveWallet(ctx context.Context, wallet *Wallet) error
 
-	// GetWallet 根据用户ID获取钱包
 	GetWallet(ctx context.Context, userID uuid.UUID) (*Wallet, error)
 
-	// DeleteWallet 删除钱包
 	DeleteWallet(ctx context.Context, userID uuid.UUID) error
 }
 
 // WalletCache 钱包缓存接口
 type WalletCache interface {
-	// GetBalance 获取用户余额
 	GetBalance(ctx context.Context, userID uuid.UUID) (int64, error)
 
-	// SetBalance 设置用户余额
 	SetBalance(ctx context.Context, userID uuid.UUID, balance int64) error
 
 	// DeductByLua 使用 Lua 脚本原子扣款
@@ -71,7 +71,12 @@ type WalletCache interface {
 
 	// IncrementByLua 使用 Lua 脚本原子增加余额（充值）
 	IncrementByLua(ctx context.Context, userID uuid.UUID, amount int64, idempotencyKey uuid.UUID) (int64, error)
+}
 
-	// DeleteBalance 删除余额缓存（测试用）
-	DeleteBalance(ctx context.Context, userID uuid.UUID) error
+type WalletFilter interface {
+	// Exists 判断用户钱包是否已初始化
+	Exists(ctx context.Context, userID uuid.UUID) bool
+
+	// Add 添加用户（标记为已初始化）
+	Add(ctx context.Context, userID uuid.UUID) error
 }

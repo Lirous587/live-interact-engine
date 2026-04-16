@@ -41,6 +41,19 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize dependencies: %v", err)
 	}
+	defer app.Close(deps)
+
+	// 启动 RabbitMQ Consumer
+	if deps.Consumer != nil {
+		go func() {
+			if err := deps.Consumer.Start(context.Background()); err != nil {
+				log.Printf("Consumer exited: %v", err)
+			}
+		}()
+		log.Println("Gift consumer started in background")
+	} else {
+		log.Println("Warning: Gift consumer not initialized, will not consume messages")
+	}
 
 	// 启动 gRPC 服务器
 	listener, err := net.Listen("tcp", grpcAddr)
@@ -73,13 +86,6 @@ func main() {
 
 	<-sigChan
 	log.Println("Shutting down gift service...")
-
-	// 关闭 Publisher
-	if deps.Publisher != nil {
-		if err := deps.Publisher.Close(); err != nil {
-			log.Printf("Failed to close Publisher: %v", err)
-		}
-	}
 
 	grpcServer.GracefulStop()
 	log.Println("Gift service stopped")

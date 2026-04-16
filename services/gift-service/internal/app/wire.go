@@ -4,14 +4,14 @@ import (
 	"context"
 	"live-interact-engine/services/gift-service/internal/domain"
 	"live-interact-engine/services/gift-service/internal/infrastructure/events"
+	"live-interact-engine/services/gift-service/internal/infrastructure/filter/memory"
 	"live-interact-engine/services/gift-service/internal/infrastructure/grpc"
 	"live-interact-engine/services/gift-service/internal/infrastructure/repository/postgres"
 	"live-interact-engine/services/gift-service/internal/infrastructure/repository/redis"
 	"live-interact-engine/services/gift-service/internal/service"
 	"live-interact-engine/shared/env"
 	"log"
-
-	"github.com/jackc/pgx/v5/pgxpool"
+	"time"
 )
 
 // Deps 包含所有依赖
@@ -25,6 +25,7 @@ type Deps struct {
 	WalletService      *service.WalletService
 	GiftRecordService  domain.GiftRecordService
 	Publisher          *events.Publisher
+	Consumer           *events.Consumer
 	GiftHandler        *grpc.GiftHandler
 	GiftRecordHandler  *grpc.GiftRecordHandler
 	WalletHandler      *grpc.WalletHandler
@@ -51,23 +52,36 @@ func InitDependencies(ctx context.Context) (*Deps, error) {
 
 	giftCache := redis.NewGiftCache(redisClient)
 	walletCache := redis.NewWalletCache(redisClient)
+	walletFilter := memory.NewLocalWalletFilter(time.Hour * 1)
 
 	// ==================== 初始化 Services ====================
 	giftService := service.NewGiftService(giftRepo, giftCache)
-	walletService := service.NewWalletService(walletRepo, walletCache)
+	walletService := service.NewWalletService(walletRepo, walletCache, walletFilter)
 	giftRecordService := service.NewGiftRecordService(giftRecordRepo, giftRepo, walletService)
 
-	// ==================== 初始化 RabbitMQ Publisher ====================
-
+	// ==================== 初始化 RabbitMQ ====================
 	rabbitmqURL := env.GetString("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/")
+
+	// Publisher
 	publisher, err := events.NewPublisher(rabbitmqURL)
 	if err != nil {
 		log.Printf("警告: RabbitMQ Publisher 初始化失败: %v（将以非关键模式继续）", err)
-		// 不中断启动，Publisher 为 nil 时处理
+	}
+
+	// Consumer
+	consumer, err := events.NewConsumer(
+		rabbitmqURL,
+		giftRecordRepo,
+		walletRepo,
+		walletService,
+	)
+	if err != nil {
+		log.Printf("警告: RabbitMQ Consumer 初始化失败: %v", err)
+		consumer = nil
 	}
 
 	// ==================== 初始化 gRPC Handlers ====================
-	giftHandler := grpc.NewGiftHandler(giftService, giftRecordService, publisher)
+	giftHandler := grpc.NewGiftHandler(giftService, giftRecordService, walletService, publisher)
 	giftRecordHandler := grpc.NewGiftRecordHandler(giftRecordService)
 	walletHandler := grpc.NewWalletHandler(walletService)
 	leaderboardHandler := grpc.NewLeaderboardHandler()
@@ -82,6 +96,7 @@ func InitDependencies(ctx context.Context) (*Deps, error) {
 		WalletService:      walletService,
 		GiftRecordService:  giftRecordService,
 		Publisher:          publisher,
+		Consumer:           consumer,
 		GiftHandler:        giftHandler,
 		GiftRecordHandler:  giftRecordHandler,
 		WalletHandler:      walletHandler,
@@ -90,9 +105,12 @@ func InitDependencies(ctx context.Context) (*Deps, error) {
 }
 
 // Close 关闭资源
-func Close(pool *pgxpool.Pool) error {
-	if pool != nil {
-		pool.Close()
+func Close(deps *Deps) error {
+	if deps.Consumer != nil {
+		deps.Consumer.Close()
+	}
+	if deps.Publisher != nil {
+		deps.Publisher.Close()
 	}
 	return nil
 }

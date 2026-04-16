@@ -18,7 +18,8 @@ message SendGiftRequest {
 }
 
 message SendGiftResponse {
-  GiftRecord gift_record = 1;
+  string user_id = 1;
+  int64  balance  = 2;
 }
 
 // ==================== GetWalletBalance Messages ====================

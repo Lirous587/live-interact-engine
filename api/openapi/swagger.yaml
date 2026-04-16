@@ -284,19 +284,13 @@ definitions:
         type: string
       gift_id:
         type: string
-      idempotency_key:
-        type: string
       room_id:
-        type: string
-      user_id:
         type: string
     required:
     - amount
     - anchor_id
     - gift_id
-    - idempotency_key
     - room_id
-    - user_id
     type: object
   mapper.UnmuteUserReq:
     properties:

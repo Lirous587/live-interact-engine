@@ -4,22 +4,26 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 
 	"live-interact-engine/services/gift-service/internal/domain"
 )
 
 type WalletService struct {
-	walletRepo  domain.WalletRepository
-	walletCache domain.WalletCache
+	walletRepo   domain.WalletRepository
+	walletCache  domain.WalletCache
+	walletFilter domain.WalletFilter
 }
 
 func NewWalletService(
 	walletRepo domain.WalletRepository,
 	walletCache domain.WalletCache,
+	walletFilter domain.WalletFilter,
 ) *WalletService {
 	return &WalletService{
-		walletRepo:  walletRepo,
-		walletCache: walletCache,
+		walletRepo:   walletRepo,
+		walletCache:  walletCache,
+		walletFilter: walletFilter,
 	}
 }
 
@@ -45,28 +49,58 @@ func (s *WalletService) GetWallet(ctx context.Context, userID uuid.UUID) (*domai
 	return wallet, nil
 }
 
-// SaveWallet 保存钱包（同时更新数据库和缓存）
-func (s *WalletService) SaveWallet(ctx context.Context, wallet *domain.Wallet) error {
-	// 同时更新数据库和缓存
-	if err := s.walletRepo.SaveWallet(ctx, wallet); err != nil {
-		return err
-	}
-
-	// 将余额同步到缓存
-	if err := s.walletCache.SetBalance(ctx, wallet.UserID, wallet.Balance); err != nil {
-		// 缓存更新失败不影响主流程
-		_ = err
-	}
-
-	return nil
-}
-
 // DeductBalance 使用Redis Lua原子扣款
 func (s *WalletService) DeductBalance(ctx context.Context, userID uuid.UUID, amount int64, idempotencyKey uuid.UUID) (int64, error) {
+	// 检查过滤器，如果未初始化则从 DB 加载
+	if !s.walletFilter.Exists(ctx, userID) {
+		wallet, err := s.walletRepo.GetWallet(ctx, userID)
+		if err != nil {
+			return 0, err
+		}
+
+		balance := int64(0)
+		if wallet != nil {
+			balance = wallet.Balance
+		}
+
+		// 写入 Redis 缓存
+		if err := s.walletCache.SetBalance(ctx, userID, balance); err != nil {
+			return 0, err
+		}
+
+		// 标记为已初始化
+		if err := s.walletFilter.Add(ctx, userID); err != nil {
+			zap.L().Error("add wallet filter failed", zap.String("user_id", userID.String()), zap.Error(err))
+		}
+	}
+
 	return s.walletCache.DeductByLua(ctx, userID, amount, idempotencyKey)
 }
 
 // IncrementBalance 使用Redis Lua原子增加余额
 func (s *WalletService) IncrementBalance(ctx context.Context, userID uuid.UUID, amount int64, idempotencyKey uuid.UUID) (int64, error) {
+	// 检查过滤器，如果未初始化则从 DB 加载
+	if !s.walletFilter.Exists(ctx, userID) {
+		wallet, err := s.walletRepo.GetWallet(ctx, userID)
+		if err != nil {
+			return 0, err
+		}
+
+		balance := int64(0)
+		if wallet != nil {
+			balance = wallet.Balance
+		}
+
+		// 写入 Redis 缓存
+		if err := s.walletCache.SetBalance(ctx, userID, balance); err != nil {
+			return 0, err
+		}
+
+		// 标记为已初始化
+		if err := s.walletFilter.Add(ctx, userID); err != nil {
+			zap.L().Error("add wallet filter failed", zap.String("user_id", userID.String()), zap.Error(err))
+		}
+	}
+
 	return s.walletCache.IncrementByLua(ctx, userID, amount, idempotencyKey)
 }

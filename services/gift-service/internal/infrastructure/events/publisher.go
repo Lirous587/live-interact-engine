@@ -178,8 +178,8 @@ func (p *Publisher) PublishGiftSendSuccess(ctx context.Context, event *GiftSendS
 		)
 		if err == nil {
 			zap.L().Info("gift event published",
-				zap.String("user_id", event.UserID),
-				zap.String("anchor_id", event.AnchorID),
+				zap.String("user_id", event.UserID.String()),
+				zap.String("anchor_id", event.AnchorID.String()),
 				zap.Int64("amount", event.Amount),
 			)
 			return nil
@@ -190,7 +190,7 @@ func (p *Publisher) PublishGiftSendSuccess(ctx context.Context, event *GiftSendS
 
 	zap.L().Error("failed to publish event after retries",
 		zap.Error(lastErr),
-		zap.String("user_id", event.UserID),
+		zap.String("user_id", event.UserID.String()),
 	)
 	return lastErr
 }

@@ -1450,9 +1450,7 @@ const docTemplate = `{
                 "amount",
                 "anchor_id",
                 "gift_id",
-                "idempotency_key",
-                "room_id",
-                "user_id"
+                "room_id"
             ],
             "properties": {
                 "amount": {
@@ -1464,13 +1462,7 @@ const docTemplate = `{
                 "gift_id": {
                     "type": "string"
                 },
-                "idempotency_key": {
-                    "type": "string"
-                },
                 "room_id": {
-                    "type": "string"
-                },
-                "user_id": {
                     "type": "string"
                 }
             }

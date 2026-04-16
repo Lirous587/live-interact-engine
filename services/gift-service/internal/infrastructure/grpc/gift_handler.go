@@ -19,8 +19,9 @@ import (
 
 type GiftHandler struct {
 	pb.UnimplementedGiftServiceServer
-	giftService       *service.GiftService
+	giftService       domain.GiftService
 	giftRecordService domain.GiftRecordService
+	walletService     domain.WalletService
 	publisher         *events.Publisher
 }
 
@@ -28,11 +29,13 @@ type GiftHandler struct {
 func NewGiftHandler(
 	giftService *service.GiftService,
 	giftRecordService domain.GiftRecordService,
+	walletService domain.WalletService,
 	publisher *events.Publisher,
 ) *GiftHandler {
 	return &GiftHandler{
 		giftService:       giftService,
 		giftRecordService: giftRecordService,
+		walletService:     walletService,
 		publisher:         publisher,
 	}
 }
@@ -67,46 +70,46 @@ func (h *GiftHandler) SendGift(ctx context.Context, req *pb.SendGiftRequest) (*p
 		return nil, svcerr.MapServiceErrorToGRPC(err, span)
 	}
 
-	// 构建 GiftRecord 请求
-	createReq := &domain.CreateGiftRecordRequest{
-		IdempotencyKey: idempotencyKey,
-		UserID:         userID,
-		AnchorID:       anchorID,
-		RoomID:         roomID,
-		GiftID:         giftID,
-		Amount:         req.Amount,
-	}
-
-	// 通过 domain 工厂创建 GiftRecord
-	giftRecord, err := domain.NewGiftRecord(createReq)
+	// ==================== 权限检查 ====================
+	// TODO: 需要从用户服务获取用户的 VIP 状态，这里暂时假设为 false
+	_, err = h.giftService.ValidateSendGiftRequest(ctx, userID, anchorID, giftID, req.Amount, false)
 	if err != nil {
 		return nil, svcerr.MapServiceErrorToGRPC(err, span)
 	}
 
-	// 保存 GiftRecord（contains idempotency check and balance deduction via Redis Lua）
-	// TODO: 实现完整的送礼流程（Redis Lua 扣款 + RabbitMQ 发布）
-	err = h.giftRecordService.SaveGiftRecord(ctx, giftRecord)
+	// ==================== 钱包扣款 ====================
+
+	// Redis Lua扣款
+	newBalance, err := h.walletService.DeductBalance(ctx, userID, req.Amount, idempotencyKey)
 	if err != nil {
 		return nil, svcerr.MapServiceErrorToGRPC(err, span)
 	}
 
-	// 异步发布 RabbitMQ 事件（不阻塞主流程）
+	// ==================== 异步事件发布 ====================
+
+	// 异步发布 RabbitMQ 事件
 	go func() {
 		event := &events.GiftSendSuccessEvent{
-			IdempotencyKey: giftRecord.IdempotencyKey.String(),
-			UserID:         giftRecord.UserID.String(),
-			AnchorID:       giftRecord.AnchorID.String(),
-			RoomID:         giftRecord.RoomID.String(),
-			GiftID:         giftRecord.GiftID.String(),
-			Amount:         giftRecord.Amount,
+			IdempotencyKey: idempotencyKey,
+			UserID:         userID,
+			AnchorID:       anchorID,
+			RoomID:         roomID,
+			GiftID:         giftID,
+			Amount:         req.Amount,
 		}
 		if err := h.publisher.PublishGiftSendSuccess(context.Background(), event); err != nil {
-			zap.L().Error("failed to publish gift event", zap.Error(err))
+			zap.L().Error("failed to publish gift event",
+				zap.String("idempotency_key", idempotencyKey.String()),
+				zap.String("user_id", userID.String()),
+				zap.Error(err))
+			// 3次重试都失败才会到这里，需要告警
+			// 可以发送告警（email/钉钉）给运维
 		}
 	}()
 
 	return &pb.SendGiftResponse{
-		GiftRecord: adapter.GiftRecordToDomainPB(giftRecord),
+		UserId:  userID.String(),
+		Balance: newBalance,
 	}, nil
 }
 

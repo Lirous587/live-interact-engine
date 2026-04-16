@@ -11,11 +11,11 @@ import (
 
 // GiftClient 封装 gRPC 礼物服务客户端
 type GiftClient struct {
-	conn                   *grpc.ClientConn
-	giftServiceClient      pb.GiftServiceClient
-	walletServiceClient    pb.WalletServiceClient
-	leaderboardClient      pb.LeaderboardServiceClient
-	giftRecordClient       pb.GiftRecordServiceClient
+	conn                *grpc.ClientConn
+	giftServiceClient   pb.GiftServiceClient
+	walletServiceClient pb.WalletServiceClient
+	leaderboardClient   pb.LeaderboardServiceClient
+	giftRecordClient    pb.GiftRecordServiceClient
 }
 
 // NewGiftClient 创建新的礼物服务客户端
@@ -41,11 +41,11 @@ func NewGiftClient(giftServiceURL string) (*GiftClient, error) {
 	giftRecordClient := pb.NewGiftRecordServiceClient(conn)
 
 	return &GiftClient{
-		conn:                   conn,
-		giftServiceClient:      giftServiceClient,
-		walletServiceClient:    walletServiceClient,
-		leaderboardClient:      leaderboardClient,
-		giftRecordClient:       giftRecordClient,
+		conn:                conn,
+		giftServiceClient:   giftServiceClient,
+		walletServiceClient: walletServiceClient,
+		leaderboardClient:   leaderboardClient,
+		giftRecordClient:    giftRecordClient,
 	}, nil
 }
 
@@ -57,12 +57,12 @@ func (c *GiftClient) Close() error {
 // ==================== GiftService 方法 ====================
 
 // SendGift 发送礼物
-func (c *GiftClient) SendGift(ctx context.Context, req *pb.SendGiftRequest) (*pb.GiftRecord, error) {
+func (c *GiftClient) SendGift(ctx context.Context, req *pb.SendGiftRequest) (*pb.SendGiftResponse, error) {
 	resp, err := c.giftServiceClient.SendGift(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.GiftRecord, nil
+	return resp, nil
 }
 
 // ListGifts 获取礼物列表

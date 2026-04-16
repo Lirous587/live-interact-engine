@@ -107,7 +107,8 @@ func (x *SendGiftRequest) GetAmount() int64 {
 
 type SendGiftResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	GiftRecord    *GiftRecord            `protobuf:"bytes,1,opt,name=gift_record,json=giftRecord,proto3" json:"gift_record,omitempty"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Balance       int64                  `protobuf:"varint,2,opt,name=balance,proto3" json:"balance,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -142,11 +143,18 @@ func (*SendGiftResponse) Descriptor() ([]byte, []int) {
 	return file_gift_gift_api_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *SendGiftResponse) GetGiftRecord() *GiftRecord {
+func (x *SendGiftResponse) GetUserId() string {
 	if x != nil {
-		return x.GiftRecord
+		return x.UserId
 	}
-	return nil
+	return ""
+}
+
+func (x *SendGiftResponse) GetBalance() int64 {
+	if x != nil {
+		return x.Balance
+	}
+	return 0
 }
 
 type GetWalletBalanceRequest struct {
@@ -633,9 +641,9 @@ const file_gift_gift_api_proto_rawDesc = "" +
 	"\aroom_id\x18\x04 \x01(\tR\x06roomId\x12\x17\n" +
 	"\agift_id\x18\x05 \x01(\tR\x06giftId\x12\x16\n" +
 	"\x06amount\x18\x06 \x01(\x03R\x06amount\"E\n" +
-	"\x10SendGiftResponse\x121\n" +
-	"\vgift_record\x18\x01 \x01(\v2\x10.gift.GiftRecordR\n" +
-	"giftRecord\"2\n" +
+	"\x10SendGiftResponse\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x18\n" +
+	"\abalance\x18\x02 \x01(\x03R\abalance\"2\n" +
 	"\x17GetWalletBalanceRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\"@\n" +
 	"\x18GetWalletBalanceResponse\x12$\n" +
@@ -689,23 +697,22 @@ var file_gift_gift_api_proto_goTypes = []any{
 	(*GetGiftRecordResponse)(nil),         // 9: gift.GetGiftRecordResponse
 	(*ListGiftRecordsByRoomRequest)(nil),  // 10: gift.ListGiftRecordsByRoomRequest
 	(*ListGiftRecordsByRoomResponse)(nil), // 11: gift.ListGiftRecordsByRoomResponse
-	(*GiftRecord)(nil),                    // 12: gift.GiftRecord
-	(*Wallet)(nil),                        // 13: gift.Wallet
-	(*Gift)(nil),                          // 14: gift.Gift
-	(*LeaderboardEntry)(nil),              // 15: gift.LeaderboardEntry
+	(*Wallet)(nil),                        // 12: gift.Wallet
+	(*Gift)(nil),                          // 13: gift.Gift
+	(*LeaderboardEntry)(nil),              // 14: gift.LeaderboardEntry
+	(*GiftRecord)(nil),                    // 15: gift.GiftRecord
 }
 var file_gift_gift_api_proto_depIdxs = []int32{
-	12, // 0: gift.SendGiftResponse.gift_record:type_name -> gift.GiftRecord
-	13, // 1: gift.GetWalletBalanceResponse.wallet:type_name -> gift.Wallet
-	14, // 2: gift.ListGiftsResponse.gifts:type_name -> gift.Gift
-	15, // 3: gift.GetLeaderboardResponse.entries:type_name -> gift.LeaderboardEntry
-	12, // 4: gift.GetGiftRecordResponse.gift_record:type_name -> gift.GiftRecord
-	12, // 5: gift.ListGiftRecordsByRoomResponse.gift_records:type_name -> gift.GiftRecord
-	6,  // [6:6] is the sub-list for method output_type
-	6,  // [6:6] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	12, // 0: gift.GetWalletBalanceResponse.wallet:type_name -> gift.Wallet
+	13, // 1: gift.ListGiftsResponse.gifts:type_name -> gift.Gift
+	14, // 2: gift.GetLeaderboardResponse.entries:type_name -> gift.LeaderboardEntry
+	15, // 3: gift.GetGiftRecordResponse.gift_record:type_name -> gift.GiftRecord
+	15, // 4: gift.ListGiftRecordsByRoomResponse.gift_records:type_name -> gift.GiftRecord
+	5,  // [5:5] is the sub-list for method output_type
+	5,  // [5:5] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_gift_gift_api_proto_init() }

@@ -51,6 +51,17 @@ func (g *Gift) ValidatePrice() bool {
 	return g.Price > 0
 }
 
+type GiftService interface {
+	GetGift(ctx context.Context, id uuid.UUID) (*Gift, error)
+	GetGiftByCacheKey(ctx context.Context, cacheKey string) (*Gift, error)
+	ListGiftsByStatus(ctx context.Context, status GiftStatus) ([]*Gift, error)
+	SaveGift(ctx context.Context, gift *Gift) error
+	DeleteGift(ctx context.Context, id uuid.UUID) error
+	LoadAllGiftsToCache(ctx context.Context) error
+	ValidateGiftForSending(ctx context.Context, giftID uuid.UUID, isUserVIP bool) (*Gift, error)
+	ValidateSendGiftRequest(ctx context.Context, userID uuid.UUID, anchorID uuid.UUID, giftID uuid.UUID, amount int64, isUserVIP bool) (*Gift, error)
+}
+
 // GiftRepository 礼物仓储接口
 type GiftRepository interface {
 	// SaveGift 保存或更新礼物

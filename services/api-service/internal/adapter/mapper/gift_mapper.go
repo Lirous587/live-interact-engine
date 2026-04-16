@@ -6,37 +6,46 @@ import (
 
 	client "live-interact-engine/services/api-service/internal/grpc_clients"
 	pb "live-interact-engine/shared/proto/gift"
+
+	"github.com/google/uuid"
 )
 
 // ==================== Gift 请求体定义 ====================
 
 // SendGiftReq 发送礼物请求体
 type SendGiftReq struct {
-	IdempotencyKey string `json:"idempotency_key" binding:"required,uuid4"`
-	UserID         string `json:"user_id" binding:"required,uuid4"`
-	AnchorID       string `json:"anchor_id" binding:"required,uuid4"`
-	RoomID         string `json:"room_id" binding:"required,uuid4"`
-	GiftID         string `json:"gift_id" binding:"required,uuid4"`
-	Amount         int64  `json:"amount" binding:"required,gt=0"`
+	userID   string `json:"-"`
+	AnchorID string `json:"anchor_id" binding:"required,uuid_rfc4122"`
+	RoomID   string `json:"room_id" binding:"required,uuid_rfc4122"`
+	GiftID   string `json:"gift_id" binding:"required,uuid_rfc4122"`
+	Amount   int64  `json:"amount" binding:"required,gt=0"`
 }
 
-// ListGiftsReq 获取礼物列表请求体
-type ListGiftsReq struct {
-	// 无参数，全量返回
+func (s *SendGiftReq) SetUserID(id string) {
+	s.userID = id
+}
+
+func (s *SendGiftReq) GetUserID() string {
+	return s.userID
+}
+
+type SendGiftResp struct {
+	UserID  string `json:"user_id"`
+	Balance int64  `json:"balance"`
 }
 
 // ==================== Wallet 请求体定义 ====================
 
 // GetWalletBalanceReq 获取钱包余额请求体
 type GetWalletBalanceReq struct {
-	UserID string `uri:"user_id" binding:"required,uuid4"`
+	UserID string `uri:"user_id" binding:"required,uuid_rfc4122"`
 }
 
 // ==================== Leaderboard 请求体定义 ====================
 
 // GetLeaderboardReq 获取排行榜请求体
 type GetLeaderboardReq struct {
-	RoomID string `uri:"room_id" binding:"required,uuid4"`
+	RoomID string `uri:"room_id" binding:"required,uuid_rfc4122"`
 	TopN   int32  `form:"top_n" binding:"omitempty,gte=1,lte=1000"`
 }
 
@@ -141,15 +150,20 @@ func NewLeaderboardMapper(giftClient *client.GiftClient) *LeaderboardMapper {
 // ==================== Gift 业务方法 ====================
 
 // SendGift 发送礼物
-func (m *GiftMapper) SendGift(ctx context.Context, req *SendGiftReq) (*GiftRecordResp, error) {
+func (m *GiftMapper) SendGift(ctx context.Context, req *SendGiftReq) (*SendGiftResp, error) {
 	if req == nil {
 		return nil, errors.New("request cannot be nil")
 	}
 
+	uuid, err := uuid.NewV7()
+	if err != nil {
+		return nil, err
+	}
+
 	// 构造 pb.SendGiftRequest
 	pbReq := &pb.SendGiftRequest{
-		IdempotencyKey: req.IdempotencyKey,
-		UserId:         req.UserID,
+		IdempotencyKey: uuid.String(),
+		UserId:         req.GetUserID(),
 		AnchorId:       req.AnchorID,
 		RoomId:         req.RoomID,
 		GiftId:         req.GiftID,
@@ -163,7 +177,10 @@ func (m *GiftMapper) SendGift(ctx context.Context, req *SendGiftReq) (*GiftRecor
 	}
 
 	// 转换响应
-	return pbGiftRecordToResp(pbResp), nil
+	return &SendGiftResp{
+		UserID:  pbResp.UserId,
+		Balance: pbResp.Balance,
+	}, nil
 }
 
 // ListGifts 获取礼物列表
@@ -262,25 +279,6 @@ func (m *LeaderboardMapper) GetLeaderboard(ctx context.Context, req *GetLeaderbo
 }
 
 // ==================== 转换函数 ====================
-
-// pbGiftRecordToResp 将 pb.GiftRecord 转换为 GiftRecordResp
-func pbGiftRecordToResp(pbRecord *pb.GiftRecord) *GiftRecordResp {
-	if pbRecord == nil {
-		return nil
-	}
-
-	return &GiftRecordResp{
-		IdempotencyKey: pbRecord.IdempotencyKey,
-		UserID:         pbRecord.UserId,
-		AnchorID:       pbRecord.AnchorId,
-		RoomID:         pbRecord.RoomId,
-		GiftID:         pbRecord.GiftId,
-		Amount:         pbRecord.Amount,
-		Status:         pbRecord.Status.String(),
-		CreatedAt:      pbRecord.CreatedAt,
-		UpdatedAt:      pbRecord.UpdatedAt,
-	}
-}
 
 // pbGiftToResp 将 pb.Gift 转换为 GiftResp
 func pbGiftToResp(pbGift *pb.Gift) *GiftResp {
