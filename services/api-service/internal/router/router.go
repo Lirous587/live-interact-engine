@@ -73,8 +73,7 @@ func registerDanmaka(r *gin.RouterGroup) {
 	// 注册路由
 	dg := r.Group("/danmaku")
 	{
-		dg.POST("/send", authMiddleware.Validate(), danmakuHandler.SendDanmaku)
-		dg.GET("/subscribe", authMiddleware.Validate(), danmakuHandler.SubscribeDanmaku)
+		dg.GET("/ws", authMiddleware.Validate(), danmakuHandler.ConnectDanmaku)
 	}
 }
 
