@@ -71,3 +71,7 @@ config.yaml
 
 .env.*
 services/danmaku-service/guidance.md
+
+
+.cursorrules
+.cursorignore

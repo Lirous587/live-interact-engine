@@ -3,25 +3,24 @@ package subscription
 import (
 	"fmt"
 	"live-interact-engine/services/danmaku-service/internal/domain"
+	"live-interact-engine/shared/env"
+
+	"github.com/redis/go-redis/v9"
 )
 
-// ManagerConfig 配置
-type ManagerConfig struct {
-	Type string // "memory" 或 "redis"
-	// Redis 配置
-	RedisAddr string
-	RedisDB   int
-}
-
-// NewManager 根据配置创建管理器
-func NewManager(cfg *ManagerConfig) (domain.SubscriptionManager, error) {
-	switch cfg.Type {
+// NewManager 根据环境变量 SUBSCRIPTION_TYPE 创建订阅管理器。
+// rdb 仅在 SUBSCRIPTION_TYPE=redis 时使用，memory 模式可传 nil。
+func NewManager(rdb *redis.Client) (domain.SubscriptionManager, error) {
+	subType := env.GetString("SUBSCRIPTION_TYPE", "memory")
+	switch subType {
+	case "redis":
+		if rdb == nil {
+			return nil, fmt.Errorf("redis client is required for redis subscription manager")
+		}
+		return NewRedisManager(rdb), nil
 	case "memory":
 		return NewMemoryManager(), nil
-	case "redis":
-		// return NewRedisManager(cfg.RedisAddr, cfg.RedisDB)
-		return nil, fmt.Errorf("redis manager 暂未实现")
 	default:
-		return nil, fmt.Errorf("unsupported subscription manager type: %s", cfg.Type)
+		return nil, fmt.Errorf("unsupported subscription manager type: %s", subType)
 	}
 }

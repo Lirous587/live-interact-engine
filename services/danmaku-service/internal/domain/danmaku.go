@@ -63,4 +63,6 @@ type DanmakuSubscriber chan *DanmakuModel
 type DanmakuService interface {
 	SendDanmaku(ctx context.Context, danmaku *DanmakuModel) (*DanmakuModel, error)
 	SubscribeDanmaku(ctx context.Context, roomID, userID string) (<-chan *DanmakuModel, error)
+	// GetRecentDanmaku 获取房间最近 limit 条弹幕（供新订阅者历史回放）
+	GetRecentDanmaku(ctx context.Context, roomID string, limit int) ([]*DanmakuModel, error)
 }

@@ -87,6 +87,15 @@ var (
 	)
 )
 
+// 限流相关错误
+var (
+	ErrRateLimitExceeded = svcerr.NewError(
+		svcerr.ErrorTypeForbidden,
+		codes.ResourceExhausted,
+		"sending too fast, please slow down",
+	)
+)
+
 // 内部服务错误
 var (
 	ErrServerInternal = svcerr.NewError(

@@ -11,8 +11,12 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	subscriberBufSize = 64 // 每个订阅者的 channel 缓冲大小
+	maxMissCount      = 3  // 连续 channel 满达到此值时熔断该订阅者
+)
+
 type MemoryManager struct {
-	// key: roomID, value: 订阅者列表
 	subscribers map[string][]*domain.Subscriber
 	mu          sync.RWMutex
 }
@@ -23,33 +27,32 @@ func NewMemoryManager() *MemoryManager {
 	}
 }
 
-// Subscribe 创建新的订阅
+// Subscribe 创建新的订阅，注册到本地 map 并启动 ctx 自动清理协程
 func (m *MemoryManager) Subscribe(ctx context.Context, roomID, userID string) (*domain.Subscriber, error) {
 	if roomID == "" {
-		return nil, errors.New("room_id 不能为空")
+		return nil, errors.New("room_id cannot be empty")
 	}
 
 	subscriber := &domain.Subscriber{
 		ID:        uuid.New().String(),
 		RoomID:    roomID,
 		UserID:    userID,
-		Ch:        make(chan *domain.DanmakuModel, 10),
+		Ch:        make(chan *domain.DanmakuModel, subscriberBufSize),
 		CreatedAt: time.Now(),
 		Ctx:       ctx,
 	}
 
-	// 注册订阅者
 	m.mu.Lock()
 	m.subscribers[roomID] = append(m.subscribers[roomID], subscriber)
 	m.mu.Unlock()
 
-	zap.L().Info("新增订阅",
+	zap.L().Info("subscriber added",
 		zap.String("subscriber_id", subscriber.ID),
 		zap.String("room_id", roomID),
 		zap.String("user_id", userID),
 	)
 
-	// 监听 context 取消，自动清理
+	// ctx 取消时自动清理（gRPC 流断开 / 超时均会触发）
 	go func() {
 		<-ctx.Done()
 		_ = m.Unsubscribe(subscriber)
@@ -58,84 +61,114 @@ func (m *MemoryManager) Subscribe(ctx context.Context, roomID, userID string) (*
 	return subscriber, nil
 }
 
-// Unsubscribe 取消订阅
+// Unsubscribe 取消订阅。使用 atomic CAS 保证 channel 只被关闭一次，
+// 即使 ctx.Done、慢消费者熔断两路同时触发也不会 panic。
 func (m *MemoryManager) Unsubscribe(subscriber *domain.Subscriber) error {
+	if !subscriber.MarkClosed() {
+		// 另一协程已经关闭过，直接返回
+		return nil
+	}
+
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	subs := m.subscribers[subscriber.RoomID]
 	for i, s := range subs {
 		if s.ID == subscriber.ID {
-			// 关闭 channel
 			close(s.Ch)
-			// 移除订阅者
 			m.subscribers[subscriber.RoomID] = append(subs[:i], subs[i+1:]...)
-
-			zap.L().Info("取消订阅",
+			zap.L().Info("subscriber removed",
 				zap.String("subscriber_id", subscriber.ID),
 				zap.String("room_id", subscriber.RoomID),
 			)
 			return nil
 		}
 	}
-
-	return errors.New("subscriber not found")
+	// 已经被移除（两路竞争但 MarkClosed 只让一路进来），不报错
+	return nil
 }
 
-// Broadcast 广播弹幕
+// Broadcast 向房间内所有本地订阅者扇出一条弹幕。
+//
+// 设计要点：
+//  1. 先在 RLock 下快照订阅者列表（指针拷贝），释放锁后再做 channel 发送，
+//     避免锁竞争影响吞吐量。
+//  2. 发送前检查 IsClosed()，跳过已关闭的订阅者（无需加锁）。
+//  3. channel 满时走 default 分支，累加 missCount；
+//     连续满 maxMissCount 次则主动 Unsubscribe，让客户端重连。
 func (m *MemoryManager) Broadcast(danmaku *domain.DanmakuModel) error {
 	m.mu.RLock()
 	subs := m.subscribers[danmaku.RoomId]
-	m.mu.RUnlock()
-
 	if len(subs) == 0 {
+		m.mu.RUnlock()
 		return nil
 	}
+	snapshot := make([]*domain.Subscriber, len(subs))
+	copy(snapshot, subs)
+	m.mu.RUnlock()
 
-	for _, sub := range subs {
+	var toEvict []*domain.Subscriber
+
+	for _, sub := range snapshot {
+		if sub.IsClosed() {
+			continue
+		}
 		select {
 		case sub.Ch <- danmaku:
-			// 发送成功
+			sub.ResetMiss()
 		default:
-			// channel 满了，丢弃
-			zap.L().Warn("弹幕 channel 已满，丢弃",
+			count := sub.IncrMiss()
+			zap.L().Warn("danmaku channel full, dropping message",
 				zap.String("subscriber_id", sub.ID),
 				zap.String("room_id", danmaku.RoomId),
+				zap.Int32("miss_count", count),
 			)
+			if count >= maxMissCount {
+				toEvict = append(toEvict, sub)
+			}
 		}
+	}
+
+	for _, sub := range toEvict {
+		zap.L().Warn("evicting slow consumer",
+			zap.String("subscriber_id", sub.ID),
+			zap.String("room_id", sub.RoomID),
+			zap.String("user_id", sub.UserID),
+		)
+		_ = m.Unsubscribe(sub)
 	}
 
 	return nil
 }
 
-// GetSubscriberCount 获取房间订阅者数量
+// GetSubscriberCount 获取房间当前本地订阅者数量
 func (m *MemoryManager) GetSubscriberCount(roomID string) int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return len(m.subscribers[roomID])
 }
 
-// GetSubscribers 获取房间所有订阅者
+// GetSubscribers 获取房间所有本地订阅者（返回快照副本）
 func (m *MemoryManager) GetSubscribers(roomID string) []*domain.Subscriber {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	subs := m.subscribers[roomID]
-
-	// 返回副本，避免外部修改
 	result := make([]*domain.Subscriber, len(subs))
 	copy(result, subs)
 	return result
 }
 
+// Close 关闭所有订阅者并清空 map
 func (m *MemoryManager) Close() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	for _, subs := range m.subscribers {
 		for _, sub := range subs {
-			close(sub.Ch)
+			if sub.MarkClosed() {
+				close(sub.Ch)
+			}
 		}
 	}
-
 	m.subscribers = make(map[string][]*domain.Subscriber)
 	return nil
 }
