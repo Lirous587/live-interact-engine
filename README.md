@@ -223,7 +223,33 @@ QoS=1，单个消费者一次只处理一条消息，处理完毕才 ACK 确认
 | 流水记录与余额不一致 | 数据库事务                  |
 | 消息丢失或顺序错乱   | RabbitMQ QoS 保序           |
 
-**实际测试结果**：在单个充值操作上施加 10+ 并发打赏请求，系统稳定处理，余额计算完全正确，无一遗漏或重复。
+---
+
+## 性能基准
+
+> 测试工具：[k6](https://k6.io/)  ·  测试脚本：`test/`  ·  环境：Docker Compose，宿主机 2 CPU
+
+### 弹幕服务
+
+| 指标 | 数值 |
+|------|------|
+| 并发 WebSocket 连接 | 1000 |
+| 弹幕接收吞吐 | **30,597 条/秒** |
+| WebSocket 错误率 | **0.00%** |
+| 连接建立 p(95) | 97ms |
+| 所有会话完整生命周期 | ✓ 无提前断开 |
+
+### 礼物打赏服务（单主播场景）
+
+| 指标 | 优化前 | 优化后 |
+|------|--------|--------|
+| 稳定吞吐 | 348 RPS | **1097 RPS** (+215%) |
+| p(95) 延迟 | 2.24s | **593ms** (-73%) |
+| 错误率 | 2.11% | **0.00%** |
+| max 延迟 | 10.55s | 1.09s |
+
+> 瓶颈分析：单主播场景下所有观众的 Redis Lua 扣款串行排队，是当前 2 CPU Docker 环境下的核心瓶颈。真实生产 4～8 核独立部署预计还有 3～5x 提升空间。
+> 详细报告见 [test/STRESS_TEST_REPORT.md](test/STRESS_TEST_REPORT.md)。
 
 ---
 
@@ -264,15 +290,43 @@ QoS=1，单个消费者一次只处理一条消息，处理完毕才 ACK 确认
 ### 本地开发
 
 ```bash
-# 启动基础设施 (数据库、缓存、消息队列)
+# 编译 + 构建镜像 + 启动所有服务
 make rebuild
+
+# 初始化礼物数据（首次启动后执行）
+make seed-gifts
 ```
 
-### API文档
+### 常用命令
 
 ```bash
-# 查看 Swagger 文档
-open http://localhost:8080/swagger/index.html
+make up            # 启动所有服务
+make down          # 停止所有服务
+make rebuild       # 重新构建并启动
+make seed-gifts    # 初始化礼物 seed 数据
+make logs          # 查看 api-service 日志
+make clean         # 完全清理（含数据卷）
+```
+
+### 可观测性
+
+| 服务 | 地址 |
+|------|------|
+| API | http://localhost:8080 |
+| Swagger 文档 | http://localhost:8080/swagger/index.html |
+| Jaeger 链路追踪 | http://localhost:16686 |
+| Prometheus 指标 | http://localhost:9091 |
+| Grafana 面板 | http://localhost:3000 |
+| RabbitMQ 管理 | http://localhost:15672 |
+
+### 压力测试
+
+```bash
+# 礼物打赏压测
+k6 run -e BASE_URL=http://localhost:8080 test/gift_stress_test.js
+
+# 弹幕服务压测
+k6 run -e BASE_URL=http://localhost:8080 test/danmaku_stress_test.js
 ```
 
 ---
@@ -290,16 +344,6 @@ make rebuild
 参考 `infra/production/k8s/` 目录的配置文件。
 
 ---
-
-## 测试
-
-```bash
-# 单元测试
-make test
-
-# 集成测试
-make test-integration
-```
 
 ---
 
