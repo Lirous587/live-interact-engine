@@ -58,8 +58,13 @@ func (h *danmakuHistory) Push(ctx context.Context, danmaku *domain.DanmakuModel)
 func (h *danmakuHistory) GetRecent(ctx context.Context, roomID string, limit int) ([]*domain.DanmakuModel, error) {
 	key := historyKeyPrefix + roomID
 
-	// ZRevRange 0 ~ limit-1 取最近 N 条（降序）
-	results, err := h.client.ZRevRange(ctx, key, 0, int64(limit-1)).Result()
+	// ZRangeArgs with Rev=true 取分数最高（最新）的 N 条（降序）
+	results, err := h.client.ZRangeArgs(ctx, redis.ZRangeArgs{
+		Key:   key,
+		Start: 0,
+		Stop:  int64(limit - 1),
+		Rev:   true,
+	}).Result()
 	if err != nil {
 		return nil, err
 	}

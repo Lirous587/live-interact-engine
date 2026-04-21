@@ -126,8 +126,13 @@ func (h *DanmakuHandler) ConnectDanmaku(c *gin.Context) {
 			select {
 			case danmaku, ok := <-danmakuChan:
 				if !ok {
-					zap.L().Debug("[ConnectDanmaku] danmaku channel closed, exiting write loop",
+					// gRPC 订阅流正常结束（订阅者被熔断或服务关闭）。
+					// 发送 WS CloseFrame 让客户端感知到优雅关闭，而非 TCP reset。
+					zap.L().Debug("[ConnectDanmaku] danmaku channel closed, sending ws close frame",
 						zap.String("room_id", roomID))
+					_ = conn.SetWriteDeadline(time.Now().Add(wsWriteWait))
+					_ = conn.WriteMessage(websocket.CloseMessage,
+						websocket.FormatCloseMessage(websocket.CloseNormalClosure, "stream closed"))
 					return
 				}
 				_ = conn.SetWriteDeadline(time.Now().Add(wsWriteWait))

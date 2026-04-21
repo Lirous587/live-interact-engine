@@ -3,10 +3,8 @@ package grpc_clients
 import (
 	"context"
 	pb "live-interact-engine/shared/proto/room"
-	"live-interact-engine/shared/telemetry"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 // RoomClient 封装 gRPC 房间服务客户端
@@ -17,15 +15,9 @@ type RoomClient struct {
 
 // NewRoomClient 创建新的房间客户端
 func NewRoomClient(roomServiceURL string) (*RoomClient, error) {
-	dialOptions := append(
-		telemetry.SetupGRPCClientTracing(),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-
-	// 连接到 room-service
 	conn, err := grpc.NewClient(
 		roomServiceURL,
-		dialOptions...,
+		defaultDialOptions()...,
 	)
 	if err != nil {
 		return nil, err

@@ -5,14 +5,12 @@ import (
 	"errors"
 	"io"
 	pb "live-interact-engine/shared/proto/danmaku"
-	"live-interact-engine/shared/telemetry"
 	"log"
 
 	oteltrace "go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 )
 
@@ -24,15 +22,9 @@ type DanmakuClient struct {
 
 // NewDanmakuClient 创建新的 danmaku 客户端
 func NewDanmakuClient(danmakuServiceURL string) (*DanmakuClient, error) {
-	dialOptions := append(
-		telemetry.SetupGRPCClientTracing(),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-
-	// 连接到 danmaku-service
 	conn, err := grpc.NewClient(
 		danmakuServiceURL,
-		dialOptions...,
+		defaultDialOptions()...,
 	)
 	if err != nil {
 		return nil, err

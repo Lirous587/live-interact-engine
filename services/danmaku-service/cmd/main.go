@@ -14,17 +14,18 @@ import (
 	redisrepo "live-interact-engine/services/danmaku-service/internal/infrastructure/repository/redis"
 	"live-interact-engine/services/danmaku-service/internal/infrastructure/subscription"
 	"live-interact-engine/services/danmaku-service/internal/service"
-	"live-interact-engine/services/danmaku-service/internal/domain"
 	"live-interact-engine/shared/env"
 	_ "live-interact-engine/shared/logger"
 	pb "live-interact-engine/shared/proto/danmaku"
 	"live-interact-engine/shared/telemetry"
 
+	"github.com/nats-io/nats.go"
 	"google.golang.org/grpc"
 )
 
 var (
 	grpcAddr = env.GetString("GRPC_ADDR", ":9093")
+	natsURL  = env.GetString("NATS_URL", nats.DefaultURL)
 )
 
 func main() {
@@ -41,34 +42,41 @@ func main() {
 		}
 	}()
 
-	// ==================== 初始化 Redis ====================
-	// Redis 为可选依赖：连接失败时降级为纯内存模式（单实例 / 开发环境）
-	log.Println("Initializing Redis client...")
-	rdb, redisErr := redisrepo.NewClient()
-	if redisErr != nil {
-		log.Printf("Warning: Redis unavailable (%v), falling back to memory mode", redisErr)
+	// ==================== 初始化 Redis（历史回放 + 限流）====================
+	log.Println("Connecting to Redis...")
+	rdb, err := redisrepo.NewClient()
+	if err != nil {
+		log.Fatalf("Redis unavailable: %v", err)
 	}
 
-	// ==================== 初始化订阅管理器 ====================
-	// 环境变量 SUBSCRIPTION_TYPE=redis 使用跨节点 Pub/Sub；默认 memory
-	subManager, err := subscription.NewManager(rdb)
+	// ==================== 初始化 NATS（跨节点广播，必选依赖）====================
+	log.Printf("Connecting to NATS at %s...", natsURL)
+	nc, err := nats.Connect(natsURL,
+		nats.Name("danmaku-service"),
+		nats.MaxReconnects(-1),           // 无限重连
+		nats.ReconnectWait(2*time.Second),
+		nats.DisconnectErrHandler(func(_ *nats.Conn, err error) {
+			log.Printf("NATS disconnected: %v", err)
+		}),
+		nats.ReconnectHandler(func(nc *nats.Conn) {
+			log.Printf("NATS reconnected to %s", nc.ConnectedUrl())
+		}),
+	)
 	if err != nil {
-		log.Fatalf("failed to init subscription manager: %v", err)
+		log.Fatalf("NATS unavailable: %v", err)
+	}
+	defer nc.Drain()
+
+	// ==================== 初始化订阅管理器 ====================
+	subManager, err := subscription.NewNATSManager(nc)
+	if err != nil {
+		log.Fatalf("subscription manager init failed: %v", err)
 	}
 	defer subManager.Close()
 
 	// ==================== 初始化历史回放 & 限流器 ====================
-	// 两者均依赖 Redis；Redis 不可用时置 nil，service 层会安全跳过（fail-open）
-	var danmakuHistory domain.DanmakuHistory
-	var rateLimiter domain.RateLimiter
-
-	if redisErr == nil {
-		danmakuHistory = redisrepo.NewDanmakuHistory(rdb)
-		rateLimiter = ratelimit.NewDanmakuRateLimiter(rdb)
-		log.Println("History replay and rate limiting enabled")
-	} else {
-		log.Println("Warning: history replay and rate limiting disabled (no Redis)")
-	}
+	danmakuHistory := redisrepo.NewDanmakuHistory(rdb)
+	rateLimiter := ratelimit.NewDanmakuRateLimiter(rdb)
 
 	// ==================== 初始化 Service & Handler ====================
 	danmakuSvc := service.NewDanmakuService(subManager, danmakuHistory, rateLimiter)

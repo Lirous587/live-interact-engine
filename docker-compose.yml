@@ -12,7 +12,7 @@ services:
       - "9100:9100" # Metrics 端口
     environment:
       # 服务配置
-      - SERVER_MODE=dev
+      - SERVER_MODE=test
       - SERVER_PORT=8080
       - SERVER_ALLOW_ORIGINS=*
 
@@ -24,7 +24,7 @@ services:
       - LOG_MAX_BACKUPS=5
 
       # 链路追踪
-      - TRACE_SAMPLE_RATE=1.0
+      - TRACE_SAMPLE_RATE=0.1
       - JAEGER_ENDPOINT=jaeger:4318
 
       # 指标
@@ -62,13 +62,23 @@ services:
       - LOG_MAX_BACKUPS=5
 
       # 链路追踪
+      - SERVER_MODE=test
+      - TRACE_SAMPLE_RATE=0.1
       - JAEGER_ENDPOINT=jaeger:4318
 
       # 依赖服务
       - ROOM_SERVICE_URL=room-service:9095
+      - NATS_URL=nats://nats:4222
+
+      # Redis（历史回放 + 限流）
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
     depends_on:
       - jaeger
       - room-service
+      - nats
+      - redis
     networks:
       - live-interact
 
@@ -112,6 +122,8 @@ services:
       - ENT_MODE=dev
 
       # 链路追踪
+      - SERVER_MODE=test
+      - TRACE_SAMPLE_RATE=0.1
       - JAEGER_ENDPOINT=jaeger:4318
 
       # Gift Service 地址
@@ -155,6 +167,8 @@ services:
       - POSTGRES_MAX_CONN_IDLE_TIME_SECONDS=60
 
       # 链路追踪
+      - SERVER_MODE=test
+      - TRACE_SAMPLE_RATE=0.1
       - JAEGER_ENDPOINT=jaeger:4318
     depends_on:
       - jaeger
@@ -183,24 +197,28 @@ services:
 
       # PostgreSQL 配置
       - DATABASE_DSN=postgres://postgres:password@postgres:5432/gift_service?sslmode=disable
-      - POSTGRES_MAX_CONNS=25
-      - POSTGRES_MIN_CONNS=5
+      - POSTGRES_MAX_CONNS=100
+      - POSTGRES_MIN_CONNS=10
       - POSTGRES_MAX_CONN_LIFETIME_SECONDS=300
       - POSTGRES_MAX_CONN_IDLE_TIME_SECONDS=60
-  
+
       # ent配置
       - ENT_MODE=dev
-
 
       # Redis 配置
       - REDIS_ADDR=redis:6379
       - REDIS_PASSWORD=
       - REDIS_DB=0
+      - REDIS_POOL_SIZE=100
+      - REDIS_MIN_IDLE_CONNS=20
+      - REDIS_POOL_TIMEOUT_SECONDS=5
 
       # RabbitMQ 配置
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
 
       # 链路追踪
+      - SERVER_MODE=test
+      - TRACE_SAMPLE_RATE=0.1
       - JAEGER_ENDPOINT=jaeger:4318
     depends_on:
       jaeger:
@@ -316,6 +334,14 @@ services:
       - live-interact
     depends_on:
       - prometheus
+
+  nats:
+    image: nats:alpine
+    container_name: nats
+    ports:
+      - "4222:4222"
+    networks:
+      - live-interact
 
 networks:
   live-interact:

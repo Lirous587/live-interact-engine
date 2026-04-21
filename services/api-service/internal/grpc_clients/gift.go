@@ -3,10 +3,8 @@ package grpc_clients
 import (
 	"context"
 	pb "live-interact-engine/shared/proto/gift"
-	"live-interact-engine/shared/telemetry"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 // GiftClient 封装 gRPC 礼物服务客户端
@@ -18,15 +16,9 @@ type GiftClient struct {
 
 // NewGiftClient 创建新的礼物服务客户端
 func NewGiftClient(giftServiceURL string) (*GiftClient, error) {
-	dialOptions := append(
-		telemetry.SetupGRPCClientTracing(),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-
-	// 连接到 gift-service
 	conn, err := grpc.NewClient(
 		giftServiceURL,
-		dialOptions...,
+		defaultDialOptions()...,
 	)
 	if err != nil {
 		return nil, err

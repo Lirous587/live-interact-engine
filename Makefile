@@ -84,6 +84,12 @@ rebuild-gift: build-services
 		docker-compose up -d --build gift-service
 		@echo "✓ gift-service rebuilt!"
 
+# 初始化礼物 seed 数据（需服务已启动，PostgreSQL 可访问）
+.PHONY: seed-gifts
+seed-gifts:
+		powershell -Command "$$env:DATABASE_DSN='postgres://postgres:password@localhost:5433/gift_service?sslmode=disable'; $$env:ENT_MODE='prod'; go run ./services/gift-service/cmd/seed"
+		@echo "✓ 礼物数据初始化完成！"
+
 # 完全清理（删除所有，包括数据）
 .PHONY: clean
 clean:

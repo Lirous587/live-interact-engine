@@ -52,13 +52,9 @@ func (g *Gift) ValidatePrice() bool {
 }
 
 type GiftService interface {
-	GetGift(ctx context.Context, id uuid.UUID) (*Gift, error)
-	GetGiftByCacheKey(ctx context.Context, cacheKey string) (*Gift, error)
+	// ListGiftsByStatus 列出指定状态的礼物（带 Redis 列表缓存）
 	ListGiftsByStatus(ctx context.Context, status GiftStatus) ([]*Gift, error)
-	SaveGift(ctx context.Context, gift *Gift) error
-	DeleteGift(ctx context.Context, id uuid.UUID) error
-	LoadAllGiftsToCache(ctx context.Context) error
-	ValidateGiftForSending(ctx context.Context, giftID uuid.UUID, isUserVIP bool) (*Gift, error)
+	// ValidateSendGiftRequest 完整校验发送礼物请求（自赠/金额/礼物状态/VIP）
 	ValidateSendGiftRequest(ctx context.Context, userID uuid.UUID, anchorID uuid.UUID, giftID uuid.UUID, amount int64, isUserVIP bool) (*Gift, error)
 }
 
@@ -82,18 +78,15 @@ type GiftRepository interface {
 
 // GiftCache 礼物缓存接口
 type GiftCache interface {
-	// GetGift 从缓存获取礼物
+	// GetGift 按 cacheKey 获取单个礼物（供 ValidateGiftForSending 使用）
 	GetGift(ctx context.Context, cacheKey string) (*Gift, error)
 
-	// SetGift 将礼物存入缓存（永不过期，因为礼物配置基本不变）
+	// SetGift 写入单个礼物缓存（永不过期，礼物配置基本不变）
 	SetGift(ctx context.Context, cacheKey string, gift *Gift) error
 
-	// LoadAllGifts 加载所有礼物到缓存（启动时调用）
-	LoadAllGifts(ctx context.Context, gifts []*Gift) error
+	// GetGiftList 获取指定状态的礼物列表缓存，未命中返回 nil
+	GetGiftList(ctx context.Context, status GiftStatus) ([]*Gift, error)
 
-	// ClearGiftCache 清空礼物缓存
-	ClearGiftCache(ctx context.Context) error
-
-	// DeleteGift 删除单个礼物缓存
-	DeleteGift(ctx context.Context, cacheKey string) error
+	// SetGiftList 写入礼物列表缓存（短 TTL，避免脏数据长期存在）
+	SetGiftList(ctx context.Context, status GiftStatus, gifts []*Gift) error
 }

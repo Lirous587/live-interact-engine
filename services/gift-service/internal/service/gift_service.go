@@ -7,11 +7,14 @@ import (
 	"live-interact-engine/services/gift-service/pkg/types"
 
 	"github.com/google/uuid"
+	"go.uber.org/zap"
+	"golang.org/x/sync/singleflight"
 )
 
 type GiftService struct {
 	giftRepo  domain.GiftRepository
 	giftCache domain.GiftCache
+	sfGroup   singleflight.Group
 }
 
 func NewGiftService(
@@ -24,138 +27,50 @@ func NewGiftService(
 	}
 }
 
-// GetGift 根据ID获取礼物
-func (s *GiftService) GetGift(ctx context.Context, id uuid.UUID) (*domain.Gift, error) {
-	gift, err := s.giftRepo.GetGift(ctx, id)
-	if err != nil {
-		return nil, types.ErrInternalDatabase
-	}
-	if gift == nil {
-		return nil, types.ErrGiftNotFound
-	}
-	return gift, nil
-}
-
-// GetGiftByCacheKey 根据缓存键获取礼物
-func (s *GiftService) GetGiftByCacheKey(ctx context.Context, cacheKey string) (*domain.Gift, error) {
-	// 先从缓存获取
-	cachedGift, err := s.giftCache.GetGift(ctx, cacheKey)
-	if err != nil {
-		// 缓存错误继续走数据库
-		_ = err
-	}
-	if cachedGift != nil {
-		return cachedGift, nil
-	}
-
-	// 缓存未命中，从数据库查询
-	gift, err := s.giftRepo.GetGiftByCacheKey(ctx, cacheKey)
-	if err != nil {
-		return nil, types.ErrInternalDatabase
-	}
-	if gift == nil {
-		return nil, types.ErrGiftNotFound
-	}
-
-	// 回写到缓存
-	if err := s.giftCache.SetGift(ctx, cacheKey, gift); err != nil {
-		// 缓存回写失败不影响主流程
-		_ = err
-	}
-
-	return gift, nil
-}
-
-// ListGiftsByStatus 列出指定状态的礼物
+// ListGiftsByStatus 列出指定状态的礼物。
+//
+// 缓存策略：Cache-Aside + singleflight
+//  1. 先读 Redis 列表缓存（key = gift:list:{status}，TTL = 5min）
+//  2. 缓存命中直接返回
+//  3. 缓存未命中：singleflight 合并并发的 DB 查询，只有一个 goroutine 真正打 DB，
+//     其余等待并共享同一份结果，防止缓存过期时的 cache stampede
 func (s *GiftService) ListGiftsByStatus(ctx context.Context, status domain.GiftStatus) ([]*domain.Gift, error) {
-	return s.giftRepo.ListGiftsByStatus(ctx, status)
-}
-
-// SaveGift 保存或更新礼物，同时更新缓存
-func (s *GiftService) SaveGift(ctx context.Context, gift *domain.Gift) error {
-	// 先保存到数据库
-	if err := s.giftRepo.SaveGift(ctx, gift); err != nil {
-		return types.ErrInternalDatabase
-	}
-
-	// 再更新缓存
-	if err := s.giftCache.SetGift(ctx, gift.CacheKey, gift); err != nil {
-		// 缓存更新失败不影响主流程
-		_ = err
-	}
-
-	return nil
-}
-
-// DeleteGift 删除礼物，同时清除缓存
-func (s *GiftService) DeleteGift(ctx context.Context, id uuid.UUID) error {
-	// 先获取礼物信息（用于删除缓存）
-	gift, err := s.giftRepo.GetGift(ctx, id)
+	cached, err := s.giftCache.GetGiftList(ctx, status)
 	if err != nil {
-		return types.ErrInternalDatabase
+		zap.L().Warn("gift list cache read failed, falling back to DB",
+			zap.String("status", string(status)),
+			zap.Error(err),
+		)
 	}
-	if gift == nil {
-		return types.ErrGiftNotFound
-	}
-
-	// 删除数据库中的礼物
-	if err := s.giftRepo.DeleteGift(ctx, id); err != nil {
-		return types.ErrInternalDatabase
+	if cached != nil {
+		return cached, nil
 	}
 
-	// 清除缓存
-	if err := s.giftCache.DeleteGift(ctx, gift.CacheKey); err != nil {
-		// 缓存删除失败不影响主流程
-		_ = err
-	}
-
-	return nil
-}
-
-// LoadAllGiftsToCache 将所有在线礼物加载到缓存
-func (s *GiftService) LoadAllGiftsToCache(ctx context.Context) error {
-	// 查询所有在线礼物
-	gifts, err := s.giftRepo.ListGiftsByStatus(ctx, domain.GiftStatusOnline)
-	if err != nil {
-		return types.ErrInternalDatabase
-	}
-
-	// 批量加载到缓存
-	if err := s.giftCache.LoadAllGifts(ctx, gifts); err != nil {
-		return types.ErrInternalCache
-	}
-	return nil
-}
-
-// ValidateGiftForSending 检查礼物是否可以被送出
-// 返回礼物对象和错误信息
-func (s *GiftService) ValidateGiftForSending(ctx context.Context, giftID uuid.UUID, isUserVIP bool) (*domain.Gift, error) {
-	// 获取礼物
-	gift, err := s.GetGift(ctx, giftID)
+	v, err, _ := s.sfGroup.Do("list:"+string(status), func() (any, error) {
+		gifts, err := s.giftRepo.ListGiftsByStatus(ctx, status)
+		if err != nil {
+			return nil, types.ErrInternalDatabase
+		}
+		if len(gifts) == 0 {
+			zap.L().Warn("gift list is empty", zap.String("status", string(status)))
+			return nil, types.ErrInternalDatabase
+		}
+		if err := s.giftCache.SetGiftList(ctx, status, gifts); err != nil {
+			zap.L().Warn("gift list cache write failed",
+				zap.String("status", string(status)),
+				zap.Error(err),
+			)
+		}
+		return gifts, nil
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	// 检查礼物是否可用
-	if !gift.IsAvailable() {
-		return nil, types.ErrGiftNotAvailable
-	}
-
-	// 检查用户是否可以送这个礼物（VIP限制）
-	if !gift.CanSendByUser(isUserVIP) {
-		return nil, types.ErrGiftVIPOnly
-	}
-
-	// 检查礼物价格有效性
-	if !gift.ValidatePrice() {
-		return nil, types.ErrInvalidAmount
-	}
-
-	return gift, nil
+	return v.([]*domain.Gift), nil
 }
 
-// ValidateSendGiftRequest 验证发送礼物的完整权限检查
-// 包括自我赠送检查、金额验证、礼物状态验证等
+// ValidateSendGiftRequest 完整校验发送礼物请求：自赠检查 → 金额检查 → 礼物状态/VIP 检查。
 func (s *GiftService) ValidateSendGiftRequest(
 	ctx context.Context,
 	userID uuid.UUID,
@@ -164,20 +79,61 @@ func (s *GiftService) ValidateSendGiftRequest(
 	amount int64,
 	isUserVIP bool,
 ) (*domain.Gift, error) {
-	// 1. 检查自我赠送
 	if userID == anchorID {
 		return nil, types.ErrSelfGifting
 	}
 
-	// 2. 检查礼物金额有效性
 	if amount <= 0 {
 		return nil, types.ErrInvalidAmount
 	}
 
-	// 3. 验证礼物（状态、VIP限制等）
-	gift, err := s.ValidateGiftForSending(ctx, giftID, isUserVIP)
+	return s.validateGiftForSending(ctx, giftID, isUserVIP)
+}
+
+// validateGiftForSending 检查礼物是否可被送出（状态 / VIP 限制 / 价格合法性）。
+// 采用 Cache-Aside：先按 cacheKey 查 Redis，未命中再查 DB 并回写。
+func (s *GiftService) validateGiftForSending(ctx context.Context, giftID uuid.UUID, isUserVIP bool) (*domain.Gift, error) {
+	gift, err := s.getGift(ctx, giftID)
 	if err != nil {
 		return nil, err
+	}
+
+	if !gift.IsAvailable() {
+		return nil, types.ErrGiftNotAvailable
+	}
+
+	if !gift.CanSendByUser(isUserVIP) {
+		return nil, types.ErrGiftVIPOnly
+	}
+
+	if !gift.ValidatePrice() {
+		return nil, types.ErrInvalidAmount
+	}
+
+	return gift, nil
+}
+
+// getGift 按 ID 获取礼物，Cache-Aside：先查 Redis，未命中再查数据库并回写。
+func (s *GiftService) getGift(ctx context.Context, id uuid.UUID) (*domain.Gift, error) {
+	cacheKey := id.String()
+
+	if cached, err := s.giftCache.GetGift(ctx, cacheKey); err == nil && cached != nil {
+		return cached, nil
+	}
+
+	gift, err := s.giftRepo.GetGift(ctx, id)
+	if err != nil {
+		return nil, types.ErrInternalDatabase
+	}
+	if gift == nil {
+		return nil, types.ErrGiftNotFound
+	}
+
+	if err := s.giftCache.SetGift(ctx, cacheKey, gift); err != nil {
+		zap.L().Warn("gift single cache write failed",
+			zap.String("gift_id", id.String()),
+			zap.Error(err),
+		)
 	}
 
 	return gift, nil

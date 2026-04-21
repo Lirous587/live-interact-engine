@@ -3,11 +3,16 @@ package redis
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"live-interact-engine/services/gift-service/internal/domain"
 
 	"github.com/redis/go-redis/v9"
 )
+
+// giftListTTL 礼物列表缓存有效期。
+// 礼物配置低频变更，5 分钟 TTL 在数据一致性与缓存效率间取得平衡。
+const giftListTTL = 5 * time.Minute
 
 type giftCache struct {
 	client *redis.Client
@@ -80,4 +85,32 @@ func (c *giftCache) ClearGiftCache(ctx context.Context) error {
 func (c *giftCache) DeleteGift(ctx context.Context, cacheKey string) error {
 	key := c.prefix + cacheKey
 	return c.client.Del(ctx, key).Err()
+}
+
+// GetGiftList 获取指定状态的礼物列表缓存。缓存未命中时返回 (nil, nil)。
+func (c *giftCache) GetGiftList(ctx context.Context, status domain.GiftStatus) ([]*domain.Gift, error) {
+	key := c.prefix + "list:" + string(status)
+	data, err := c.client.Get(ctx, key).Result()
+	if err == redis.Nil {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	var gifts []*domain.Gift
+	if err := json.Unmarshal([]byte(data), &gifts); err != nil {
+		return nil, err
+	}
+	return gifts, nil
+}
+
+// SetGiftList 写入礼物列表缓存，TTL = giftListTTL（5 分钟）。
+func (c *giftCache) SetGiftList(ctx context.Context, status domain.GiftStatus, gifts []*domain.Gift) error {
+	key := c.prefix + "list:" + string(status)
+	data, err := json.Marshal(gifts)
+	if err != nil {
+		return err
+	}
+	return c.client.Set(ctx, key, data, giftListTTL).Err()
 }

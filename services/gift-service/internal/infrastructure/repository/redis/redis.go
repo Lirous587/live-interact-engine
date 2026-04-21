@@ -15,10 +15,17 @@ func NewClient() (*redis.Client, error) {
 	password := env.GetString("REDIS_PASSWORD", "")
 	db := env.GetInt("REDIS_DB", 0)
 
+	poolSize := env.GetInt("REDIS_POOL_SIZE", 50)
+	minIdleConns := env.GetInt("REDIS_MIN_IDLE_CONNS", 10)
+	poolTimeoutSec := env.GetInt("REDIS_POOL_TIMEOUT_SECONDS", 5)
+
 	client := redis.NewClient(&redis.Options{
-		Addr:     addr,
-		Password: password,
-		DB:       db,
+		Addr:         addr,
+		Password:     password,
+		DB:           db,
+		PoolSize:     poolSize,
+		MinIdleConns: minIdleConns,
+		PoolTimeout:  time.Duration(poolTimeoutSec) * time.Second,
 	})
 
 	// 注册 OpenTelemetry 链路追踪

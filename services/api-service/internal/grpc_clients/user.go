@@ -3,10 +3,8 @@ package grpc_clients
 import (
 	"context"
 	pb "live-interact-engine/shared/proto/user"
-	"live-interact-engine/shared/telemetry"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 // UserClient 封装 gRPC 用户服务客户端
@@ -17,15 +15,9 @@ type UserClient struct {
 
 // NewUserClient 创建新的用户客户端
 func NewUserClient(userServiceURL string) (*UserClient, error) {
-	dialOptions := append(
-		telemetry.SetupGRPCClientTracing(),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-
-	// 连接到 user-service
 	conn, err := grpc.NewClient(
 		userServiceURL,
-		dialOptions...,
+		defaultDialOptions()...,
 	)
 	if err != nil {
 		return nil, err
